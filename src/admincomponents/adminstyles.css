@@ -1,0 +1,147 @@
+
+ /* Styling for header and footer */
+ header {
+    height: 60px; 
+    background-color: #285c41;
+    color: white;
+    text-align: center;
+    line-height: 60px;
+    margin-bottom: 10px;
+}
+
+
+body, html {
+    height: 70%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 20px;
+}
+
+.buttonSection {
+    height: 60vh; /* Set section height to 60% of viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.buttonContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; 
+    max-width: 400px; 
+}
+
+button {
+    width: 175px; 
+    height: 75px; 
+    padding: 10px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: #285c41;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2); /* Horizontal offset, vertical offset, blur radius, color */
+}
+
+button:hover {
+    transform: scale(1.05); /* Button scale on hover for interactivity */
+    box-shadow: 4px 4px 7px rgba(0, 0, 0, 0.3);
+}
+
+
+
+#userForm, #addCategoryForm, #manageUser, #manageCategory,
+ #manageBites, #addBitesForm, #editBitesForm, 
+ #editCategoryForm, #manageSubCategory, 
+ #addSubCategoryForm, #editSubCategoryForm, #manageMissions, 
+ #addMissionsForm, #editMissionsForm, #managePartner, 
+ #newPartnerForm, #editPartnerForm {
+    display:block;
+    position: fixed;
+    top: 10vh; 
+    left: 20px;
+    right: 20px;   
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left; /* Aligned form content to the left */
+    height:auto;
+    width: 80vw;
+    max-width: 80%;
+    z-index: 9999;
+    margin:auto;
+    overflow: auto; /* Enable scrolling if needed */
+}
+
+
+
+label {
+    display: inline-block;
+    width: 30%; /* Adjusted width for labels */
+    text-align: left; /* Align labels to the right */
+    margin-right: 10px; /* Add some spacing between labels and input fields */
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+select {
+    width: 60%; /* Adjusted width for input fields */
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+textarea {
+    width: calc(100% - 20px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+    margin-bottom: 10px;
+}
+
+input[type="submit"],
+.formbutton {
+    width: 150px;
+    height: 30px;
+    padding: 20px;
+    border: none;
+    border-radius: 15px;
+    background-color: #285c41;;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+    display: block;
+   
+}
+
+input[type="submit"]:hover,
+.formbutton:hover {
+    background-color: #285c41;;
+}
+
+.closeButton {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    font-weight: bolder;
+    font-size: xx-large;
+}
+button.searchButton, #addCriteriaBtn {
+    width: 20%; /* Adjusted width for the search button */
+    height: 20%;
+    margin-left: 5px; /* Added margin for spacing */
+    margin-bottom: 20px;
+}
