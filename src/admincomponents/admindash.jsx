@@ -6,11 +6,9 @@ import Manage_missions from './managemissions';
 import ManageUsers from './manageuser'
 import AddNewUser from './addnewuser';
 import ManageBites from './managebites';
-import AddNewBite from './addnewbite';
 import ManageSubCategory from './managesubcategory';
-import AddNewSubCategory from './addnewsubcategory';
-import ManagePartner from './managepartners';
-import AddNewPartner from './addnewpartner';
+import ManagePartner from './managesponsors';
+
 
 
 const AdminDashboard = () => {
@@ -18,13 +16,11 @@ const AdminDashboard = () => {
   const [displayUserPopup, setDisplayUserPopup] = useState(false);
   const [displayUserForm, setDisplayUserForm] = useState(false);
   const [displayBitesPopup, setDisplayBitesPopup] = useState(false);
-  const [displayBitesForm, setDisplayBitesForm] = useState(false);
   const [displaySubCategoryPopup, setDisplaySubCategoryPopup] = useState(false);
-  const [displaySubCategoryForm, setDisplaySubCategoryForm] = useState(false);
   const [displayMissionsPopup, setDisplayMissionsPopup] = useState(false);
   const [displayMissionsForm, setDisplayMissionsForm] = useState(false);
   const [displayPartnerPopup, setDisplayPartnerPopup] = useState(false);
-  const [displayPartnerForm, setDisplayPartnerForm] = useState(false);
+ 
 
   // Function to toggle visibility of different popups and forms
   const togglePopup = (popupType) => {
@@ -39,15 +35,10 @@ const AdminDashboard = () => {
       case 'bitesPopup':
         setDisplayBitesPopup(prevState => !prevState);
         break;
-      case 'bitesForm':
-        setDisplayBitesForm(prevState => !prevState);
-        break;
       case 'subCategoryPopup':
         setDisplaySubCategoryPopup(prevState => !prevState);
         break;
-      case 'subCategoryForm':
-        setDisplaySubCategoryForm(prevState => !prevState);
-        break;
+     
       case 'missionsPopup':
         setDisplayMissionsPopup(prevState => !prevState);
         setDisplayMissionsForm(false); // Ensure the form is closed when the popup opens
@@ -59,10 +50,7 @@ const AdminDashboard = () => {
       case 'partnerPopup':
         setDisplayPartnerPopup(prevState => !prevState);
         break;
-      case 'partnerForm':
-        setDisplayPartnerForm(prevState => !prevState);
-        break;
-      default:
+        default:
         break;
     }
   };
@@ -73,12 +61,12 @@ const AdminDashboard = () => {
     // Your form validation logic
   };
 
-  const validateBitesForm = (e) => {
+  const validateBite = (e) => {
     e.preventDefault();
     // Your bites form validation logic
   };
 
-  const validateSubCategoryForm = (e) => {
+  const validateSubCategory = (e) => {
     e.preventDefault();
     // Your subcategory form validation logic
   };
@@ -88,7 +76,7 @@ const AdminDashboard = () => {
     // Your missions form validation logic
   };
 
-  const validatePartnerForm = (e) => {
+  const validatePartner = (e) => {
     e.preventDefault();
     // Your partner form validation logic
   };
@@ -119,32 +107,20 @@ const AdminDashboard = () => {
       {displayBitesPopup && (
        <ManageBites 
        closePopup={() => togglePopup('bitesPopup')}
-       openAddNewBite={() => togglePopup('bitesForm')}
+       
        />
-      )}
-
-      {/* Conditional rendering of the Bites Form */}
-      {displayBitesForm && (
-        <AddNewBite 
-        closePopup={() => togglePopup('bitesForm')}
-        validateBiteForm={validateForm} />
       )}
 
       {/* Conditional rendering of the Sub-Category Popup */}
       {displaySubCategoryPopup && (
         <ManageSubCategory 
         closePopup={() => togglePopup('subCategoryPopup')}
-       openAddNewSubCategory={() => togglePopup('subCategoryForm')}
+       
        />
        
       )}
 
-      {/* Conditional rendering of the Sub-Category Form */}
-      {displaySubCategoryForm && (
-      <AddNewSubCategory
-      closePopup={() => togglePopup('subCategoryForm')} 
-      validateMissionsForm={validateSubCategoryForm}  />
-      )}
+     
 
       {/* Conditional rendering of the Missions Popup */}
       {displayMissionsPopup && (
@@ -165,17 +141,12 @@ const AdminDashboard = () => {
       {displayPartnerPopup && (
        <ManagePartner 
           closePopup={() => togglePopup('partnerPopup')}
-          openAddNewPartner={() => togglePopup('partnerForm')}/>
+          />
       )}
 
-      {/* Conditional rendering of the Partner Form */}
-      {displayPartnerForm && (
-        <AddNewPartner
-        closeForm={() => togglePopup('partnerForm')} 
-        validatePartnerForm={validatePartnerForm} 
-      />
+    
         
-      )}
+     
     </div>
   );
 };

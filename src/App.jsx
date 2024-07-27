@@ -9,7 +9,7 @@ import Missions from './module_pages/missions_page'
 import Profile from './module_pages/profile_page'
 import Leaderboard from './module_pages/leaderboard_page'
 import Loyalty from './module_pages/loyalty_page'
-import Page_header from "./components/pageheader";
+
 
 function App() {
   return (
@@ -23,6 +23,8 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/loyalty" element={<Loyalty />} />
+          <Route path="/admin-app" element={<Admin_App />} />
+
         </Routes>
       </div>
     </Router>

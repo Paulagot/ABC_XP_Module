@@ -8,13 +8,13 @@ function Bites_Cards({ item = [] }) {
                     <div className="card_content">
                         <div className="front">
                             <p className="bite-name">{val.name}</p>
-                            <img src={val.image_url} alt="course-img" className="course-img"/>
+                            <img src={val.thumbnail} alt="course-img" className="course-img"/>
                             <h1 className="points">{val.points}</h1>
                         </div>
                         <div className="back">
-                            <p className="bite-description">{val.description}</p>
+                            <p className="bite-description">{val.subtitle}</p>
                             <img src={val.sponsor_img} alt="sponsor-logo" className="sponsor-logo"/>
-                            <a className="bite_link" href={val.courselink} target="_blank" rel="noreferrer">
+                            <a className="bite_link" href={val.url} target="_blank" rel="noreferrer">
                                 <button className="content_status" type="button">Complete</button>
                             </a>
                         </div>
