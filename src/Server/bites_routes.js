@@ -1,6 +1,8 @@
 import express from 'express';
 import db from './config_db.js';
 
+// this is for the admin end and manage bytes
+
 const bitesRouter = express.Router();
 
 // Search bites by name

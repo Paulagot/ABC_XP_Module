@@ -1,5 +1,5 @@
 import React from "react";
-import Page_header from "../pageheader";
+import Page_header from "../Navbar/pageheader";
 
 function Loyalty_main_body() {  
 

@@ -1,35 +1,35 @@
 import React from "react";
 
-
 /**
- * Sub_filter component renders buttons for each subcategory and a reset button.
- * @param {Array} subcategories - Array of unique subcategories.
+ * Bites_Sub_filter component renders buttons for each subcategory
+ * and includes a reset button to reset all filters.
+ * @param {Array} subcategories - Array of subcategory objects.
  * @param {string} selectedSubcategory - Currently selected subcategory.
  * @param {function} onSelectSubcategory - Function to handle subcategory selection.
+ * @param {function} resetAllFilters - Function to reset all filters.
  */
-function Bites_Sub_filter({ subcategories = [], selectedSubcategory, onSelectSubcategory }) {
+function Bites_Sub_filter({ subcategories = [], selectedSubcategory, onSelectSubcategory, resetAllFilters }) {
     return (
         <div className="container_sub-filter">
-            {/* Render buttons for each subcategory */}
+           
             {subcategories.map((subcat) => (
                 <button
-                    key={subcat}
-                    className={`sub_filter ${selectedSubcategory === subcat ? 'active' : ''}`}
-                    onClick={() => onSelectSubcategory(subcat)}
+                    key={subcat.subcategory_id}  // Use subcategory_id as the unique key
+                    className={`sub_filter ${selectedSubcategory === subcat.name ? 'active' : ''}`}
+                    onClick={() => onSelectSubcategory(subcat.name)}
                 >
-                    {subcat}
+                    {subcat.name}
                 </button>
             ))}
-            {/* Render a reset button to clear the subcategory filter */}
-            <button
-                className="sub_filter reset"
-                onClick={() => onSelectSubcategory(null)}
-            >
-                Reset
+             <button onClick={resetAllFilters} className="reset_all_filters">
+                Reset All Filters
             </button>
         </div>
     );
 }
 
 export default Bites_Sub_filter;
+
+
+
 

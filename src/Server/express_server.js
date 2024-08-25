@@ -1,12 +1,18 @@
 import express from "express";
 import cors from "cors";
-import apiRoutes from "./api.js";
+import courseapiRoutes from "./courseapi.js";
 import db from "./config_db.js";
 import courseDisplayRoutes from "./coursedisplayapi.js";
 import subCategoryRouter from "./subcategory_routes.js";
 import bitesRouter from "./bites_routes.js";
 import sponsorRouter from "./sponsor_routes.js";
-
+import fetchSubcategorierouter from "./subcategory_filter_routes.js";
+import missionsSearchRouter from "../Server/manage_missions/mission_search.js"
+import missionsRouter from "./manage_missions/missionsRouter.js";
+import chainRouter from "./chains_routes.js";
+import criteriaRouter from "./criteria_router.js";
+import userapiRoutes from "./userapi.js";
+import missionDisplayRoutes from "./manage_missions/missions_display_api.js"
 
 
 
@@ -21,12 +27,21 @@ app.use(cors({
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+
 // Use API routes
-app.use('/api', apiRoutes); // this route is for getting the bites/missions data from zenler
+app.use('/api', courseapiRoutes); // this route is for getting the bites/missions data from zenler
+app.use('/api', userapiRoutes); // this route is for getting the user data from zenler
 app.use('/api', courseDisplayRoutes); // this route is for the bitescards
 app.use('/api', subCategoryRouter); // this route is for subcategory CRUD operations
-app.use('/api', bitesRouter); // this route is for subcategory CRUD operations
+app.use('/api', bitesRouter); // this route is for bites CRUD operations
 app.use('/api', sponsorRouter); // this route is for sponsor/partner CRUD operations
+app.use('/api/fetchsubcategories', fetchSubcategorierouter); // this route is for fetching subcategories for the filters on bites and missions
+app.use('/api/missions', missionsSearchRouter);
+app.use('/api', missionsRouter); // this route is for mission CRUD operations
+app.use ('/api', chainRouter); // this route is for chains CRUD operations
+app.use ('/api',criteriaRouter); // this route is for criteria CRUD operations
+app.use ('/api',missionDisplayRoutes); // this route is for the missioncards
+
 
 // Basic route to test server is working
 app.get('/', (req, res) => {

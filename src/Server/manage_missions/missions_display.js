@@ -1,28 +1,28 @@
-import db from "./config_db.js"; // Import the database configuration to enable queries
+import db from "../config_db.js"; // Import the database configuration to enable queries
 
-// Function to fetch data for bites cards
-export const fetchBitesCards = (req, res) => {
+// Function to fetch data for mission cards for the front end
+export const fetchMissionsCards = (req, res) => {
   /**
    * Updated SQL Query Explanation:
-   * - The query selects all fields from the 'bites' table.
-   * - Joins with the 'categories' and 'subcategories' tables to get the category and subcategory names.
+   * - The query selects all fields from the 'missions' table.
+   * - Joins with the 'chains'  table to get the chain names.
    * - Joins with the 'sponsors' table to get the sponsor image.
-   * - The resulting fields include category and subcategory names, as well as the sponsor image.
+   * - The resulting fields include chain name  as well as the sponsor image.
    */
   const query = `
     SELECT 
-      bites.*,                   
+      missions.*,                   
       sponsors.sponsor_image AS sponsor_img,
-      categories.name AS category,
-      subcategories.name AS subcategory
+      chain.name AS chain    
     FROM 
-      bites
+      missions
     LEFT JOIN 
-      sponsors ON bites.sponsor_id = sponsors.sponsor_id
+      sponsors ON missions.sponsor_id = sponsors.sponsor_id
     LEFT JOIN
-      categories ON bites.category_id = categories.category_id
+      categories ON missions.chain_id = chains.chain_id
     LEFT JOIN
-      subcategories ON bites.subcategory_id = subcategories.subcategory_id
+      categories ON missions.subcategory_id = subcategories.subcategory_id
+    
   `;
 
   // Execute the SQL query using the database connection

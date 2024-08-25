@@ -1,71 +1,111 @@
 import { useState } from "react";
-import bitesdata from "../../bitesdata";
-import Missions_Sub_filter from "./missionsubfilter";
 import Mission_Cards from "./missionscards";
-import Mission_Main_filter from "./missionmainfilters";
-import Page_header from "../pageheader";
+import Bites_Sub_filter from "../mainbody_bites/bitessubfilter";
+import Bites_Main_filter from "../mainbody_bites/bitesmainfilters";
 
 
-
-/**
- * Missions component manages the state for filtering mission cards based on category and subcategory.
- */
 function Missions_main_body() {
-    const [item, setItem] = useState(bitesdata);
     const [selectedSubcategory, setSelectedSubcategory] = useState(null);
-    const [activeCategory, setActiveCategory] = useState(null);
+    const [activeFilter, setActiveFilter] = useState(null);
+    const [missionsData, setMissionsData] = useState([]);
+    const [subcategories, setSubcategories] = useState([]);
+    const [categories, setCategories] = useState([]);
 
-    // Extract unique subcategories from bitesdata
-    const subcategories = [...new Set(bitesdata.map((val) => val.subcategory))];
+    useEffect(() => {
+        const fetchMissionsData = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/missionscards');
+                const data = await response.json();
+                setMissionsData(data);
+            } catch (error) {
+                console.error('Error fetching missions data:', error);
+            }
+        };
 
-    /**
-     * Handles the selection of a subcategory.
-     * @param {string|null} subcategory - The selected subcategory or null to reset.
-     */
-    const handleSelectSubcategory = (subcategory) => {
-        setSelectedSubcategory(subcategory);
-        filterItems(activeCategory, subcategory);
+        fetchMissionsData();
+    }, []);
+
+    useEffect(() => {
+        const fetchSubcategories = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/fetchsubcategories');
+                const data = await response.json();
+                setSubcategories(data);
+            } catch (error) {
+                console.error('Error fetching subcategories:', error);
+            }
+        };
+
+        fetchSubcategories();
+    }, []);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/categories');
+                const data = await response.json();
+                setCategories(data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    // Calculate available subcategories based on the selected main filter
+    const availableSubcategories = subcategories.filter(subcat =>
+        missionsData.some(mission => mission.subcategory === subcat.name && 
+                               (activeFilter ? mission.category === activeFilter : true))
+    );
+
+    // Calculate available main filters based on the selected subcategory
+    const availableFilters = categories.filter(category => 
+        missionsData.some(mission => mission.category === category.name && 
+                               (selectedSubcategory ? mission.subcategory === selectedSubcategory : true))
+    );
+
+    // Reset all filters
+    const resetAllFilters = () => {
+        setSelectedSubcategory(null);
+        setActiveFilter(null);
     };
 
-    /**
-     * Handles the selection of a main category.
-     * @param {string} category - The selected category.
-     */
-    const handleSelectCategory = (category) => {
-        setActiveCategory(category);
-        filterItems(category, selectedSubcategory);
+    const handleSelectSubcategory = (subcat) => {
+        setSelectedSubcategory(subcat);
     };
 
-    /**
-     * Filters the items based on the selected category and subcategory.
-     * @param {string} category - The selected category.
-     * @param {string|null} subcategory - The selected subcategory or null to reset.
-     */
-    const filterItems = (category, subcategory) => {
-        let filteredItems = bitesdata;
-        if (category) {
-            filteredItems = filteredItems.filter((val) => val.category === category);
-        }
-        if (subcategory) {
-            filteredItems = filteredItems.filter((val) => val.subcategory === subcategory);
-        }
-        setItem(filteredItems);
+    const handleFilterSelect = (filter) => {
+        setActiveFilter(filter);
     };
+
+    const filteredData = missionsData.filter(item => {
+        const matchesSubcategory = selectedSubcategory ? item.subcategory === selectedSubcategory : true;
+        const matchesCategory = activeFilter ? item.category === activeFilter : true;
+        return matchesSubcategory && matchesCategory;
+    });
 
     return (
         <main className="container__right" id="main">
+            <div className="show-on-small-screen">
+                <Page_header />
+            </div>
+            <button onClick={resetAllFilters} className="reset_all_filters">
+                Reset All Filters
+            </button>
            
                   
             {/* Render main category filter */}
-            <Mission_Main_filter
-                activeFilter={activeCategory}
-                onFilterSelect={handleSelectCategory}
-            />
-            {/* Render subcategory filter */}
-            <Missions_Sub_filter
-                subcategories={subcategories}
+            <Bites_Main_filter
+                subcategories={availableSubcategories}  // Pass only available subcategories
                 selectedSubcategory={selectedSubcategory}
                 onSelectSubcategory={handleSelectSubcategory}
+            />
+            {/* Render subcategory filter */}
+            <Bites_Sub_filter
+                categories={availableFilters}  // Pass only available filters
+                activeFilter={activeFilter}
+                onFilterSelect={handleFilterSelect}
             />
             {/* Render mission cards */}
             <Mission_Cards item={item} />

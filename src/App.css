@@ -166,11 +166,7 @@
   
 }
 
-.navbar {
-
-  box-shadow: 
-    5px 5px 20px #8fe7f4,  /* Outside shadow */
-    inset 10px 10px 15px #8fe7f4; /* Inside shadow */
+.navbar {  
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -179,8 +175,8 @@
   left: 0;
   right: 0;
   z-index: 1000;   
-  max-width: 79%; 
-  margin-left: 20.5%;    
+  max-width: 80%; 
+  margin-left: 20%;    
   transition: width 0.3s ease-in-out, margin-left 0.3s ease-in-out;  
 }
 
@@ -199,7 +195,7 @@
 
 .navbar__logo_container {
   height: 75px; 
-  margin-left: 2px;   
+    
 }
 
 .nav-logo_image {
@@ -313,14 +309,15 @@
   gap: 15px; 
   margin-bottom: 20px;
   flex-wrap: wrap;
+  margin-top: 10px;
  
 }
 
 .main_filter {
   font-weight: 700;
-  font-size: 24px;
-  width: 220px; 
-  height: 55px; 
+  font-size: 15px;
+  width: 130px; 
+  height: 35px; 
   background-color: #fff; 
   display: flex;
   flex-wrap: wrap;
@@ -336,9 +333,9 @@
 
 @media only screen and (max-width: 769px) {
   .main_filter {
-    font-size: 16.8px; /* 30% reduction from 24px */
-    width: 154px; /* 30% reduction from 220px */
-    height: 38.5px; /* 30% reduction from 55px */
+    font-size: 15px; /* 30% reduction from 24px */
+    width: 114px; 
+    height: 33.5px; 
     margin-left: 14px; /* 30% reduction from 20px */
     margin-right: 14px; /* 30% reduction from 20px */
   }
@@ -372,43 +369,54 @@
   flex-wrap: wrap;
   height: 80px;
   justify-content: center;
-  margin-bottom: 25px;
+  margin-bottom: 40px;
   
 }
 
 .sub_filter {
-  border-radius: 0 15px 15px 0;
-  border: 2px solid #285c41;
+  border: .5px solid  #285c41;
   flex: 0 0 auto;
-  width: 15%;
-  min-width: 90px; /* Set a minimum width to prevent shrinking */
+  width: 13%;
+  min-width: 50px; /* Set a minimum width to prevent shrinking */
   height: 40px;
-  margin: 5px 5px 5px 5px;
+  margin: 5px 5px 5px 25px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: 700;
-  font-size: 16px;
-  white-space: nowrap; /* Prevents text from wrapping */
+  
+  font-size: 17px;
+  /* white-space: nowrap; Prevents text from wrapping */
   overflow: hidden; /* Ensures the text doesn't overflow the element */
+ 
+  box-shadow: 5px 5px 7px 
+  #285C41; 
  
 }
 
 .sub_filter:hover {
-  font-weight: 900;    
-  transform: scale(1.05);
-
+     
+  transform: scale(1.04);
   
 }
+
+  
+
 .sub_filter.active {
-  font-weight: 900;
+  font-weight: 500;
   box-shadow: 10px 10px 15px 
   #8fe7f4; 
-  transform: scale(1.3); 
+  transform: scale(1.1); 
   margin: 12px 12px 12px 12px;
   border: 1px solid #285c41;
   
   
+}
+
+@media only screen and (max-width: 769px) {
+  .sub_filter {
+    font-size: 14px; /* 30% reduction from 24px */
+   
+  }
 }
 
 .container_bites{
@@ -420,6 +428,177 @@
   margin-top: 25px 
   
 }
+.byte_container_content {
+  width: 300px;
+  height: 350px;
+  perspective: 800px;
+  margin-left: 25px;
+}
+
+.byte_card_content {
+  height: 100%;
+  width: 100%;
+  
+ 
+}
+
+.byte_card{
+  height: 100%;
+  width: 100%;
+  border-radius: 2rem;
+  box-shadow: 10px 10px 15px 
+  #8fe7f4; 
+  position: relative;
+  color: #285c41;
+
+}
+.byte_img {
+  width:inherit;
+  border-radius: 2rem 2rem 0 0;
+  z-index: 1;
+}
+
+.byte-sponsor-logo-container{
+  background-color: transparent;
+}
+
+.byte-sponsor-logo{
+  margin-top: 10px;
+  height:50px;
+  background-color: transparent;
+}
+
+.top_content {
+  display: flex;
+  flex-direction: row; /* Align items in a row */
+  justify-content: space-between; /* Distribute items to the edges */
+  position: absolute; /* Position top_content absolutely */
+  top: 135px; /* Adjust this value to control the overlap */
+  width: 90%; /* Make sure it spans the width of the card */
+  z-index: 2; /* Ensure top_content is above the image */
+  padding: 0 10px; /* Optional: Add some padding for better spacing */
+  background-color: transparent;
+}
+
+.byte_points_container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  
+   
+}
+
+.byte_points {
+  font-size: 18px;
+  font-weight: 600;
+  background-color: #8fe7f4;
+  color: #285c41;
+  border: 0.5px solid #285c41;
+  text-align: center;
+  
+  width: 100px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 15px;
+  box-shadow: 10px 10px 15px 
+  #285c41;
+  
+  
+}
+
+.lower_content {
+  display: flex;
+  flex-direction: column;   
+  margin-top: 20px;
+}
+
+
+.byte-name {
+color: #285c41;
+  font-size: 20px;   
+  margin: 10px 5px 10px 5px ;  
+  text-decoration: none; 
+  text-align: center;
+  
+}
+
+
+
+.byte-user_status{
+  text-align: center;
+  color: #285c41;
+ font-weight: bold;
+  border-radius: 5px;
+  border: 1px solid #285c41 ;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-top: 30px;
+  box-shadow: 10px 10px 15px 
+  #8fe7f4; 
+  transition: transform 0.5s; 
+ 
+}
+
+.byte-user_status:hover {
+  transform: scale(1.5);
+}
+
+.byte_link {
+  text-decoration: none; /* Remove the underline from the link */
+  color: inherit; /* Ensure the link inherits the parent color */
+}
+
+
+.hover_content {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 90%;
+  width: 88%;
+  border-radius: 2rem;
+  background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent background */
+  box-shadow: 10px 10px 15px #8fe7f4;
+  padding: 20px;
+  z-index: 3; /* Ensure it’s on top of other content */
+  text-align: center;
+}
+
+.hover_content .byte-description {
+  color: #285c41;
+  font-size: 22px;
+  margin-bottom: 15px;
+  background-color: transparent;
+  margin-top: 10px;
+}
+
+.hover_sponsor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: transparent;
+  margin-top: 10px;
+}
+
+.hover_sponsor p {
+  color: #285c41;
+  font-size: 20px;
+  margin-bottom: 10px;
+  background-color: transparent;
+}
+
+.hover_sponsor_logo {
+  height: 60px;
+  border-radius: 1rem;
+  background-color: transparent;
+}
+
+
+
+
 
 .container_content {
   width: 300px;

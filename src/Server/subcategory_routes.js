@@ -1,4 +1,6 @@
 // subcategoryRoutes.js
+// admin end
+// this is for manage subcategories form
 
 import express from 'express';
 import db from './config_db.js';

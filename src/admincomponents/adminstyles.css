@@ -19,17 +19,17 @@ body, html {
 }
 
 .buttonSection {
-    height: 60vh; /* Set section height to 60% of viewport height */
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 30px;
 }
 
 .buttonContainer {
     display: flex;
     flex-wrap: wrap;
     gap: 20px; 
-    max-width: 400px; 
+    
 }
 
 button {
@@ -52,14 +52,39 @@ button:hover {
     box-shadow: 4px 4px 7px rgba(0, 0, 0, 0.3);
 }
 
+.homebtn {
+    width: 130px; 
+    height: 100px; 
+    padding: 10px;
+    margin-left: 30px;
+    border: none;
+    border-radius: 20px;
+    background-color: #285c41;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s;
 
+} 
+
+.homebtn:hover {
+    transform: scale(1.05); /* Button scale on hover for interactivity */
+    box-shadow: 4px 4px 7px rgba(0, 0, 0, 0.3);
+}
+
+.homebtnContainer {
+    display: flex;
+   justify-content: center;
+    gap: 20px; 
+    max-width: 400px; 
+}
 
 #userForm, #addCategoryForm, #manageUser, #manageCategory,
  #manageBites, #addBitesForm, #editBitesForm, 
  #editCategoryForm, #manageSubCategory, 
  #manageMissions, 
  #addMissionsForm, #editMissionsForm, #managePartner, 
- #newPartnerForm, #editPartnerForm {
+ #newPartnerForm, #editPartnerForm, #manageChain, #manageCriteria {
     display:block;
     position: fixed;
     top: 10vh; 

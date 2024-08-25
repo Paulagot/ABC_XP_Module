@@ -1,28 +1,15 @@
 import React from "react";
 
-function Bites_Main_filter({ activeFilter, onFilterSelect }) {
-    // Define filter data
-    const filterData = [
-        { name: "Essentials", iconUrl: "https://img.icons8.com/clouds/100/1-circle-c.png" },
-        { name: "Beginner", iconUrl: "https://img.icons8.com/clouds/100/2--v2.png" },
-        { name: "Intermediate", iconUrl: "https://img.icons8.com/clouds/100/3.png" },
-        { name: "Advanced", iconUrl: "https://img.icons8.com/clouds/100/4.png" },
-    ];
-
+function Bites_Main_filter({ categories = [], activeFilter, onFilterSelect }) {
     return (
         <div className="container_main-filter">
-            {filterData.map((filterItem, index) => (
+            {categories.map((category) => (
                 <div
-                    key={index}
-                    className={`main_filter ${activeFilter === filterItem.name ? "active" : ""}`}
-                    onClick={() => onFilterSelect(filterItem.name)}
+                    key={category.category_id}  // Use category_id as the unique key
+                    className={`main_filter ${activeFilter === category.name ? "active" : ""}`}
+                    onClick={() => onFilterSelect(category.name)}
                 >
-                    {filterItem.name}
-                    <img
-                        src={filterItem.iconUrl}
-                        alt={`${filterItem.name} Icon`}
-                        className="filter_icon-placeholder"
-                    />
+                    {category.name}
                 </div>
             ))}
         </div>
@@ -30,3 +17,8 @@ function Bites_Main_filter({ activeFilter, onFilterSelect }) {
 }
 
 export default Bites_Main_filter;
+
+
+
+
+

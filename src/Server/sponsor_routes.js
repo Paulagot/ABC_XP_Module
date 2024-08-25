@@ -1,4 +1,6 @@
 // sponsorRoutes.js
+// admin end
+// this is to allow manage sponsors form in admin.
 
 import express from 'express';
 import db from './config_db.js';

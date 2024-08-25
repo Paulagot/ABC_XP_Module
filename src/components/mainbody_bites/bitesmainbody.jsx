@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import Bites_Sub_filter from "./bitessubfilter";
 import Bites_Main_filter from "./bitesmainfilters";
 import Bites_Cards from "./bitescards";
-//import bitesdata from "../../bitesdata";
-import Page_header from "../pageheader";
+import Page_header from "../Navbar/pageheader";
+
 
 
 function Bites_main_body() {
     const [selectedSubcategory, setSelectedSubcategory] = useState(null);
     const [activeFilter, setActiveFilter] = useState(null);
     const [bitesData, setBitesData] = useState([]);
-
+    const [subcategories, setSubcategories] = useState([]);
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         const fetchBitesData = async () => {
@@ -26,20 +27,57 @@ function Bites_main_body() {
         fetchBitesData();
     }, []);
 
-    // Get unique subcategories from the data
-    const subcategories = [...new Set(bitesData.map(item => item.subcategory))];
+    useEffect(() => {
+        const fetchSubcategories = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/fetchsubcategories');
+                const data = await response.json();
+                setSubcategories(data);
+            } catch (error) {
+                console.error('Error fetching subcategories:', error);
+            }
+        };
 
-    // Handle subcategory selection
+        fetchSubcategories();
+    }, []);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/categories');
+                const data = await response.json();
+                setCategories(data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    const availableSubcategories = subcategories.filter(subcat =>
+        bitesData.some(bite => bite.subcategory === subcat.name && 
+                               (activeFilter ? bite.category === activeFilter : true))
+    );
+
+    const availableFilters = categories.filter(category => 
+        bitesData.some(bite => bite.category === category.name && 
+                               (selectedSubcategory ? bite.subcategory === selectedSubcategory : true))
+    );
+
+    const resetAllFilters = () => {
+        setSelectedSubcategory(null);
+        setActiveFilter(null);
+    };
+
     const handleSelectSubcategory = (subcat) => {
         setSelectedSubcategory(subcat);
     };
 
-    // Handle category filter selection
     const handleFilterSelect = (filter) => {
         setActiveFilter(filter);
     };
 
-    // Filter the data based on the selected subcategory and category
     const filteredData = bitesData.filter(item => {
         const matchesSubcategory = selectedSubcategory ? item.subcategory === selectedSubcategory : true;
         const matchesCategory = activeFilter ? item.category === activeFilter : true;
@@ -48,19 +86,20 @@ function Bites_main_body() {
 
     return (
         <main className="container__right" id="main">
-             {/* Render header on smaller screens */}
-             <div className="show-on-small-screen">
+            <div className="show-on-small-screen">
                 <Page_header />
             </div>
-                       
-            <Bites_Main_filter 
-                activeFilter={activeFilter}
-                onFilterSelect={handleFilterSelect}
-            />
+            
             <Bites_Sub_filter
-                subcategories={subcategories}
+                subcategories={availableSubcategories}  // Pass only available subcategories
                 selectedSubcategory={selectedSubcategory}
                 onSelectSubcategory={handleSelectSubcategory}
+                resetAllFilters={resetAllFilters}  // Pass the reset function as a prop
+            />
+            <Bites_Main_filter 
+                categories={availableFilters}  // Pass only available filters
+                activeFilter={activeFilter}
+                onFilterSelect={handleFilterSelect}
             />
             <Bites_Cards item={filteredData} />
         </main>
@@ -68,5 +107,3 @@ function Bites_main_body() {
 }
 
 export default Bites_main_body;
-
- 

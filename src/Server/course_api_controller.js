@@ -1,10 +1,13 @@
 import axios from "axios";
 import db from "./config_db.js"
 
-export const fetchData = async (req, res) => {
+//this is to connect to the zenler API and pull in data relating to the bytes and missions
+// admin end
+
+export const fetchCourseData = async (req, res) => {
   try {
     // Fetch data from the external API
-    const response = await axios.get('https://api.newzenler.com/api/v1/courses', {
+    const response = await axios.get('https://api.newzenler.com/api/v1/courses?status=1&limit=500', {
       headers: {
         'X-API-Key': 'ONPDVVIYMEGX6WHFL1QCEJ7KN798IXV2',
         'X-Account-Name': 'ABlockOfCrypto',
@@ -14,6 +17,7 @@ export const fetchData = async (req, res) => {
     });
   // Extract the data from the API response
   const responseData = response.data;
+  console.log(responseData)
 
    // test to ensure data is set up right
   if (!responseData || !responseData.data || !responseData.data.items) {
@@ -26,7 +30,7 @@ export const fetchData = async (req, res) => {
   await processBitesData(items.filter(item => item.categories.includes(14621)));
 
   // Process missions data
-  await processMissionsData(items.filter(item => item.categories.includes(17404)));
+  await processMissionsData(items.filter(item => item.categories.includes(17226)));
 
   res.status(200).json({ message: 'Data fetched and processed successfully' });
 
