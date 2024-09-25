@@ -11,22 +11,44 @@ import React from 'react';
 const MissionStatus = ({ mission, criteria = [], userBytes = [] }) => {
     // Helper function to check if a criterion has been met
     const isCriterionMet = (criterion) => {
+        console.log('userBytes:', userBytes);
+        console.log('Checking criterion:', criterion);
+    
+        // Checking for 'Bite Complete' type criteria
         if (criterion.criteria_type === 'Bite Complete') {
             // Safeguard userBytes to ensure it's an array
-            if (!userBytes || !Array.isArray(userBytes)) {
+            if (!Array.isArray(userBytes)) {
                 console.warn('userBytes is undefined or not an array');
-                return false;  // Return false if userBytes is not available
+                return false;
             }
-
+    
+            // Find if the user has completed the bite
             const hasCompletedBite = userBytes.some(
                 (byte) => byte.bite_id === criterion.bite_id && byte.completion_date !== null
             );
+            console.log(`Bite Complete Check for Bite ID: ${criterion.bite_id}, User has completed:`, hasCompletedBite);
             return hasCompletedBite;
         }
+    
+        // Checking for 'LP' type criteria
+        if (criterion.criteria_type === 'LP') {
+            // Sum up the user's LP for the given subcategory
+            const userLP = userBytes
+                .filter(byte => byte.subcategory_id === criterion.subcategory_id)
+                .reduce((total, byte) => total + (byte.lp_value || 0), 0);
+    
+            const hasEnoughLP = userLP >= criterion.lp_value;
+            console.log(`LP Check for Subcategory ID: ${criterion.subcategory_id}, User LP: ${userLP}, Required LP: ${criterion.lp_value}, Criteria Met:`, hasEnoughLP);
+            return hasEnoughLP;
+        }
+    
+        // Default to false if the criterion type is unhandled
+        console.warn('Unhandled criterion type:', criterion.criteria_type);
         return false;
     };
+    
 
-    if (!mission || !criteria || criteria.length === 0) {
+    if (!mission || !criteria.length) {
         console.warn('No mission or criteria available');
         return <div>No criteria available for this mission.</div>;
     }

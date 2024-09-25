@@ -1,8 +1,7 @@
 import React from "react";
 import MissionStatus from "./missionstatus.jsx";
 import MissionUserActionStatus from "./MissionActionStatus.jsx";
-import MissionEvaluator from "./mission_evulation.jsx";
-import Confetti from "react-confetti";
+
 
 
 function Mission_Cards({ lockedMissions = [], unlockedMissions = [] }) {

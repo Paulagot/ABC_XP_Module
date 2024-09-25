@@ -21,7 +21,7 @@ function Missions_main_body() {
     useEffect(() => {
         setTimeout(() => {
             setUserId(555); // Test login user
-        }, 2000); // Simulate delay for login
+        }, 6000); // Simulate delay for login
     }, []);
 
     // Fetch missions data

@@ -29,17 +29,6 @@ const evaluateCriteria = (criteriaList, userBytes) => {
     return isLocked;
 };
 
-// Function to fetch the mission status for a user
-const fetchUserMissionStatuses = async (userId) => {
-    try {
-        const response = await fetch(`/api/user_missions?user_id=${userId}`);
-        const data = await response.json();
-        return data; // Expect an array of user missions
-    } catch (error) {
-        console.error("Error fetching user mission statuses:", error);
-        return [];
-    }
-};
 
 function MissionEvaluator({ missions = [], criteria = [], userBytes = [], userId }) {
     const [lockedMissions, setLockedMissions] = useState([]);
@@ -50,9 +39,7 @@ function MissionEvaluator({ missions = [], criteria = [], userBytes = [], userId
             const locked = [];
             const unlocked = [];
     
-            // Fetch user mission statuses (start date and completion date)
-            const userMissionStatuses = await fetchUserMissionStatuses(userId);
-    
+              
             // Iterate over each mission to determine if it's locked or unlocked
             missions.forEach(mission => {
                 const missionCriteria = criteria.filter(c => c.mission_id === mission.mission_id);
@@ -60,31 +47,11 @@ function MissionEvaluator({ missions = [], criteria = [], userBytes = [], userId
     
                 if (isLocked) {
                     // If locked, push to lockedMissions array
-                    locked.push({ ...mission, missionStatus: 'locked', criteria: missionCriteria });
-                } else {
-                    // If unlocked, determine user mission status from the fetched data
-                    const userMissionStatus = userMissionStatuses.find(
-                        status => status.mission_id === mission.mission_id
-                    );
-                    
-    
-                    // Determine the mission's status
-                    let status;
-                    if (userMissionStatus) {
-                        status = userMissionStatus.completion_date
-                            ? 'completed'
-                            : userMissionStatus.start_date
-                                ? 'in-progress'
-                                : 'not-accepted';  // This case should not happen, but for safety.
-                    } else {
-                        // No entry in userMissionStatuses means 'not-accepted'
-                        status = 'not-accepted';
-                    }
-
-                    console.log('usermissionstatus',userMissionStatuses)
-    
+    console.log('locked missions passed',lockedMissions)
+                    locked.push({ ...mission, missionStatus: 'locked', criteria: missionCriteria ,userBytes });
+                } else {                     
                     // Push the unlocked mission with its status to unlockedMissions array
-                    unlocked.push({ ...mission, missionStatus: status, criteria: missionCriteria });
+                    unlocked.push({ ...mission, criteria: missionCriteria, userBytes });
                 }
             });
     
@@ -96,10 +63,14 @@ function MissionEvaluator({ missions = [], criteria = [], userBytes = [], userId
         evaluateMissions();
     }, [missions, criteria, userBytes, userId]);
     
-    console.log('unlocked missions',unlockedMissions)
+    console.log('unlocked missions passed',unlockedMissions)
+    console.log('locked missions passed',lockedMissions)
 
     return (
-        <Mission_Cards lockedMissions={lockedMissions} unlockedMissions={unlockedMissions} />
+        <Mission_Cards 
+        lockedMissions={lockedMissions} 
+        unlockedMissions={unlockedMissions} 
+        />
     );
 }
 
