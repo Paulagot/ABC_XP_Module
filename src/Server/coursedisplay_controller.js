@@ -23,6 +23,8 @@ export const fetchBitesCards = (req, res) => {
       categories ON bites.category_id = categories.category_id
     LEFT JOIN
       subcategories ON bites.subcategory_id = subcategories.subcategory_id
+      WHERE 
+  bites.published = true;
   `;
 
   // Execute the SQL query using the database connection

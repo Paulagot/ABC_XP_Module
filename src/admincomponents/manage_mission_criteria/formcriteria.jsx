@@ -8,8 +8,14 @@ import PropTypes from 'prop-types';
  * CriteriaForm Component
  * This component renders a form to add new criteria for the selected mission.
  * It handles the form state, validation, and submission to the server.
+ * 
+ * Props:
+ * - missionData (object): The mission data object.
+ * - onCriteriaUpdate (function): Function to update the criteria list.
+ * - setMessage (function): Function to set the message to display in the UI.
+ * - setMessageType (function): Function to set the type of message (success or error).
  */
-const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
+const CriteriaForm = ({ missionData, onCriteriaUpdate, setMessage, setMessageType }) => {
     // Initialize form state
     const [formData, setFormData] = useState({
         criteriaType: '',
@@ -30,13 +36,17 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Fetch subcategories from the server
                 const subcategoriesResponse = await axios.get('http://localhost:3000/api/subcategories');
                 setSubcategories(subcategoriesResponse.data);
 
-                const bitesResponse = await axios.get('http://localhost:3000/api/bitescards');
+                // Fetch bites from the server
+                const bitesResponse = await axios.get('http://localhost:3000/api/bites');
                 setBites(bitesResponse.data);
             } catch (error) {
                 console.error('Error fetching bites or subcategories:', error);
+                setMessage('Error fetching bites or subcategories.');  // Display error message in the UI
+                setMessageType('error');
             }
         };
 
@@ -60,23 +70,33 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
         }
     }, [formData.criteriaType]);
 
-    // Handle form input changes
+    /**
+     * Handle form input changes.
+     * 
+     * @param {Object} e - The event object from the input change.
+     */
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    // Handle form submission
+    /**
+     * Handle form submission.
+     * 
+     * @param {Object} e - The event object from form submission.
+     */
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
         // Validate required fields before submission
         if (formData.criteriaType === 'Bite Complete' && (!formData.biteId || !formData.conditionType)) {
-            alert('Please select a Bite and set criteria before submitting.');
+            setMessage('Please select a Bite and set criteria before submitting.');  // Display validation message
+            setMessageType('error');
             return;
         }
         if (formData.criteriaType === 'LP Required' && (!formData.subcategoryId || !formData.lpValue || !formData.conditionType)) {
-            alert('Please select a Sub-Category and set LP value and condition type before submitting.');
+            setMessage('Please select a Sub-Category and set LP value and condition type before submitting.');  // Display validation message
+            setMessageType('error');
             return;
         }
 
@@ -90,14 +110,16 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
             lp_value: formData.lpValue || null
         };
 
-        console.log('Form data being sent:', formDataToSend);
+        console.log('Form data being sent:', formDataToSend);  // Debugging: log form data to console
 
         try {
+            // Send the form data to the server via a POST request
             const response = await axios.post('http://localhost:3000/api/criteria', formDataToSend);
 
             // Call the update function passed as a prop to refresh the criteria list
             onCriteriaUpdate(response.data);
-            alert('Criteria added successfully!');
+            setMessage('Criteria added successfully!');  // Display success message in the UI
+            setMessageType('success');
 
             // Reset the form fields and visibility after submission
             setFormData({
@@ -113,12 +135,16 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
 
         } catch (error) {
             console.error('Error adding criteria:', error);
+            setMessage('Error adding criteria.');  // Display error message in the UI
+            setMessageType('error');
         }
     };
 
     return (
         <form id="criteriaForm" onSubmit={handleFormSubmit}>
             <h3>Add New Criteria for {missionData.name}</h3>
+            
+            {/* Criteria Type Selection */}
             <div className="criteriaType">
                 <label htmlFor="criteriaTypeMatch">Select Criteria Type</label>
                 <select
@@ -132,7 +158,7 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
                 </select><br /><br />
             </div>
 
-            {/* Conditionally rendered fields */}
+            {/* Conditionally rendered fields based on criteria type selection */}
             <div className="criteriaBiteSelection" style={{ display: criteriaBiteDisplay }}>
                 <label htmlFor="criteriaBiteMatch">Select Bite</label>
                 <select
@@ -173,6 +199,7 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
                 </select><br /><br />
             </div>
             
+            {/* LP Required field */}
             <div className="lpRequired" style={{ display: lpRequiredDisplay }}>
                 <label htmlFor="lpRequired">LP Required:</label>
                 <input
@@ -184,6 +211,7 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
                 /><br /><br />
             </div>
 
+            {/* Condition Type Selection */}
             <h3>Set Criteria</h3>
             <select name="conditionType" value={formData.conditionType || ''} onChange={handleInputChange}>
                 <option value="" disabled>Select your option</option>
@@ -192,6 +220,7 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
                 <option value="None">None</option>
             </select><br /><br />
 
+            {/* Submit Button */}
             <button type="submit">Add Criteria</button>
         </form>
     );
@@ -201,6 +230,8 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate }) => {
 CriteriaForm.propTypes = {
     missionData: PropTypes.object.isRequired,  // The mission data object
     onCriteriaUpdate: PropTypes.func.isRequired,  // Function to update the criteria list
+    setMessage: PropTypes.func.isRequired,  // Function to set a message to display in the UI
+    setMessageType: PropTypes.func.isRequired,  // Function to set the type of the message (success or error)
 };
 
 export default CriteriaForm;

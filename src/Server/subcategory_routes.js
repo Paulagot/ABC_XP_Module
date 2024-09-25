@@ -9,15 +9,13 @@ const subCategoryRouter = express.Router();
 
 // Create a new subcategory
 subCategoryRouter.post('/subcategories', (req, res) => {
-    const { name, description } = req.body;
+    const { name } = req.body;
 
     
     if (!name) {
         return res.status(400).json({ error: 'Name is required' });
     }
-    if (!description) {
-        return res.status(400).json({ error: 'Description is required' });
-    }
+   
 
      // Check for duplicate name
      const checkDuplicateQuery = 'SELECT COUNT(*) as count FROM subcategories WHERE name = ?';
@@ -31,15 +29,15 @@ subCategoryRouter.post('/subcategories', (req, res) => {
          }
 
        // Insert new subcategory
-       const query = 'INSERT INTO subcategories (name, description, created_at, updated_at) VALUES (?, ?, NOW(), NOW())';
-       const values = [name, description];
+       const query = 'INSERT INTO subcategories (name,  created_at, updated_at) VALUES (?,  NOW(), NOW())';
+       const values = [name];
 
        db.query(query, values, (err, result) => {
            if (err) {
                console.error('Database query error:', err);
                return res.status(500).json({ error: 'Database error', details: err });
            }
-           return res.status(201).json({ id: result.insertId, name, description });
+           return res.status(201).json({ id: result.insertId, name });
        });
    });
 });
@@ -62,15 +60,15 @@ subCategoryRouter.get('/subcategories/search', (req, res) => {
 // Route to update an existing subcategory
 subCategoryRouter.put('/subcategories/:id', (req, res) => {
     const { id } = req.params;
-    const { name, description } = req.body;
+    const { name} = req.body;
 
-    // Check if name or description is empty
-    if (!name || !description) {
-        return res.status(400).json({ error: 'Name and description are required.' });
+    // Check if name  is empty
+    if (!name)  {
+        return res.status(400).json({ error: 'Name is required.' });
     }
 
-    const query = 'UPDATE subcategories SET name = ?, description = ?, updated_at = NOW() WHERE subcategory_id = ?';
-    const values = [name, description, id];
+    const query = 'UPDATE subcategories SET name = ?, updated_at = NOW() WHERE subcategory_id = ?';
+    const values = [name,  id];
 
     db.query(query, values, (err, results) => {
         if (err) {
@@ -80,7 +78,7 @@ subCategoryRouter.put('/subcategories/:id', (req, res) => {
         if (results.affectedRows === 0) {
             return res.status(404).json({ error: 'Subcategory not found' });
         }
-        return res.status(200).json({ message: 'Subcategory updated successfully', name, description });
+        return res.status(200).json({ message: 'Subcategory updated successfully', name });
     });
 });
 

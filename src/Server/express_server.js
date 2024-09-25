@@ -13,6 +13,10 @@ import chainRouter from "./chains_routes.js";
 import criteriaRouter from "./criteria_router.js";
 import userapiRoutes from "./userapi.js";
 import missionDisplayRoutes from "./manage_missions/missions_display_api.js"
+import UserBytesRouter from "./user_bites_routes.js"
+import UserMissionsRouter from "./user_mission_routes.js";
+import UserCompletedMissionsRouter from "./user_completed_missions.js";
+import UserBytesCardsRouter from "./user_bytes_cards.js";
 
 
 
@@ -41,6 +45,11 @@ app.use('/api', missionsRouter); // this route is for mission CRUD operations
 app.use ('/api', chainRouter); // this route is for chains CRUD operations
 app.use ('/api',criteriaRouter); // this route is for criteria CRUD operations
 app.use ('/api',missionDisplayRoutes); // this route is for the missioncards
+app.use ('/api', UserBytesRouter); // this route is for the user/bites data
+app.use ('/api', UserMissionsRouter); // this route is for the user/missions data
+app.use ('/api',UserCompletedMissionsRouter);// this route is for the user completed missions data
+app.use ('/api', UserBytesCardsRouter)
+
 
 
 // Basic route to test server is working

@@ -20,6 +20,19 @@ bitesRouter.get('/bites/search', (req, res) => {
   });
 });
 
+// Get all bites
+bitesRouter.get('/bites', (req, res) => {
+  const query = 'SELECT * FROM bites';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).json({ error: 'Database error', details: err });
+    }
+    return res.status(200).json(results);
+  });
+});
+
 // Route to update an existing bite
 bitesRouter.put('/bites/:id', (req, res) => {
     const { id } = req.params;
@@ -86,6 +99,19 @@ bitesRouter.get('/sponsors', (req, res) => {
         }
         return res.status(200).json(results);
     });
+});
+
+// Add this route to fetch unpublished bites
+bitesRouter.get('/bites/unpublished', (req, res) => {
+  const query = 'SELECT name FROM bites WHERE published = 0';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).json({ error: 'Database error', details: err });
+    }
+    return res.status(200).json(results);
+  });
 });
 
 export default bitesRouter;

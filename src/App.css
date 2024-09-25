@@ -10,14 +10,13 @@
   width: 20%;
   position: fixed;
   height: 100vh;
-  background-color:  #285C41;
+  background-color:  #5a8992;
   overflow-y: hidden; /* Prevent scrolling */
   z-index: 999;
   padding: 1px;
    
   display: active; 
-  box-shadow: 15px 0 25px
-  #8fe7f4
+  
  
 }
 
@@ -41,7 +40,7 @@
 .sidebar__list {
   list-style-type: none;
   padding: 0;    
-  background-color:  #285C41;
+  background-color:  #5a8992;
   margin-top: 40px;
   margin-bottom: 30px;
  
@@ -49,7 +48,7 @@
 
 .sidebar__link span{
   color: #ffff;
-  background-color:  #285C41;
+  background-color:  #5a8992;
   font-size: 1.3vw;
 }
 
@@ -60,7 +59,7 @@
 
 /* Icon Placeholder Styles */
 .icon-placeholder {
-  background-color:  #285C41;
+  background-color:  #5a8992;
   margin-right: 10px;
   margin-left: 12px;
   flex-shrink: 0; /* Prevent icon from shrinking */
@@ -70,7 +69,7 @@
 
 /* Text Link Styles */
 .sidebar__link {
-  background-color:  #285C41;
+  background-color:  #5a8992;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -88,7 +87,7 @@
 }
 
 .blog_title {
-  background-color:  #285C41;
+  background-color:  #5a8992;
   color: #fff;
   font-size: 20px;
   
@@ -99,12 +98,12 @@
   width:auto;
   overflow: hidden;
   margin-bottom: 10px;
-  background-color:  #285C41;
+  background-color:  #5a8992;
   
 }
 
 .container-sidebar_admin{
-  background-color:  #285C41;
+  background-color: #5a8992;
   margin-top: 40px;
   margin-left: 25px;
   width: 80%;
@@ -117,7 +116,7 @@
 }
 .meetup {
   margin-top: 20px;
-  background-color:  #285C41;
+  background-color:  #5a8992;
 
 }
 .blog {
@@ -126,11 +125,17 @@
  
 }
 
+.clear {
+  height: 50px;
+  width: 120px;
+  margin-top: 20px;
+}
+
 
 .admin-image {
   flex-shrink: 0;
   width: 100%;
-  background-color:  #285C41;
+  background-color:  #5a8992;
   border-radius: 5px;
 }
 
@@ -176,8 +181,9 @@
   right: 0;
   z-index: 1000;   
   max-width: 80%; 
-  margin-left: 20%;    
-  transition: width 0.3s ease-in-out, margin-left 0.3s ease-in-out;  
+  margin-left: 21%;    
+  transition: width 0.3s ease-in-out, margin-left 0.3s ease-in-out; 
+  
 }
 
 .navbar__menu-btn {
@@ -195,11 +201,13 @@
 
 .navbar__logo_container {
   height: 75px; 
+  margin-left: 5px;
     
 }
 
 .nav-logo_image {
   height: 100%;
+  margin-left: 5px;
 }
 
 .navbar__sign-in-btn {
@@ -250,7 +258,7 @@
   margin-left: 20%;    
   transition: width 0.3s ease-in-out, margin-left 0.3s ease-in-out;
   position: absolute;
-  top: 110px;
+  top: 100px;
   left: 0;
   right: 0;   
   display: flex;
@@ -307,9 +315,9 @@
   justify-content: center;
   align-items: center;
   gap: 15px; 
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   flex-wrap: wrap;
-  margin-top: 10px;
+  margin-top: 5px;
  
 }
 
@@ -367,9 +375,9 @@
 .container_sub-filter {
   display: flex;
   flex-wrap: wrap;
-  height: 80px;
+  
   justify-content: center;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   
 }
 
@@ -393,12 +401,12 @@
  
 }
 
-.sub_filter:hover {
-     
-  transform: scale(1.04);
-  
+.sub_filter:hover {     
+  transform: scale(1.04);  
 }
-
+.chain_filter:hover {     
+  transform: scale(1.2);  
+}
   
 
 .sub_filter.active {
@@ -407,64 +415,127 @@
   #8fe7f4; 
   transform: scale(1.1); 
   margin: 12px 12px 12px 12px;
-  border: 1px solid #285c41;
+  border: 1px solid #285c41;   
+}
+
+.chain_filter.active {
+    box-shadow: 10px 10px 15px 
+  #8fe7f4; 
+  transform: scale(1.2); 
   
-  
+   
 }
 
 @media only screen and (max-width: 769px) {
   .sub_filter {
-    font-size: 14px; /* 30% reduction from 24px */
+    font-size: 12px; 
    
   }
 }
-
-.container_bites{
- display: flex; 
- flex-wrap: wrap;    
- justify-content: center;
-  margin: 10px; 
-  gap: 30px ;
-  margin-top: 25px 
-  
+.container_bites {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 10px;
+  gap: 30px;
+  margin-top: 25px;
 }
+
 .byte_container_content {
   width: 300px;
   height: 350px;
   perspective: 800px;
   margin-left: 25px;
+  transition: transform 0.7s ease-in-out; /* Smooth transition for the entire container */
+  position: relative; /* Added position relative to make z-index work on child elements */
 }
 
 .byte_card_content {
   height: 100%;
   width: 100%;
-  
- 
+  transition: transform 0.5s ease, opacity 0.5s ease; /* Smooth transition for transform and opacity */
+  position: relative; /* Ensure child elements are positioned relative to this container */
 }
 
-.byte_card{
+/* Default style for .byte_card */
+.byte_card {
   height: 100%;
   width: 100%;
   border-radius: 2rem;
-  box-shadow: 10px 10px 15px 
-  #8fe7f4; 
-  position: relative;
+  box-shadow: 10px 10px 15px #285c41;
+  position: relative; /* Set position relative for z-index to work */
   color: #285c41;
-
+  transition: box-shadow 0.5s ease, transform 0.5s ease; /* Smooth transition for box-shadow and transform */
 }
+
+/* Confetti container to appear behind other content */
+.confetti-container {
+  position: absolute; /* Positioned absolutely within the hover content */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 2rem;
+  z-index: 0; /* Lower z-index to be behind the hover content elements */
+  pointer-events: none; /* Ensure it doesn't interfere with user interactions */
+}
+
+/* Hover content styling */
+.hover_content {
+  display: none; /* Hidden by default */
+  position: absolute; /* Positioned absolutely within the byte_card_content */
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border-radius: 2rem; /* Match the shape of the .byte_card */
+  background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent background */
+  box-shadow: 10px 10px 15px #8fe7f4;
+  
+  z-index: 4; /* Ensure it’s on top of confetti but below other content */
+  text-align: center;
+  transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth transition for opacity and transform */
+}
+
+.hover_content .byte-description,
+.hover_sponsor,
+.hover_sponsor p,
+.hover_sponsor_logo,
+.byte-user_status {
+  position: relative; /* Ensure these elements are positioned relative to their parent */
+  z-index: 20; /* Make sure these elements are above the confetti */
+  transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth transition for opacity and transform */
+}
+
+/* Style when the user is not enrolled */
+.byte_card.not-enrolled {
+  box-shadow: 10px 10px 15px rgb(229, 93, 93); /* Default box-shadow */
+}
+
+/* Style when the user has started the byte but not completed it */
+.byte_card.started {
+  box-shadow: 10px 10px 15px #285c41; /* Example: yellow shadow for started */
+}
+
+/* Style when the user has completed the byte */
+.byte_card.completed {
+  box-shadow: 10px 10px 25px rgba(255, 215, 0, 0.6); /* Example: green shadow for completed */
+}
+
 .byte_img {
-  width:inherit;
+  width: inherit;
   border-radius: 2rem 2rem 0 0;
   z-index: 1;
 }
 
-.byte-sponsor-logo-container{
+.byte-sponsor-logo-container {
   background-color: transparent;
 }
 
-.byte-sponsor-logo{
+.byte-sponsor-logo {
   margin-top: 10px;
-  height:50px;
+  height: 50px;
   background-color: transparent;
 }
 
@@ -480,13 +551,18 @@
   background-color: transparent;
 }
 
-.byte_points_container {
+.lower_content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.byte_points_container,
+.mission_points_container {
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: transparent;
-  
-   
 }
 
 .byte_points {
@@ -496,75 +572,44 @@
   color: #285c41;
   border: 0.5px solid #285c41;
   text-align: center;
-  
   width: 100px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-left: 15px;
-  box-shadow: 10px 10px 15px 
-  #285c41;
-  
-  
+  box-shadow: 10px 10px 15px #285c41;
 }
-
-.lower_content {
-  display: flex;
-  flex-direction: column;   
-  margin-top: 20px;
-}
-
 
 .byte-name {
-color: #285c41;
-  font-size: 20px;   
-  margin: 10px 5px 10px 5px ;  
-  text-decoration: none; 
+  color: #285c41;
+  font-size: 20px;
+  margin: 10px 5px 10px 5px;
+  text-decoration: none;
   text-align: center;
-  
 }
 
-
-
-.byte-user_status{
+.byte-user_status {
   text-align: center;
   color: #285c41;
- font-weight: bold;
+  font-weight: bold;
   border-radius: 5px;
-  border: 1px solid #285c41 ;
+  border: 1px solid #285c41;
   margin-left: 40px;
   margin-right: 40px;
-  margin-top: 30px;
-  box-shadow: 10px 10px 15px 
-  #8fe7f4; 
-  transition: transform 0.5s; 
- 
+  margin-top: 20px;
+  margin-bottom: 10px;
+  box-shadow: 10px 10px 15px #285c41;
+  transition: transform 0.5s ease, box-shadow 0.5s ease; /* Smooth transition for transform and box-shadow */
 }
 
 .byte-user_status:hover {
-  transform: scale(1.5);
+  transform: scale(1.2);
 }
 
 .byte_link {
   text-decoration: none; /* Remove the underline from the link */
   color: inherit; /* Ensure the link inherits the parent color */
-}
-
-
-.hover_content {
-  display: none; /* Hidden by default */
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 90%;
-  width: 88%;
-  border-radius: 2rem;
-  background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent background */
-  box-shadow: 10px 10px 15px #8fe7f4;
-  padding: 20px;
-  z-index: 3; /* Ensure it’s on top of other content */
-  text-align: center;
 }
 
 .hover_content .byte-description {
@@ -596,107 +641,266 @@ color: #285c41;
   background-color: transparent;
 }
 
-
-
-
-
-.container_content {
-  width: 300px;
-  height: 400px;
-  perspective: 800px;
-  margin-left: 25px;
+/* Overlay for popup background */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3); /* Slightly dimmed background */
+  z-index: 2000; /* High z-index to appear above other elements */
 }
 
-.container_content:hover > .card_content {
+/* Popup container styling */
+.achievement-popup {
+  position: relative;
+  width: 30%; /* Set to a percentage for responsiveness */
+  max-width: 400px; /* Maximum width to control the popup size */
+  min-width: 280px; /* Minimum width for smaller screens */
+  padding: 20px;
+  background-color: white; /* White background */
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  text-align: center; /* Center text */
+  z-index: 2010; /* Slightly above the overlay */
+}
+
+/* Close button styling */
+.achievement-popup .close-button {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+
+
+.container_chain-filter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+
+
+
+
+
+ .chain_filter {  
+  background-color: #fff;  
+  justify-content: center;
+  align-items: center; 
+  border-radius: 50%;
+  
+ 
+}
+
+.chain_image {
+  border-radius: 50%;
+  background: transparent;
+}
+
+.mission_container_content {
+  width: 300px;
+  height: 350px;
+  perspective: 800px; /* Keeps the 3D perspective intact */
+  margin-left: 25px;
+  position: relative;
+  background-color: transparent;
+}
+
+/* Ensure smooth transition */
+.mission_card_content:hover > .mission_card {
   cursor: pointer;
   transform: rotateY(180deg);
 }
 
-.card_content {
+/* Card container transition */
+.mission_card_content {
   height: 100%;
   width: 100%;
   position: relative;
-  transition: transform 1500ms;
-  transform-style: preserve-3d;
+  transform-style: preserve-3d; /* Ensure that 3D transformation is preserved */
+  transition: transform 1200ms ease;
+  perspective: inherit; /* Inherits perspective from parent */
+  background-color: transparent;
 }
 
-.front,
-.back {
+/* Main card styling */
+.mission_card {
   height: 100%;
   width: 100%;
   border-radius: 2rem;
-  box-shadow: 10px 10px 15px 
-  #8fe7f4; 
+  background-color: #5a8992;
+  color: #ffffff;
+  position: relative; /* Stay within the content boundaries */
+  transform-style: preserve-3d; /* Ensure child elements rotate in 3D */
+  transition: transform 1200ms ease; /* Smooth transition during rotation */
+}
+
+/* Front and back content */
+.front, .back {
+  height: 100%;
+  width: 100%;
   position: absolute;
-  backface-visibility: hidden;
+  top: 0;
+  left: 0;
+  backface-visibility: hidden; /* Ensures the hidden side is not visible */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 2rem;
   overflow: hidden;
+  border-radius: 2rem; /* Rounded corners remain on both sides */
 }
-.front{
-  background-color: #285c41;
-}    
+
+/* Front card content */
+.front {
+  background-color: #5a8992;
+  z-index: 2; /* Ensure front is on top when not flipped */
+}
+
+/* Back of the card */
 .back {
- 
   transform: rotateY(180deg);
-    }
+  z-index: 1; /* Ensure back is behind the front when not flipped */
+  border: solid 1px #285C41;
+  position: absolute;
+}
 
+/* Locked missions */
+.mission_card_content.locked .front {
+  filter: grayscale(80%);
+}
 
-.bite-name, .points{
-      margin: 0px 10px 0px 10px;        
-      font-weight: 700;
-      font-size: 22px;
-      text-align: center; 
-      background-color: #285c41; 
-      color: #fff; 
-  
-  }
+/* Completed missions: Gold box shadow */
+.mission_card_content.completed .front {
+  box-shadow: 10px 10px 25px rgba(255, 215, 0, 0.6); /* Intense gold glow */
+}
 
-.bite-description {
-  margin: 0px 10px 0px 10px;
-      
+/* Missions in progress (continue mission): Green box shadow */
+.mission_card_content.unlocked:not(.completed):not(.not-accepted) .front {
+  box-shadow: 10px 10px 20px #285C41; /* Green glow */
+}
+
+/* Not yet accepted missions: Light blue box shadow */
+.mission_card_content.not-accepted:not(.completed) .front {
+  box-shadow: 10px 10px 15px #8fe7f4; /* Blue glow */
+}
+
+.mission_img {
+  width: inherit;
+  border-radius: 2rem 2rem 0 0;
+}
+
+.mission_lower_content {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  background-color: #5a8992;
+}
+
+.mission-name {
+  color: #ffffff;
+  font-size: 20px;
+  margin: 10px 5px;
+  text-align: center;
+  background-color: #5a8992;
+}
+
+.mission_points {
+  font-size: 18px;
+  font-weight: 600;
+  background-color: #8fe7f4;
+  color: #285c41;
+  border: 0.5px solid #285c41;
+  text-align: center;
+  width: 100px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 15px;
+  box-shadow: 5px 5px 10px #ffffff;
+}
+
+/* Mission description and content on back */
+.mission-description {
+  margin: 0px 10px;
   font-weight: 700;
   font-size: 22px;
-  text-align: center; 
- 
-  
+  text-align: center;
+}
+
+.mission-sponsor-logo-container {
+  background-color: transparent;
+}
+
+.mission-sponsor-logo {
+  margin-top: 10px;
+  height: 50px;
+  background-color: transparent;
+}
+
+.mission_link {
+  text-align: center;
+  color: #285c41;
+  border-radius: 5px;
+  border: 1px solid #285c41;
+  box-shadow: 10px 10px 15px #8fe7f4;
+  transition: transform 0.5s;
+  width: 50%;
+  text-decoration: none;
+}
+
+.mission_link:hover {
+  transform: scale(1.2);
+}
+
+.missions_criteria_container {
+  margin: 10px;
+}
+
+.missions_criteria_display {
+  font-size: 18px;
+}
+
+.missions_criteria_H {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.mission_user_status {
+  margin: 7px;
 }
 
 
-.course-img {
-  height:25%;
-  box-shadow: 10px 10px 15px black
-  
+
+
+.progress-bar {
+  width: 60%;
+  background-color: red;
+  border-radius: 5px;
+  overflow: hidden;
+  height: 20px;
+  margin-top: 10px;
 }
 
-.sponsor-logo {
-  max-height: 100px;
-  width: 100px;
-  
+.progress {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.3s ease;
 }
-.bite_status{
-  border-radius: 20%;
-  
-}
-
-.content_status {
-  color: #fff; 
-  background: #285c41;
-  border-radius: 25px;
-  border: none;
-  height: 40px;
-  width: 120px;    
-  font-size: 24px;
-  font-weight: 600;
-  
-}
-
-  
-
-
 
 
 @media only screen and (max-width: 769px) {

@@ -3,6 +3,7 @@ import db from "./config_db.js"
 
 //this is to connect to the zenler API and pull in data relating to the users
 // admin end
+//currently not triggered!!!!!!!
 
 export const fetchUserData = async (req, res) => {
   try {
@@ -27,9 +28,7 @@ export const fetchUserData = async (req, res) => {
   const items = userData.data.items;
 
   // Process users data
-  await processUserData(items);
-
- 
+  await processUserData(items); 
 
   res.status(200).json({ message: 'User Data fetched and processed successfully' });
 

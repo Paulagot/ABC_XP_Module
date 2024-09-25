@@ -4,7 +4,6 @@ import SearchBites from './searchBites.jsx'
 import BiteForm from './formBites.jsx'
 import Message from './messageBites.jsx';
 
-
 /**
  * ManageBites Component
  * 
@@ -77,12 +76,12 @@ const ManageBites = ({ closePopup }) => {
   const updateBite = async (e) => {
     e.preventDefault();
 
-    // Log the data being sent to the backend
-    console.log('Updating bite with data:', biteData);
-
     try {
       const response = await axios.put(`http://localhost:3000/api/bites/${biteId}`, biteData);
       setMessage('Bite updated successfully!');
+      
+      // Reset the form and go back to the search mode
+      setBiteId(null);  // Clear biteId to hide the form
       setBiteData({
         name: '',
         subtitle: '',
@@ -105,7 +104,11 @@ const ManageBites = ({ closePopup }) => {
     <div id="manageBites" className="manageBitesPopup">
       <span id="closeManageBitesPopupBtn" className="closeButton" onClick={closePopup}>×</span>
       <h2>Manage Bites</h2>
+
+      {/* SearchBites will always be visible */}
       <SearchBites onSelectBite={selectBite} />
+
+      {/* Show the form only if a bite is selected */}
       {biteId && (
         <BiteForm
           biteData={biteData}
@@ -117,6 +120,8 @@ const ManageBites = ({ closePopup }) => {
           message={message}
         />
       )}
+
+      {/* Display message component for feedback */}
       <Message message={message} />
     </div>
   );

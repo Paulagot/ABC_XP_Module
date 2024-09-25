@@ -1,45 +1,65 @@
-// MissionStatus.js
+import React from 'react';
 
-import React, { useState, useEffect } from 'react';
+/**
+ * MissionStatus displays the criteria required to unlock a mission.
+ * It checks which criteria have been met and which have not, showing a tick or cross for each.
+ * 
+ * @param {Object} mission - The locked mission that is being evaluated.
+ * @param {Array} criteria - The criteria required to unlock the mission.
+ * @param {Array} userBytes - The user's progress, showing completed bytes and LP.
+ */
+const MissionStatus = ({ mission, criteria = [], userBytes = [] }) => {
+    // Helper function to check if a criterion has been met
+    const isCriterionMet = (criterion) => {
+        if (criterion.criteria_type === 'Bite Complete') {
+            // Safeguard userBytes to ensure it's an array
+            if (!userBytes || !Array.isArray(userBytes)) {
+                console.warn('userBytes is undefined or not an array');
+                return false;  // Return false if userBytes is not available
+            }
 
-function MissionStatus() {
-  const [userCourses, setUserCourses] = useState([]);
-  const [criteria, setCriteria] = useState([]);
+            const hasCompletedBite = userBytes.some(
+                (byte) => byte.bite_id === criterion.bite_id && byte.completion_date !== null
+            );
+            return hasCompletedBite;
+        }
+        return false;
+    };
 
-  // Fetch user courses and criteria from your API or database
-  useEffect(() => {
-    // Example: Fetch user courses and set state
-    // const userCoursesData = fetchUserCourses();
-    // setUserCourses(userCoursesData);
+    if (!mission || !criteria || criteria.length === 0) {
+        console.warn('No mission or criteria available');
+        return <div>No criteria available for this mission.</div>;
+    }
 
-    // Example: Fetch criteria and set state
-    // const criteriaData = fetchCriteria();
-    // setCriteria(criteriaData);
-  }, []);
+    return (
+        <div className="missions_criteria_container">
+            <h2>{mission.name}</h2>
+            <p className="missions_criteria_H">This mission is locked. Here is what you need to unlock it:</p>
 
-  // Check if a user has completed a specific course
-  const hasCompletedCourse = (courseId) => {
-    return userCourses.some((course) => course.id === courseId);
-  };
+            <ul className="missions_criteria_display">
+                {criteria.map((criterion) => {
+                    const criterionMet = isCriterionMet(criterion);
 
-  return (
-    <div>
-      <h1>Mission Status</h1>
-      <p>This mission is {hasCompletedCourse(1) ? 'Unlocked' : 'Locked'}</p>
-      <ul>
-        {criteria.map((criterion) => (
-          <li key={criterion.id}>
-            {criterion.name}{' '}
-            {hasCompletedCourse(criterion.requiredCourseId) ? (
-              <span style={{ color: 'green' }}>✓</span>
-            ) : (
-              <span style={{ color: 'red' }}>✗</span>
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+                    return (
+                        <li key={criterion.criteria_id}>
+                            {criterion.criteria_type === 'Bite Complete' ? (
+                                <span>Complete Bite: {criterion.bite_name}</span>
+                            ) : (
+                                <span>Earn {criterion.lp_value} LP in Subcategory: {criterion.subcategory_name}</span>
+                            )}
+
+                            {criterionMet ? (
+                                <span style={{ color: 'green', marginLeft: '10px' }}>✓</span>
+                            ) : (
+                                <span style={{ color: 'red', marginLeft: '10px' }}>✗</span>
+                            )}
+                        </li>
+                    );
+                })}
+            </ul>
+        </div>
+    );
+};
 
 export default MissionStatus;
+

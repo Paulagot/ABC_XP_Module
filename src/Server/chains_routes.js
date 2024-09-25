@@ -9,7 +9,7 @@ const chainRouter = express.Router();
 
 // Create a new chain
 chainRouter.post('/chains', (req, res) => {
-    const { name, chain_image, chain_web } = req.body;
+    const { name, chain_image } = req.body;
 
     
     if (!name) {
@@ -18,9 +18,7 @@ chainRouter.post('/chains', (req, res) => {
     if (!chain_image) {
         return res.status(400).json({ error: 'chain_image is required' });
     }
-    if (!chain_web) {
-        return res.status(400).json({ error: 'chain_web is required' });
-    }
+   
 
      // Check for duplicate name
      const checkDuplicateQuery = 'SELECT COUNT(*) as count FROM chains WHERE name = ?';
@@ -34,15 +32,15 @@ chainRouter.post('/chains', (req, res) => {
          }
 
        // Insert new chain
-       const query = 'INSERT INTO chains (name, chain_image, chain_web, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())';
-       const values = [name, chain_image, chain_web];
+       const query = 'INSERT INTO chains (name, chain_image,  created_at, updated_at) VALUES (?,  ?, NOW(), NOW())';
+       const values = [name, chain_image];
 
        db.query(query, values, (err, result) => {
            if (err) {
                console.error('Database query error:', err);
                return res.status(500).json({ error: 'Database error', details: err });
            }
-           return res.status(201).json({ id: result.insertId, name, chain_image, chain_web });
+           return res.status(201).json({ id: result.insertId, name, chain_image });
        });
    });
 });
@@ -65,15 +63,15 @@ chainRouter.get('/chains/search', (req, res) => {
 // Route to update an existing chain
 chainRouter.put('/chains/:id', (req, res) => {
     const { id } = req.params;
-    const { name, chain_image, chain_web } = req.body;
+    const { name, chain_image } = req.body;
 
-    // Check if name or chain_image or chain_web is empty
-    if (!name || !chain_image || !chain_web) {
-        return res.status(400).json({ error: 'Name and chain_image and chain_web are required.' });
+    // Check if name or chain_image or  is empty
+    if (!name || !chain_image ) {
+        return res.status(400).json({ error: 'Name and chain_image  are required.' });
     }
 
-    const query = 'UPDATE chains SET name = ?, chain_image = ?,  chain_web = ?, updated_at = NOW() WHERE chain_id = ?';
-    const values = [name, chain_image, chain_web, id];
+    const query = 'UPDATE chains SET name = ?, chain_image = ?,   updated_at = NOW() WHERE chain_id = ?';
+    const values = [name, chain_image,  id];
 
     db.query(query, values, (err, results) => {
         if (err) {
@@ -83,7 +81,7 @@ chainRouter.put('/chains/:id', (req, res) => {
         if (results.affectedRows === 0) {
             return res.status(404).json({ error: 'chain not found' });
         }
-        return res.status(200).json({ message: 'chain updated successfully', name, chain_image, chain_web });
+        return res.status(200).json({ message: 'chain updated successfully', name, chain_image,  });
     });
 });
 

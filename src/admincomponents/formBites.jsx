@@ -13,8 +13,10 @@ import React from 'react';
  * - subcategories: Array of subcategories for the dropdown
  * - sponsors: Array of sponsors for the dropdown
  * - message: Message to display feedback to the user
+ * - onClearEditableFields: Function to clear editable fields
+ * - onClearForm: Function to clear the entire form
  */
-const BiteForm = ({ biteData, setBiteData, onUpdate, categories, subcategories, sponsors, message }) => {
+const BiteForm = ({ biteData, setBiteData, onUpdate, categories, subcategories, sponsors, message, onClearEditableFields, onClearForm }) => {
 
   /**
    * Handle input change for form fields
@@ -75,9 +77,12 @@ const BiteForm = ({ biteData, setBiteData, onUpdate, categories, subcategories, 
 
       <input type="submit" value="Update" />
       {message && <p>{message}</p>}
+      <button className="clear" type="button" onClick={onClearEditableFields}>Clear Editable Fields</button>
+      <button className="clear" type="button" onClick={onClearForm}>Clear Entire Form</button>
     </form>
   );
 };
 
 export default BiteForm;
+
 

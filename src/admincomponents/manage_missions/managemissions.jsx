@@ -3,17 +3,31 @@ import axios from 'axios'
 import MissionForm from './formMissions.jsx';
 import SearchMissions from './searchMissions.jsx';
 
-const ManageMissions = ({ closePopup }) => {
-  const [selectedMission, setSelectedMission] = useState(null); // Initialized to null to avoid errors
-  
+/**
+ * ManageMissions Component
+ * 
+ * This component is responsible for managing missions, including searching for a mission and displaying the mission form.
+ * 
+ * Props:
+ * - closePopup: Function to close the popup.
+ * - openManageChains: Function to open the Manage Chains popup.
+ * - openManageSponsors: Function to open the Manage Sponsors/Partners popup.
+ * - openManageSubcategories: Function to open the Manage Subcategories popup.
+ */
+const ManageMissions = ({ closePopup, openManageChains, openManageSponsors, openManageSubcategories }) => {
+  const [selectedMission, setSelectedMission] = useState(null);
   const [sponsorData, setSponsorData] = useState([]);
   const [chainData, setChainData] = useState([]);
-  const [subcategoryData, setSubcategoriesData] = useState([]);
+  const [subcategoryData, setSubcategoryData] = useState([]);
 
+  /**
+   * Fetches necessary data when the component mounts.
+   * 
+   * This includes sponsor, chain, and subcategory data.
+   */
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('Fetching data...');
         const [sponsorsResponse, subcategoriesResponse, chainsResponse] = await Promise.all([
           axios.get('http://localhost:3000/api/sponsors'),
           axios.get('http://localhost:3000/api/Subcategories'),
@@ -21,12 +35,8 @@ const ManageMissions = ({ closePopup }) => {
         ]);
 
         setSponsorData(sponsorsResponse.data);
-        setSubcategoriesData(subcategoriesResponse.data);
+        setSubcategoryData(subcategoriesResponse.data);
         setChainData(chainsResponse.data);
-
-        console.log('Sponsors data:', sponsorsResponse.data);
-        console.log('Subcategories data:', subcategoriesResponse.data);
-        console.log('Chains data:', chainsResponse.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -35,8 +45,14 @@ const ManageMissions = ({ closePopup }) => {
     fetchData();
   }, []);
 
+  /**
+   * handleMissionSelect
+   * 
+   * Handles the selection of a mission from the search results.
+   * 
+   * @param {Object} mission - The selected mission object.
+   */
   const handleMissionSelect = useCallback((mission) => {
-    console.log('Mission selected:', mission);
     setSelectedMission(mission);
   }, []);
 
@@ -53,7 +69,10 @@ const ManageMissions = ({ closePopup }) => {
           sponsorData={sponsorData} 
           chainData={chainData}
           subcategoryData={subcategoryData}
-          closeForm={closePopup}
+          closeForm={() => setSelectedMission(null)} // Resets to search view
+          openManageChains={openManageChains}
+          openManageSponsors={openManageSponsors}
+          openManageSubcategories={openManageSubcategories}
         />
       )}
     </div>

@@ -1,8 +1,16 @@
 import React from 'react';
+/**
+ * SponsorSelection Component
+ * 
+ * This component is responsible for rendering a dropdown selection for sponsors.
+ * 
+ * Props:
+ * - sponsorData: Array of sponsor objects to populate the dropdown options.
+ * - selectedSponsor: The currently selected sponsor ID.
+ * - handleSponsorChange: Function to handle the selection change.
+ */
 
 const SponsorSelection = ({ sponsorData = [], selectedSponsor = '', handleSponsorChange }) => {
-  console.log('Sponsor data:', sponsorData); // Log to ensure it's defined
-
   return (
     <div id="sponsorSelectionMissions">
       <label htmlFor="includeSponsor">Sponsor:</label>
@@ -13,20 +21,18 @@ const SponsorSelection = ({ sponsorData = [], selectedSponsor = '', handleSponso
         onChange={handleSponsorChange}
       >
         <option value="" disabled>Select your option</option>
-        {Array.isArray(sponsorData) && sponsorData.map((sponsor) => (
-          // Add a check to ensure sponsor is not undefined
-          sponsor && sponsor.sponsor_id && (
-            <option key={sponsor.sponsor_id} value={sponsor.sponsor_id}>
-              {sponsor.name} {/* Display name */}
-            </option>
-          )
+        {sponsorData.map((sponsor) => (
+          <option key={sponsor.sponsor_id} value={sponsor.sponsor_id}>
+            {sponsor.name}
+          </option>
         ))}
-        <option value="null">None</option> {/* Add None option */}
+        <option value="null">None</option> {/* None option remains */}
       </select>
     </div>
   );
 };
 
 export default SponsorSelection;
+
 
 

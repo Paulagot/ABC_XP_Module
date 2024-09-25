@@ -3,10 +3,23 @@ import db from './config_db.js';
 
 const criteriaRouter = express.Router();
 
-// Get criteria by mission_id
+// Get criteria by mission_id with bite_name and subcategory_name
 criteriaRouter.get('/criteria', (req, res) => {
     const { mission_id } = req.query;
-    const query = 'SELECT * FROM criteria WHERE mission_id = ?';
+    const query = `
+        SELECT 
+            c.*, 
+            b.name AS bite_name, 
+            s.name AS subcategory_name 
+        FROM 
+            criteria c
+        LEFT JOIN 
+            bites b ON c.bite_id = b.bite_id
+        LEFT JOIN 
+            subcategories s ON c.subcategory_id = s.subcategory_id
+        WHERE 
+            c.mission_id = ?
+    `;
     
     db.query(query, [mission_id], (err, results) => {
         if (err) {
@@ -100,8 +113,18 @@ criteriaRouter.delete('/criteria/:id', (req, res) => {
 
 // Get all criteria
 criteriaRouter.get('/criteria/all', (req, res) => {
-    const query = 'SELECT * FROM criteria';
-   
+    const query = `
+        SELECT 
+            c.*, 
+            b.name AS bite_name, 
+            s.name AS subcategory_name 
+        FROM 
+            criteria c
+        LEFT JOIN 
+            bites b ON c.bite_id = b.bite_id
+        LEFT JOIN 
+            subcategories s ON c.subcategory_id = s.subcategory_id
+    `;
     
     db.query(query, (err, results) => {
         if (err) {
@@ -111,5 +134,37 @@ criteriaRouter.get('/criteria/all', (req, res) => {
         return res.status(200).json(results);
     });
 });
+
+// Get criteria by mission_id
+criteriaRouter.get('/criteria/mission/:mission_id', (req, res) => {
+    const { mission_id } = req.params;
+
+    const query = `
+        SELECT 
+            c.*, 
+            b.name AS bite_name, 
+            s.name AS subcategory_name 
+        FROM 
+            criteria c
+        LEFT JOIN 
+            bites b ON c.bite_id = b.bite_id
+        LEFT JOIN 
+            subcategories s ON c.subcategory_id = s.subcategory_id
+        WHERE 
+            c.mission_id = ?
+    `;
+    
+    db.query(query, [mission_id], (err, results) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({ error: 'Database error', details: err });
+        }
+        if (results.length === 0) {
+            return res.status(200).json([]); // Return empty array if no criteria found
+        }
+        return res.status(200).json(results);
+    });
+});
+
 
 export default criteriaRouter;

@@ -1,28 +1,20 @@
 import React from "react";
+import Confetti from "react-confetti";
 
-// this popup will happen when a user completes a mission
-//it will be a back end function auto triggered by something**
-
-
-const xpAchievement = ({ Byte, learningPoints, missions }) => {
+const MissionCompletePopup = ({ mission, userName, xpEarned, onClose }) => {
     return (
-      <div className="achievement-popup">
-        <div className="header">
-          <span role="img" aria-label="Star">🌟</span> Congratulations! <span role="img" aria-label="Star">🌟</span>
+        <div className="achievement-popup">
+            <Confetti numberOfPieces={300} />
+            <div className="header">
+                <span role="img" aria-label="Star">🌟</span> Congratulations {userName}! <span role="img" aria-label="Star">🌟</span>
+            </div>
+            <div className="mission-name">You completed: {mission}</div>
+            <div className="xp-earned">
+                <strong>eXperience Points Earned:</strong> {xpEarned} XP
+            </div>
+            <div className="close-button" onClick={onClose}>Close</div>
         </div>
-        <div className="Byte-name">{Byte}</div>
-        <div className="learning-points">
-          <strong>eXperience Points Achieved:</strong>
-          {learningPoints.map((point, index) => (
-            <div key={index}>{point.topic}: {point.points} points</div>
-          ))}
-        </div>
-        <div className="unlocked-missions">
-          <strong>You've unlocked new missions!</strong>
-          <div>Keep up the great work! <span role="img" aria-label="Confetti">🎊</span></div>
-        </div>
-      </div>
     );
-  };
-  
-  export default xpAchievement;
+};
+
+export default MissionCompletePopup;

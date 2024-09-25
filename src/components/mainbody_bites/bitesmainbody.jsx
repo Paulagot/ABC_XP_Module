@@ -3,7 +3,7 @@ import Bites_Sub_filter from "./bitessubfilter";
 import Bites_Main_filter from "./bitesmainfilters";
 import Bites_Cards from "./bitescards";
 import Page_header from "../Navbar/pageheader";
-
+import LearningAchievement from "./bitescompletepopup";
 
 
 function Bites_main_body() {
@@ -75,7 +75,7 @@ function Bites_main_body() {
     };
 
     const handleFilterSelect = (filter) => {
-        setActiveFilter(filter);
+                setActiveFilter(filter);
     };
 
     const filteredData = bitesData.filter(item => {
@@ -91,17 +91,22 @@ function Bites_main_body() {
             </div>
             
             <Bites_Sub_filter
-                subcategories={availableSubcategories}  // Pass only available subcategories
+                subcategories={availableSubcategories}
                 selectedSubcategory={selectedSubcategory}
                 onSelectSubcategory={handleSelectSubcategory}
-                resetAllFilters={resetAllFilters}  // Pass the reset function as a prop
+                resetAllFilters={resetAllFilters}
             />
             <Bites_Main_filter 
-                categories={availableFilters}  // Pass only available filters
+                categories={availableFilters}
                 activeFilter={activeFilter}
                 onFilterSelect={handleFilterSelect}
             />
-            <Bites_Cards item={filteredData} />
+            <Bites_Cards 
+                item={filteredData} 
+            />
+
+            {/* Render the popup component */}
+            <LearningAchievement userId="555" />
         </main>
     );
 }

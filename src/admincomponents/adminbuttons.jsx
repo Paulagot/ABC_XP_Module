@@ -4,7 +4,7 @@ const ButtonSection = ({ togglePopup }) => {
   return (
     <div className="buttonSection">
       <div className="homebtnContainer">
-        <button className="homebtn" type="button" id="manageUserBtn" onClick={() => togglePopup('userPopup')}>Manage User</button>
+        {/* <button className="homebtn" type="button" id="manageUserBtn" onClick={() => togglePopup('userPopup')}>Manage User</button> */}
         <button className="homebtn"  type="button" id="manageSubCategoryBtn" onClick={() => togglePopup('subCategoryPopup')}>Manage Sub-Categories</button>
         <button className="homebtn"  type="button" id="manageBitesBtn" onClick={() => togglePopup('bitesPopup')}>Manage Bites</button>
         <button className="homebtn"  type="button" id="manageMissionsBtn" onClick={() => togglePopup('missionsPopup')}>Manage Missions</button>

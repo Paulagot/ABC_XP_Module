@@ -3,7 +3,7 @@ import Leftside from '../components/Leftsidebar/Leftside'
 import Navbar from '../components/Navbar/navbar'
 import Bites_main_body from "../components/mainbody_bites/bitesmainbody"
 
-function Bites() {
+function Bytes() {
     return (
     <>
       <Leftside />
@@ -13,4 +13,4 @@ function Bites() {
     </>
   )
 }
-export default Bites
+export default Bytes
