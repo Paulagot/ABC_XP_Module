@@ -9,6 +9,7 @@ import Missions from './module_pages/missions_page'
 import Profile from './module_pages/profile_page'
 import Leaderboard from './module_pages/leaderboard_page'
 import Loyalty from './module_pages/loyalty_page'
+import Registar from "./module_pages/sign_in_page";
 
 
 function App() {
@@ -17,13 +18,14 @@ function App() {
       <div className="app-container">
         
         <Routes>
-          <Route path="/" element={<Bytes />} />
+          {/* <Route path="/" element={<Bytes />} /> */}
           <Route path="/bites" element={<Bytes />} />
           <Route path="/missions" element={<Missions />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/loyalty" element={<Loyalty />} />
           <Route path="/admin-app" element={<Admin_App />} />
+          <Route path="/registar" element={<Registar />} />
 
         </Routes>
       </div>

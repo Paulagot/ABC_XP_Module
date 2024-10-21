@@ -4,9 +4,11 @@ import Bites_Main_filter from "./bitesmainfilters";
 import Bites_Cards from "./bitescards";
 import Page_header from "../Navbar/pageheader";
 import LearningAchievement from "./bitescompletepopup";
+import { useAuth } from "../../context/auth_context"; // Import the AuthContext
 
 
 function Bites_main_body() {
+    const { user } = useAuth();  // Access the logged-in user from AuthContext
     const [selectedSubcategory, setSelectedSubcategory] = useState(null);
     const [activeFilter, setActiveFilter] = useState(null);
     const [bitesData, setBitesData] = useState([]);
@@ -84,6 +86,8 @@ function Bites_main_body() {
         return matchesSubcategory && matchesCategory;
     });
 
+ 
+
     return (
         <main className="container__right" id="main">
             <div className="show-on-small-screen">
@@ -106,7 +110,10 @@ function Bites_main_body() {
             />
 
             {/* Render the popup component */}
-            <LearningAchievement userId="555" />
+            
+            {/* Conditionally render the LearningAchievement component only if the user is logged in */}
+            {user && <LearningAchievement userId={user.user_id} />}
+
         </main>
     );
 }

@@ -1,28 +1,22 @@
 import { useState, useEffect } from "react";
-import Mission_Cards from "./missionscards";
 import Missions_Sub_filter from "./missionsubcategoryfilter";
 import Page_header from "../Navbar/pageheader"
 import Mission_Chain_Filter from "./missionschainsfilter";
 import MissionEvaluator from "./mission_evulation";
-
-
+import { useAuth } from "../../context/auth_context"; // Import the AuthContext
 
 function Missions_main_body() {
     const [selectedSubcategory, setSelectedSubcategory] = useState(null);
     const [activeFilter, setActiveFilter] = useState(null);
     const [missionsData, setMissionsData] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
-    const [criteria, setCriteria] = useState([]) 
-   const [chains, setChains] = useState([]);
-    const [userId, setUserId] = useState(null); // Dynamic User ID
+    const [criteria, setCriteria] = useState([]);
+    const [chains, setChains] = useState([]);
+    
+    const { user, isAuthenticated } = useAuth(); // Use logged-in user data from Auth context
+    const userId = isAuthenticated ? user.user_id : null; // Get the user ID if logged in
+    
     const [userBytes, setUserBytes] = useState([]); // User progress data (userBytes)
-
-    // Simulate a user login (for testing purposes, we'll use a static user ID after a delay)
-    useEffect(() => {
-        setTimeout(() => {
-            setUserId(555); // Test login user
-        }, 6000); // Simulate delay for login
-    }, []);
 
     // Fetch missions data
     useEffect(() => {

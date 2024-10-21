@@ -17,3 +17,11 @@ db.connect((err) => {
 });
 
 export default db;
+
+// // Replace 'your-endpoint' with the actual RDS endpoint you copied from AWS
+// const db = mysql.createConnection({
+//   host: 'your-endpoint.rds.amazonaws.com',
+//   user: 'your-aws-username', // The username you set for the RDS instance
+//   password: 'your-aws-password', // The password you set for the RDS instance
+//   database: 'xp_module' // The database name you want to connect to
+// });

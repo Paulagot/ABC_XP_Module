@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useAuth } from "../../context/auth_context";
 
-// Mock function to simulate getting the user ID
-const getUserId = () => {
-    return localStorage.getItem('user_id') || '555'; // Fallback to '555' if no user is logged in
-};
 
 function Bites_Cards({ item = [] }) {
+    const { user } = useAuth();  // Access session user data
+
     const [userBytesData, setUserBytesData] = useState([]);
-    const userId = getUserId(); // Retrieve the logged-in user's ID or use mock ID
+    const userId = user?.user_id;  // Get user ID from the session context
 
     console.log('Incoming item data:', item); // Log the incoming item data
 

@@ -1,4 +1,4 @@
-import express from "express";
+import express from 'express';
 import cors from "cors";
 import courseapiRoutes from "./courseapi.js";
 import db from "./config_db.js";
@@ -17,20 +17,68 @@ import UserBytesRouter from "./user_bites_routes.js"
 import UserMissionsRouter from "./user_mission_routes.js";
 import UserCompletedMissionsRouter from "./user_completed_missions.js";
 import UserBytesCardsRouter from "./user_bytes_cards.js";
+import WebhookByteStatusRouter from "./user_bytes_stats_update.js";
+import WebhookMissionStatusRouter from "./user_missions_stats_update.js";
+import leaderboardRouter from './leaderboard.js';
+import userProfileRouter from './user_profile.js';
+import Registarrouter from "./registar_router.js";
+import sessionRouter from "./session_router.js";
+import session from 'express-session';  // Import express-session
+import Knex from 'knex';
+import { ConnectSessionKnexStore } from "connect-session-knex"
+import knexConstructor from "knex";
 
-
-
+// Create the express app
 const app = express();
 const port = 3000;
 
-// Enable CORS for the frontend running on localhost:3001
+// Configure CORS
+const allowedOrigins = [
+  'https://ablockofcrypto.com', // Replace with your Zenler domain
+  'http://localhost:5173'       // Allow localhost for development
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173'
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true // Allow cookies and sessions from cross-origin requests
 }));
+
+// **Configure session middleware** - Add this below the CORS setup
+// Initialize the session store using Knex
+const store = new ConnectSessionKnexStore({
+  knex: knexConstructor({
+    client: 'mysql2',  // or 'pg' for PostgreSQL
+  connection: {
+    host: 'localhost',
+    user: 'root',
+    password: 'Tra1ning',
+    database: 'xp_module'
+  }
+})
+});
+
+// Configure session middleware with Knex as the session store
+app.use(session({
+  store,  // Use the SQL-based session store
+  secret: '1234567890',  // Replace with a strong secret key
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,  // Set to true in production with HTTPS
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24  // 1 day session duration
+  }
+}));
+
 
 // Middleware to parse JSON bodies
 app.use(express.json());
-
 
 // Use API routes
 app.use('/api', courseapiRoutes); // this route is for getting the bites/missions data from zenler
@@ -48,8 +96,13 @@ app.use ('/api',missionDisplayRoutes); // this route is for the missioncards
 app.use ('/api', UserBytesRouter); // this route is for the user/bites data
 app.use ('/api', UserMissionsRouter); // this route is for the user/missions data
 app.use ('/api',UserCompletedMissionsRouter);// this route is for the user completed missions data
-app.use ('/api', UserBytesCardsRouter)
-
+app.use ('/api', UserBytesCardsRouter);
+app.use('/api', WebhookByteStatusRouter); //this route is for updating the user bytes status when a byte is started or complete
+app.use('/api', WebhookMissionStatusRouter); //this route is for updating the user mission status when a mission is started or complete
+app.use('/api', leaderboardRouter);
+app.use('/api',userProfileRouter);
+app.use('/api',Registarrouter);
+app.use('/session', sessionRouter); // All session-related routes will be prefixed with /session
 
 
 // Basic route to test server is working

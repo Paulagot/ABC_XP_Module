@@ -181,7 +181,7 @@
   right: 0;
   z-index: 1000;   
   max-width: 80%; 
-  margin-left: 21%;    
+  margin-left: 20.11%;    
   transition: width 0.3s ease-in-out, margin-left 0.3s ease-in-out; 
   
 }
@@ -453,7 +453,7 @@
 .byte_card_content {
   height: 100%;
   width: 100%;
-  transition: transform 0.5s ease, opacity 0.5s ease; /* Smooth transition for transform and opacity */
+  transition: transform 0.7s ease, opacity 0.7s ease; /* Smooth transition for transform and opacity */
   position: relative; /* Ensure child elements are positioned relative to this container */
 }
 
@@ -465,7 +465,7 @@
   box-shadow: 10px 10px 15px #285c41;
   position: relative; /* Set position relative for z-index to work */
   color: #285c41;
-  transition: box-shadow 0.5s ease, transform 0.5s ease; /* Smooth transition for box-shadow and transform */
+  transition: box-shadow 0.7s ease, transform 0.7s ease; /* Smooth transition for box-shadow and transform */
 }
 
 /* Confetti container to appear behind other content */
@@ -495,7 +495,7 @@
   
   z-index: 4; /* Ensure it’s on top of confetti but below other content */
   text-align: center;
-  transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth transition for opacity and transform */
+  transition: opacity 0.7s ease, transform 0.7s ease; /* Smooth transition for opacity and transform */
 }
 
 .hover_content .byte-description,
@@ -505,7 +505,7 @@
 .byte-user_status {
   position: relative; /* Ensure these elements are positioned relative to their parent */
   z-index: 20; /* Make sure these elements are above the confetti */
-  transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth transition for opacity and transform */
+  transition: opacity 0.7s ease, transform 0.7s ease; /* Smooth transition for opacity and transform */
 }
 
 /* Style when the user is not enrolled */
@@ -555,6 +555,10 @@
   display: flex;
   flex-direction: column;
   margin-top: 20px;
+  
+  margin-left: 5px;
+  margin-right: 5px;
+  border-radius: 5px;
 }
 
 .byte_points_container,
@@ -563,6 +567,9 @@
   align-items: center;
   justify-content: center;
   background-color: transparent;
+  
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .byte_points {
@@ -617,7 +624,10 @@
   font-size: 22px;
   margin-bottom: 15px;
   background-color: transparent;
-  margin-top: 10px;
+  margin-top: 20px;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-bottom: 20px;
 }
 
 .hover_sponsor {
@@ -708,15 +718,28 @@
   border-radius: 50%;
   background: transparent;
 }
-
-.mission_container_content {
-  width: 300px;
-  height: 350px;
-  perspective: 800px; /* Keeps the 3D perspective intact */
-  margin-left: 25px;
-  position: relative;
-  background-color: transparent;
+.container_missions {
+  display: flex;
+  flex-direction: column; /* Stack locked and unlocked sections vertically */
+ 
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 10px;
+  gap: 30px;
+  margin-top: 25px;
 }
+
+/* Mission container content (unlocked or locked) */
+.mission_container_content {
+  display: flex;
+  flex-wrap: wrap; /* Allow missions to wrap into the next line */
+  justify-content: center; /* Center the missions */
+  gap: 30px; /* Add space between the mission cards */
+  width: 100%; /* Ensure full width for wrapping */
+  margin-left: 25px;
+}
+
+
 
 /* Ensure smooth transition */
 .mission_card_content:hover > .mission_card {
@@ -724,15 +747,13 @@
   transform: rotateY(180deg);
 }
 
-/* Card container transition */
+/* Each mission card content */
 .mission_card_content {
-  height: 100%;
-  width: 100%;
+  width: 300px; /* Adjust width of the mission cards */
+  height: 350px;
+  perspective: 800px; /* Keep the 3D perspective intact */
   position: relative;
-  transform-style: preserve-3d; /* Ensure that 3D transformation is preserved */
-  transition: transform 1200ms ease;
-  perspective: inherit; /* Inherits perspective from parent */
-  background-color: transparent;
+  transition: transform 0.7s ease-in-out; /* Smooth transition for the entire container */
 }
 
 /* Main card styling */
@@ -745,6 +766,9 @@
   position: relative; /* Stay within the content boundaries */
   transform-style: preserve-3d; /* Ensure child elements rotate in 3D */
   transition: transform 1200ms ease; /* Smooth transition during rotation */
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  justify-content: center; /* Space between thumbnail, top content, and lower content */
 }
 
 /* Front and back content */
@@ -757,9 +781,9 @@
   backface-visibility: hidden; /* Ensures the hidden side is not visible */
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
-  gap: 2rem;
+  
   overflow: hidden;
   border-radius: 2rem; /* Rounded corners remain on both sides */
 }
@@ -775,47 +799,84 @@
   transform: rotateY(180deg);
   z-index: 1; /* Ensure back is behind the front when not flipped */
   border: solid 1px #285C41;
-  position: absolute;
+  
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  
+  text-align: center; /* Ensure all text elements are centered */
+  gap: 15px; /* Add spacing between elements */
+  width: 100%;  /*Ensure full width */
+  height: 100%;  /*Ensure full height */
 }
+
+
 
 /* Locked missions */
 .mission_card_content.locked .front {
   filter: grayscale(80%);
 }
 
-/* Completed missions: Gold box shadow */
-.mission_card_content.completed .front {
-  box-shadow: 10px 10px 25px rgba(255, 215, 0, 0.6); /* Intense gold glow */
+.mission_card_content.locked {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-/* Missions in progress (continue mission): Green box shadow */
-.mission_card_content.unlocked:not(.completed):not(.not-accepted) .front {
-  box-shadow: 10px 10px 20px #285C41; /* Green glow */
-}
-
-/* Not yet accepted missions: Light blue box shadow */
-.mission_card_content.not-accepted:not(.completed) .front {
-  box-shadow: 10px 10px 15px #8fe7f4; /* Blue glow */
-}
-
+/* Thumbnail (Image) */
 .mission_img {
-  width: inherit;
-  border-radius: 2rem 2rem 0 0;
+  width: 100%; /* Make sure it covers the full width of the card */
+  
+  height: 50%; /* Control the height to ensure it takes 50% of the card */
+  object-fit: cover; /* Ensure the image covers the area without stretching */
+  margin: 0; /* Remove any margin to make it stick to the top */
+  padding: 0;
 }
 
+/* Top content, including sponsor logo */
+.mission_top_content {
+  display: flex;
+  
+  align-items: center;
+  margin-top: 10px; /* Add some space above the sponsor logo */
+
+ 
+  flex-direction: row; /* Align items in a row */
+  justify-content: space-between; /* Distribute items to the edges */
+  position: absolute; /* Position top_content absolutely */
+  top: 130px; /* Adjust this value to control the overlap */
+  width: 90%; /* Make sure it spans the width of the card */
+  z-index: 2; /* Ensure top_content is above the image */
+  
+  background-color: transparent;
+
+}
+
+/* Lower content (name and points) */
 .mission_lower_content {
   display: flex;
   flex-direction: column;
-  margin-top: 20px;
+  align-items: center;
+  justify-content: center;
   background-color: #5a8992;
+  margin-top: 20px;
+  
+  
 }
 
+/* Mission name styling */
 .mission-name {
   color: #ffffff;
   font-size: 20px;
-  margin: 10px 5px;
+  margin: 5px 0; /* Adjust margin for better spacing */
   text-align: center;
   background-color: #5a8992;
+}
+
+/* Mission points styling */
+.mission_points_container {
+  display: flex;
+  justify-content: center;
 }
 
 .mission_points {
@@ -830,20 +891,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 15px;
+  margin-top: 10px;
   box-shadow: 5px 5px 10px #ffffff;
 }
 
-/* Mission description and content on back */
+/* Mission description on the back */
 .mission-description {
-  margin: 0px 10px;
   font-weight: 700;
   font-size: 22px;
-  text-align: center;
+  text-align: center; /* Center-align the text */
+  margin-top: 40px;
+  margin-bottom: 30px; /* Add margin for spacing */
+  color: #285C41;
 }
 
 .mission-sponsor-logo-container {
   background-color: transparent;
+  margin-top: 20px;
+  margin-bottom: 30px;
 }
 
 .mission-sponsor-logo {
@@ -880,26 +945,19 @@
   margin-bottom: 10px;
 }
 
-.mission_user_status {
-  margin: 7px;
-}
-
-
-
-
-.progress-bar {
-  width: 60%;
-  background-color: red;
+/* Mission status on the back */
+.mission-user_status {
+  font-weight: bold;
+  color: #285c41;
+  border: 1px solid #285c41;
+  padding: 10px;
   border-radius: 5px;
-  overflow: hidden;
-  height: 20px;
-  margin-top: 10px;
+  box-shadow: 5px 5px 10px #8fe7f4;
+  transition: transform 0.5s ease;
 }
 
-.progress {
-  height: 100%;
-  background-color: #4caf50;
-  transition: width 0.3s ease;
+.mission-user_status:hover {
+  transform: scale(1.1);
 }
 
 
@@ -910,3 +968,175 @@
   margin-right: 0;
   }}
 
+
+  .leaderboard-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    z-index: 20;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.leaderboard-table th {
+    background-color: #285c41;
+    color: white;
+}
+
+.leaderboard-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.leaderboard-table tr:hover {
+    background-color: #d1e7dd;
+}
+
+.user-ranking {
+  margin-top: 20px;
+  margin-bottom: 30px;
+  font-weight: 800;
+  font-style: italic;
+  font-style: 30px;
+}
+
+@media (max-width: 600px) {
+    .leaderboard-table-container {
+        overflow-x: auto;
+    }
+    
+    .leaderboard-table th, .leaderboard-table td {
+        font-size: 0.9em;
+        padding: 8px;
+    }
+}
+
+/* Style for centering the form and applying box shadow */
+.container__right {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;     /* Center vertically */
+  height: 100vh;           /* Full viewport height */
+  background-color: #f9f9f9; /* Subtle background color */
+}
+
+/* Style for the form container (box around form) */
+form {
+  background-color: white;      /* White background for the form */
+  padding: 30px;                /* Add padding inside the form */
+  border-radius: 10px;          /* Rounded corners */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Subtle box shadow */
+  max-width: 400px;             /* Limit the width of the form */
+  width: 100%;                  /* Ensure full width on smaller screens */
+  display: flex;
+  flex-direction: column;       /* Stack form elements vertically */
+}
+
+/* Heading style for form titles */
+form h2 {
+  text-align: center;           /* Center align the form heading */
+  margin-bottom: 20px;          /* Space below the heading */
+  font-size: 28px;
+  color: #285c41;
+}
+
+/* Input field styles */
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+  width: 100%;                  /* Full width inputs */
+  padding: 10px;                /* Padding inside input fields */
+  margin-bottom: 15px;          /* Space between inputs */
+  border: 1px solid #ddd;       /* Light border */
+  border-radius: 5px;           /* Rounded corners */
+  font-size: 18px;
+  box-sizing: border-box;       /* Ensure padding doesn't affect width */
+}
+
+/* Error message styles */
+.error {
+  color: #e74c3c;               /* Red color for error messages */
+  font-size: 18px;
+  margin-top: -10px;            /* Space between error message and input */
+  margin-bottom: 10px;
+}
+
+/* Checkbox and labels */
+form label {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;          /* Space below checkbox labels */
+}
+
+form input[type="checkbox"] {
+  margin-right: 10px;           /* Space between checkbox and label */
+}
+
+/* Button styles */
+form button {
+  padding: 10px 15px;           /* Padding for the button */
+  border: none;                 /* Remove default border */
+  background-color: #285c41;    /* Primary button color */
+  color: white;                 /* White text on button */
+  font-size: 18px;
+  cursor: pointer;              /* Pointer cursor on hover */
+  border-radius: 5px;           /* Rounded corners */
+  margin-bottom: 10px;          /* Space below the button */
+  transition: background-color 0.3s ease; /* Smooth color transition */
+}
+
+form button:hover {
+  background-color: #285c41;    /* Darker shade on hover */
+}
+
+/* Toggle links (Sign in, Sign up, Forgot Password) */
+.toggle-links {
+  display: flex;
+  justify-content: center;      /* Center align the links */
+  margin-top: 10px;
+}
+
+.toggle-links button {
+  background: none;             /* Remove button background */
+  border: none;                 /* Remove button border */
+  color: #285c41;               /* Use primary color for links */
+  cursor: pointer;
+  font-size: 18px;
+  margin: 0 5px;
+  transition: color 0.3s ease;  /* Smooth color transition on hover */
+}
+
+.toggle-links button:hover {
+  color: #285c41;               /* Darker color on hover */
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 600px) {
+  form {
+      padding: 20px;            /* Reduce padding on smaller screens */
+  }
+
+  form button {
+      font-size: 14px;          /* Slightly smaller text on buttons */
+  }
+
+  form input[type="text"],
+  form input[type="email"],
+  form input[type="password"] {
+      font-size: 14px;          /* Slightly smaller input text on mobile */
+  }
+}
