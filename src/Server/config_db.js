@@ -1,10 +1,9 @@
 import mysql from "mysql2";
 
 const db = mysql.createConnection({
-  host: '16.171.3.129',
-  user: 'root',
-  password: 'Tra1ning',
-  database: 'xp_module'
+  host: 'abc-main-db.cxc00qewqhzv.eu-north-1.rds.amazonaws.com',
+  user: 'admin',
+  password: 'Abc12345'
 });
 
 // Connect to the database
