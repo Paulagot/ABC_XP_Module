@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         // Fetch session data from the backend
-        fetch('http://localhost:3000/session/check-session', { credentials: 'include' })
+        fetch('http://16.171.3.129:3000/session/check-session', { credentials: 'include' })
             .then((res) => res.json())
             .then((data) => {
                 setIsAuthenticated(data.isAuthenticated);

@@ -16,7 +16,7 @@ function Profile_main_body() {
         // Fetch user profile data, including progress and LP accumulation
         const fetchData = async () => {
             try {
-                const response = await fetch("http://localhost:3000/api/profile"); // Adjust the endpoint as necessary
+                const response = await fetch("http://16.171.3.129:3000/api/profile"); // Adjust the endpoint as necessary
                 const data = await response.json();
 
                 setUserData(data.user);

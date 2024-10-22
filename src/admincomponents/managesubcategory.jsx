@@ -28,7 +28,7 @@ const ManageSubCategory = ({ closePopup }) => {
      */
     const searchSubCategory = async (query) => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/subcategories/search?q=${query}`);
+            const response = await axios.get(`http://16.171.3.129:3000/api/subcategories/search?q=${query}`);
             console.log(response.data); // Log the response data for debugging purposes
             setSearchResults(response.data); // Update search results state with the data received
         } catch (error) {
@@ -48,7 +48,7 @@ const ManageSubCategory = ({ closePopup }) => {
         event.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:3000/api/subcategories', { name });
+            const response = await axios.post('http://16.171.3.129:3000/api/subcategories', { name });
             setMessage(`Subcategory created successfully with ID: ${response.data.id}`);
             resetForm(); // Reset form fields after successful creation
         } catch (error) {
@@ -68,7 +68,7 @@ const ManageSubCategory = ({ closePopup }) => {
         event.preventDefault();
 
         try {
-            await axios.put(`http://localhost:3000/api/subcategories/${subcategoryId}`, { name });
+            await axios.put(`http://16.171.3.129:3000/api/subcategories/${subcategoryId}`, { name });
             setMessage(`Subcategory updated successfully to "${name}"`);
             resetForm(); // Reset form fields after successful update
         } catch (error) {
@@ -84,7 +84,7 @@ const ManageSubCategory = ({ closePopup }) => {
      */
     const deleteSubCategory = async () => {
         try {
-            await axios.delete(`http://localhost:3000/api/subcategories/${subcategoryId}`);
+            await axios.delete(`http://16.171.3.129:3000/api/subcategories/${subcategoryId}`);
             setMessage('Subcategory deleted successfully');
             resetForm(); // Reset form fields after successful deletion
             setShowConfirmation(false); // Close the confirmation popup

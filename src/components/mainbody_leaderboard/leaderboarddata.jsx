@@ -13,7 +13,7 @@ export function useLeaderboardData(userId = null) {
     useEffect(() => {
         const fetchLeaderboardData = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/api/leaderboard${userId ? `?userId=${userId}` : ""}`);
+                const response = await fetch(`http://16.171.3.129:3000/api/leaderboard${userId ? `?userId=${userId}` : ""}`);
 
                 const data = await response.json();
 

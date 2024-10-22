@@ -47,7 +47,7 @@ function SignUpForm() {
             setErrors({});
             try {
                 // Send data to the backend using fetch
-                const response = await fetch('http://localhost:3000/api/signup', {
+                const response = await fetch('http://16.171.3.129:3000/api/signup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

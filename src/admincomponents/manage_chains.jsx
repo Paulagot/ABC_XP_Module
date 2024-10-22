@@ -26,7 +26,7 @@ const ManageChain = ({ closePopup }) => {
      */
     const searchChain = async (query) => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/chains/search?q=${query}`);
+            const response = await axios.get(`http://16.171.3.129:3000/api/chains/search?q=${query}`);
             console.log(response.data); // Log response data for debugging purposes
             setSearchResults(response.data); // Update search results state with the data received
         } catch (error) {
@@ -49,7 +49,7 @@ const ManageChain = ({ closePopup }) => {
         }
 
         try {
-            const response = await axios.post('http://localhost:3000/api/chains', { name, chain_image });
+            const response = await axios.post('http://16.171.3.129:3000/api/chains', { name, chain_image });
             setMessage(`Chain created successfully with ID: ${response.data.id}`);
             clearForm(); // Reset form fields after successful creation
         } catch (error) {
@@ -72,7 +72,7 @@ const ManageChain = ({ closePopup }) => {
         }
 
         try {
-            await axios.put(`http://localhost:3000/api/chains/${chain_id}`, { name, chain_image });
+            await axios.put(`http://16.171.3.129:3000/api/chains/${chain_id}`, { name, chain_image });
             setMessage(`"${name}" updated successfully`);
             clearForm(); // Reset form fields after successful update
         } catch (error) {
@@ -87,7 +87,7 @@ const ManageChain = ({ closePopup }) => {
      */
     const deleteChain = async () => {
         try {
-            await retryOperation(() => axios.delete(`http://localhost:3000/api/chains/${chain_id}`), 3);
+            await retryOperation(() => axios.delete(`http://16.171.3.129:3000/api/chains/${chain_id}`), 3);
             setMessage('Chain deleted successfully');
             clearForm(); // Reset form fields after successful deletion
             setShowConfirmation(false); // Close the confirmation popup

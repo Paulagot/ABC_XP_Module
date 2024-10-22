@@ -6,7 +6,7 @@ const UnpublishedBitesTable = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/bites/unpublished')
+    axios.get('http://16.171.3.129:3000/api/bites/unpublished')
       .then(response => {
         setBites(response.data);
         setLoading(false);

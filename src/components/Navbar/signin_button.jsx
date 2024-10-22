@@ -5,7 +5,7 @@ function SigninButton() {
 
     // Check if the user is logged in by calling the backend session check
     useEffect(() => {
-        fetch('http://localhost:3000/session/check-session', { credentials: 'include' }) // Updated URL
+        fetch('http://16.171.3.129:3000/session/check-session', { credentials: 'include' }) // Updated URL
             .then((res) => res.json())
             .then((data) => setIsLoggedIn(data.isAuthenticated))
             .catch((error) => console.error("Session check failed:", error));
@@ -14,7 +14,7 @@ function SigninButton() {
     const handleClick = () => {
         if (isLoggedIn) {
             // Log the user out by calling the backend logout route
-            fetch('http://localhost:3000/session/logout', { method: 'POST', credentials: 'include' }) // Updated URL
+            fetch('http://16.171.3.129:3000/session/logout', { method: 'POST', credentials: 'include' }) // Updated URL
                 .then(() => {
                     setIsLoggedIn(false);
                     // Redirect to home page after logout
@@ -23,7 +23,7 @@ function SigninButton() {
                 .catch((error) => console.error("Logout failed:", error));
         } else {
             // Redirect to the sign-in (registar) page
-            window.location.href = 'http://localhost:5173/registar'; // Updated sign-in route
+            window.location.href = 'http://16.171.3.129:5173/registar'; // Updated sign-in route
         }
     };
 

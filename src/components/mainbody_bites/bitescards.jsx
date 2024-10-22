@@ -13,7 +13,7 @@ function Bites_Cards({ item = [] }) {
     useEffect(() => {
         if (userId) {
             // Fetch user bytes data for the logged-in user
-            fetch(`http://localhost:3000/api/user_bytes?user_id=${userId}`)
+            fetch(`http://16.171.3.129:3000/api/user_bytes?user_id=${userId}`)
                 .then(response => response.json())
                 .then(data => {
                     console.log('Fetched user bytes data:', data); // Log the fetched data

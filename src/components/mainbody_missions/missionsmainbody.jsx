@@ -22,7 +22,7 @@ function Missions_main_body() {
     useEffect(() => {
         const fetchMissionsData = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/missionscards');
+                const response = await fetch('http://16.171.3.129:3000/api/missionscards');
                 const data = await response.json();
                 setMissionsData(data);
             } catch (error) {
@@ -35,7 +35,7 @@ function Missions_main_body() {
 
     useEffect(() => {
         const fetchCriteria = async () => {
-            const response = await fetch('http://localhost:3000/api/criteria/all');
+            const response = await fetch('http://16.171.3.129:3000/api/criteria/all');
             const data = await response.json();
             setCriteria(data);
         };
@@ -46,7 +46,7 @@ function Missions_main_body() {
     useEffect(() => {
         const fetchSubcategories = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/fetchsubcategories');
+                const response = await fetch('http://16.171.3.129:3000/api/fetchsubcategories');
                 const data = await response.json();
                 setSubcategories(data);
             } catch (error) {
@@ -61,7 +61,7 @@ function Missions_main_body() {
     useEffect(() => {
         const fetchChains = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/chains');
+                const response = await fetch('http://16.171.3.129:3000/api/chains');
                 const data = await response.json();
                 setChains(data);
             } catch (error) {
@@ -77,7 +77,7 @@ function Missions_main_body() {
         if (userId) {
             const fetchUserBytes = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3000/api/user_bytes?user_id=${userId}`);
+                    const response = await fetch(`http://16.171.3.129:3000/api/user_bytes?user_id=${userId}`);
                     const data = await response.json();
                     setUserBytes(data); // Store userBytes data
                 } catch (error) {

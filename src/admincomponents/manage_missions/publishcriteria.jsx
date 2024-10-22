@@ -20,7 +20,7 @@ const PublishCriteria = ({ missionId, setCanPublish, published }) => {
   useEffect(() => {
     const fetchCriteria = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/criteria/mission/${missionId}`);
+        const response = await axios.get(`http://16.171.3.129:3000/api/criteria/mission/${missionId}`);
         const count = response.data.length;
         setCriteriaCount(count);
         setCanPublish(count > 0);

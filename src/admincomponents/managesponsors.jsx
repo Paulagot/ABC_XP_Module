@@ -33,7 +33,7 @@ const ManagePartner = ({ closePopup }) => {
      */
     const searchSponsor = async (query) => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/sponsors/search?q=${query}`);
+            const response = await axios.get(`http://16.171.3.129:3000/api/sponsors/search?q=${query}`);
             console.log(response.data); // Log the response data for debugging purposes
             setSearchResults(response.data); // Update search results state with the data received
         } catch (error) {
@@ -63,7 +63,7 @@ const ManagePartner = ({ closePopup }) => {
         }
 
         try {
-            const response = await axios.post('http://localhost:3000/api/sponsors', { name, sponsor_image, website });
+            const response = await axios.post('http://16.171.3.129:3000/api/sponsors', { name, sponsor_image, website });
             setMessage(`Partner created successfully with ID: ${response.data.id}`);
             resetForm(); // Reset form fields after successful creation
         } catch (error) {
@@ -93,7 +93,7 @@ const ManagePartner = ({ closePopup }) => {
         }
 
         try {
-            await axios.put(`http://localhost:3000/api/sponsors/${sponsorId}`, { name, sponsor_image, website });
+            await axios.put(`http://16.171.3.129:3000/api/sponsors/${sponsorId}`, { name, sponsor_image, website });
             setMessage(`Partner "${name}" updated successfully.`);
             resetForm(); // Reset form fields after successful update
         } catch (error) {
@@ -109,7 +109,7 @@ const ManagePartner = ({ closePopup }) => {
      */
     const deleteSponsor = async () => {
         try {
-            await axios.delete(`http://localhost:3000/api/sponsors/${sponsorId}`);
+            await axios.delete(`http://16.171.3.129:3000/api/sponsors/${sponsorId}`);
             setMessage('Partner deleted successfully');
             resetForm(); // Reset form fields after successful deletion
             setShowConfirmation(false); // Close the confirmation popup

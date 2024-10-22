@@ -6,7 +6,7 @@ const UnpublishedMissionsTable = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/missions/unpublished')
+    axios.get('http://16.171.3.129:3000/api/missions/unpublished')
       .then(response => {
         setMissions(response.data);
         setLoading(false);

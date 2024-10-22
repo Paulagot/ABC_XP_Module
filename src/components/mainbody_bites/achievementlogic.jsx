@@ -13,7 +13,7 @@ const AchievementLogic = ({ userId, onAchievement }) => {
     const fetchUserDataAndBytes = async () => {
       try {
         // Fetch user data
-        const userResponse = await fetch(`http://localhost:3000/api/user_bytes_cards?user_id=${userId}`);
+        const userResponse = await fetch(`http://16.171.3.129:3000/api/user_bytes_cards?user_id=${userId}`);
         const userData = await userResponse.json();
 
         if (userData.length > 0 && userData[0].first_name) {
@@ -22,7 +22,7 @@ const AchievementLogic = ({ userId, onAchievement }) => {
         }
 
         // Fetch completed bytes
-        const bytesResponse = await fetch(`http://localhost:3000/api/user_completed_bytes?user_id=${userId}`);
+        const bytesResponse = await fetch(`http://16.171.3.129:3000/api/user_completed_bytes?user_id=${userId}`);
         const completedBytes = await bytesResponse.json();
         console.log("Fetched completed bytes data:", completedBytes);
 
@@ -31,7 +31,7 @@ const AchievementLogic = ({ userId, onAchievement }) => {
         console.log("Calculated user LP data:", lpData);
 
         // Fetch all criteria
-        const criteriaResponse = await fetch(`http://localhost:3000/api/criteria/all`);
+        const criteriaResponse = await fetch(`http://16.171.3.129:3000/api/criteria/all`);
         const criteriaData = await criteriaResponse.json();
         console.log("Fetched criteria data:", criteriaData);
 

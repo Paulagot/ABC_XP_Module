@@ -24,7 +24,7 @@ const SearchMissions = memo(({ onSelectMission }) => {
     const searchMissions = useCallback(async (query) => {
       if (!query) return; // Skip empty queries
       try {
-        const response = await axios.get(`http://localhost:3000/api/missions/search?name=${query}`);
+        const response = await axios.get(`http://16.171.3.129:3000/api/missions/search?name=${query}`);
         setSearchResults(response.data); // Update search results state with the data received
       } catch (error) {
         console.error('Error searching missions:', error);

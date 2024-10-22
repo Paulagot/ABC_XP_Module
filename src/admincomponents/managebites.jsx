@@ -35,13 +35,13 @@ const ManageBites = ({ closePopup }) => {
     // Fetch categories, subcategories, and sponsors when the component mounts
     const fetchData = async () => {
       try {
-        const categoriesResponse = await axios.get('http://localhost:3000/api/categories');
+        const categoriesResponse = await axios.get('http://16.171.3.129:3000/api/categories');
         setCategories(categoriesResponse.data);
 
-        const subcategoriesResponse = await axios.get('http://localhost:3000/api/subcategories');
+        const subcategoriesResponse = await axios.get('http://16.171.3.129:3000/api/subcategories');
         setSubcategories(subcategoriesResponse.data);
 
-        const sponsorsResponse = await axios.get('http://localhost:3000/api/sponsors');
+        const sponsorsResponse = await axios.get('http://16.171.3.129:3000/api/sponsors');
         setSponsors(sponsorsResponse.data);
       } catch (error) {
         console.error('Error fetching categories, subcategories, or sponsors', error);
@@ -77,7 +77,7 @@ const ManageBites = ({ closePopup }) => {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`http://localhost:3000/api/bites/${biteId}`, biteData);
+      const response = await axios.put(`http://16.171.3.129:3000/api/bites/${biteId}`, biteData);
       setMessage('Bite updated successfully!');
       
       // Reset the form and go back to the search mode

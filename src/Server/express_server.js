@@ -35,7 +35,7 @@ const port = 3000;
 // Configure CORS
 const allowedOrigins = [
   'https://ablockofcrypto.com', // Replace with your Zenler domain
-  'http://localhost:5173'       // Allow localhost for development
+  'http://16.171.3.129:5173'       // Allow 16.171.3.129 for development
 ];
 
 app.use(cors({
@@ -55,7 +55,7 @@ const store = new ConnectSessionKnexStore({
   knex: knexConstructor({
     client: 'mysql2',  // or 'pg' for PostgreSQL
   connection: {
-    host: 'localhost',
+    host: '16.171.3.129',
     user: 'root',
     password: 'Tra1ning',
     database: 'xp_module'
@@ -124,7 +124,7 @@ app.get('/test-db', (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server is running at http://16.171.3.129:${port}`);
 });
 
 

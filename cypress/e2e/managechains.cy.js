@@ -1,7 +1,7 @@
 describe('ManageChain Component Workflow', () => {
     beforeEach(() => {
         // Step 1: Visit the admin page
-        cy.visit('http://localhost:5173/admin-app');
+        cy.visit('http://16.171.3.129:5173/admin-app');
 
         // Step 2: Click the "Manage Chains" button to reveal the ManageChain popup
         cy.contains('Manage Chains').click();

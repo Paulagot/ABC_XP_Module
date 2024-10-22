@@ -28,11 +28,11 @@ const ManageCriteria = ({ closePopup }) => {
         const fetchData = async () => {
             try {
                 // Fetch subcategories
-                const subcategoriesResponse = await axios.get('http://localhost:3000/api/subcategories');
+                const subcategoriesResponse = await axios.get('http://16.171.3.129:3000/api/subcategories');
                 setSubcategories(subcategoriesResponse.data);
 
                 // Fetch bites
-                const bitesResponse = await axios.get('http://localhost:3000/api/bitescards');
+                const bitesResponse = await axios.get('http://16.171.3.129:3000/api/bitescards');
                 setBites(bitesResponse.data);
             } catch (error) {
                 console.error('Error fetching bites or subcategories:', error);
@@ -54,7 +54,7 @@ const ManageCriteria = ({ closePopup }) => {
 
         try {
             // Fetch criteria for the selected mission
-            const response = await axios.get(`http://localhost:3000/api/criteria?mission_id=${mission.mission_id}`);
+            const response = await axios.get(`http://16.171.3.129:3000/api/criteria?mission_id=${mission.mission_id}`);
             setCriteriaList(response.data);
         } catch (error) {
             console.error('Error fetching criteria:', error);
@@ -89,7 +89,7 @@ const ManageCriteria = ({ closePopup }) => {
 
         try {
             // Send a DELETE request to the backend to remove the criterion from the database
-            await axios.delete(`http://localhost:3000/api/criteria/${criterionToDelete}`);
+            await axios.delete(`http://16.171.3.129:3000/api/criteria/${criterionToDelete}`);
 
             // Update the local state to reflect the deletion in the UI
             setCriteriaList(criteriaList.filter(criteria => criteria.criteria_id !== criterionToDelete));

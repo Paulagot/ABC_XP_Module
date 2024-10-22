@@ -37,11 +37,11 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate, setMessage, setMessageTyp
         const fetchData = async () => {
             try {
                 // Fetch subcategories from the server
-                const subcategoriesResponse = await axios.get('http://localhost:3000/api/subcategories');
+                const subcategoriesResponse = await axios.get('http://16.171.3.129:3000/api/subcategories');
                 setSubcategories(subcategoriesResponse.data);
 
                 // Fetch bites from the server
-                const bitesResponse = await axios.get('http://localhost:3000/api/bites');
+                const bitesResponse = await axios.get('http://16.171.3.129:3000/api/bites');
                 setBites(bitesResponse.data);
             } catch (error) {
                 console.error('Error fetching bites or subcategories:', error);
@@ -114,7 +114,7 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate, setMessage, setMessageTyp
 
         try {
             // Send the form data to the server via a POST request
-            const response = await axios.post('http://localhost:3000/api/criteria', formDataToSend);
+            const response = await axios.post('http://16.171.3.129:3000/api/criteria', formDataToSend);
 
             // Call the update function passed as a prop to refresh the criteria list
             onCriteriaUpdate(response.data);

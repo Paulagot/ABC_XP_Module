@@ -29,9 +29,9 @@ const ManageMissions = ({ closePopup, openManageChains, openManageSponsors, open
     const fetchData = async () => {
       try {
         const [sponsorsResponse, subcategoriesResponse, chainsResponse] = await Promise.all([
-          axios.get('http://localhost:3000/api/sponsors'),
-          axios.get('http://localhost:3000/api/Subcategories'),
-          axios.get('http://localhost:3000/api/chains'),
+          axios.get('http://16.171.3.129:3000/api/sponsors'),
+          axios.get('http://16.171.3.129:3000/api/Subcategories'),
+          axios.get('http://16.171.3.129:3000/api/chains'),
         ]);
 
         setSponsorData(sponsorsResponse.data);

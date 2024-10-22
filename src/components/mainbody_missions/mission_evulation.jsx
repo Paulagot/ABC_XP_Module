@@ -55,7 +55,7 @@ function MissionEvaluator({ missions = [], criteria = [], userBytes = [], userId
         if (userId) {
             const fetchUserMissions = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3000/api/user_missions?user_id=${userId}`);
+                    const response = await fetch(`http://16.171.3.129:3000/api/user_missions?user_id=${userId}`);
                     const data = await response.json();
                     setUserMissionsData(data); // Store userMissions data
                 } catch (error) {

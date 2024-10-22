@@ -18,7 +18,7 @@ function Bites_main_body() {
     useEffect(() => {
         const fetchBitesData = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/bitescards');
+                const response = await fetch('http://16.171.3.129:3000/api/bitescards');
                 const data = await response.json();
                 setBitesData(data);
             } catch (error) {
@@ -32,7 +32,7 @@ function Bites_main_body() {
     useEffect(() => {
         const fetchSubcategories = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/fetchsubcategories');
+                const response = await fetch('http://16.171.3.129:3000/api/fetchsubcategories');
                 const data = await response.json();
                 setSubcategories(data);
             } catch (error) {
@@ -46,7 +46,7 @@ function Bites_main_body() {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/categories');
+                const response = await fetch('http://16.171.3.129:3000/api/categories');
                 const data = await response.json();
                 setCategories(data);
             } catch (error) {

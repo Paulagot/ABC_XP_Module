@@ -18,7 +18,7 @@ const SearchBites = ({ onSelectBite }) => {
    */
   const searchBites = async (query) => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/bites/search?q=${query}`);
+      const response = await axios.get(`http://16.171.3.129:3000/api/bites/search?q=${query}`);
       setSearchResults(response.data);
     } catch (error) {
       console.error('There was an error searching bites!', error);

@@ -163,7 +163,7 @@ const MissionForm = memo(({ missionData, sponsorData, chainData, closeForm, subc
     }
 
     try {
-      const response = await axios.put(`http://localhost:3000/api/missions/${missionData.mission_id}`, {
+      const response = await axios.put(`http://16.171.3.129:3000/api/missions/${missionData.mission_id}`, {
         xp: formData.xp,
         sponsor_id: formData.sponsor_id === 'null' ? null : formData.sponsor_id,
         chain_id: formData.chain_id === 'null' ? null : formData.chain_id,

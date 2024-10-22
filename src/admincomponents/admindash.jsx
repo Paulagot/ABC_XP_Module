@@ -16,7 +16,7 @@ import axios from 'axios';
 
 const AdminDashboard = () => {
   useEffect(() => {
-    axios.get('http://localhost:3000/api/fetch-data')
+    axios.get('http://16.171.3.129:3000/api/fetch-data')
       .then(response => {
         console.log('System function data fetched successfully:', response.data);
       })

@@ -4,7 +4,7 @@ describe('ManageSubCategory Component Workflow', () => {
 
   beforeEach(() => {
       // Step 1: Visit the admin page
-      cy.visit('http://localhost:5173/admin-app');
+      cy.visit('http://16.171.3.129:5173/admin-app');
 
       // Step 2: Click the "Manage Sub-Categories" button to reveal the ManageSubCategory popup
       cy.get('#manageSubCategoryBtn').click();
@@ -101,8 +101,8 @@ describe('ManageSubCategory Component Workflow', () => {
 
   it('should prevent submission if a user navigates away from the page and returns without filling in the form', () => {
       // Step 4: Navigate away to another page or reload the current page
-      cy.visit('http://localhost:5173/some-other-page');
-      cy.visit('http://localhost:5173/admin-app');
+      cy.visit('http://16.171.3.129:5173/some-other-page');
+      cy.visit('http://16.171.3.129:5173/admin-app');
 
       // Step 5: Re-open the ManageSubCategory component
       cy.get('#manageSubCategoryBtn').click();
