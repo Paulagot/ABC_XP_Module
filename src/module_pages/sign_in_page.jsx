@@ -7,7 +7,7 @@ function Registar() {
     return (
     <>
     <Leftside />
-    <Navbar />
+    {/* <Navbar /> */}
     <Sign_in_main_body />
     
     </>)

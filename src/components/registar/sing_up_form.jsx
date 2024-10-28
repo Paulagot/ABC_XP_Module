@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function SignUpForm() {
+    // State to hold form input data
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
@@ -9,10 +10,13 @@ function SignUpForm() {
         agreedGDPR: false,
         agreedTnC: false,
     });
-
     const [errors, setErrors] = useState({});
-    const [message, setMessage] = useState(''); // To show success or error messages
-    const [isSignedUp, setIsSignedUp] = useState(false); // Track if the user is registered
+    const [message, setMessage] = useState('');
+    const [isSignedUp, setIsSignedUp] = useState(false);
+    const [captchaToken, setCaptchaToken] = useState('');
+
+    // Ref to keep track of CAPTCHA rendering
+    const captchaRenderedRef = useRef(false);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -24,8 +28,6 @@ function SignUpForm() {
 
     const validate = () => {
         let formErrors = {};
-
-        // Validation rules...
         if (!formData.first_name) formErrors.first_name = 'First name is required';
         if (!formData.last_name) formErrors.last_name = 'Last name is required';
         if (!formData.email) formErrors.email = 'Email is required';
@@ -34,7 +36,6 @@ function SignUpForm() {
         else if (formData.password.length < 8) formErrors.password = 'Password must be at least 8 characters';
         if (!formData.agreedGDPR) formErrors.agreedGDPR = 'You must agree to the GDPR';
         if (!formData.agreedTnC) formErrors.agreedTnC = 'You must agree to the Terms & Conditions';
-
         return formErrors;
     };
 
@@ -46,18 +47,15 @@ function SignUpForm() {
         } else {
             setErrors({});
             try {
-                // Send data to the backend using fetch
                 const response = await fetch('http://localhost:3000/api/signup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify({ ...formData, captchaToken }),
                 });
-
                 const data = await response.json();
                 if (response.ok) {
-                    // Success: clear the form and display success message
                     setMessage('User registered successfully! You can now sign in.');
                     setFormData({
                         first_name: '',
@@ -67,7 +65,7 @@ function SignUpForm() {
                         agreedGDPR: false,
                         agreedTnC: false,
                     });
-                    setIsSignedUp(true); // Mark user as signed up
+                    setIsSignedUp(true);
                 } else {
                     setMessage(data.error || 'An error occurred during sign-up');
                 }
@@ -77,12 +75,25 @@ function SignUpForm() {
         }
     };
 
-    // Render the Sign-In form after successful registration
+    useEffect(() => {
+        // Check if CAPTCHA has already been rendered to avoid duplicates
+        if (!captchaRenderedRef.current && window.turnstile) {
+            window.turnstile.render('.cf-turnstile', {
+                sitekey: '0x4AAAAAAAyTlqCXTIWAluQM',
+                callback: (token) => {
+                    console.log('CAPTCHA success:', token);
+                    setCaptchaToken(token);
+                },
+            });
+            captchaRenderedRef.current = true; // Mark CAPTCHA as rendered
+        }
+    }, []);
+
     if (isSignedUp) {
         return (
             <div>
                 <h2>Sign In</h2>
-                <SignInForm /> 
+                <SignInForm />
             </div>
         );
     }
@@ -90,7 +101,6 @@ function SignUpForm() {
     return (
         <form onSubmit={handleSubmit}>
             <h2>Sign Up</h2>
-
             <div>
                 <label>First Name</label>
                 <input
@@ -102,7 +112,6 @@ function SignUpForm() {
                 />
                 {errors.first_name && <span className="error">{errors.first_name}</span>}
             </div>
-
             <div>
                 <label>Last Name</label>
                 <input
@@ -114,7 +123,6 @@ function SignUpForm() {
                 />
                 {errors.last_name && <span className="error">{errors.last_name}</span>}
             </div>
-
             <div>
                 <label>Email</label>
                 <input
@@ -126,7 +134,6 @@ function SignUpForm() {
                 />
                 {errors.email && <span className="error">{errors.email}</span>}
             </div>
-
             <div>
                 <label>Password</label>
                 <input
@@ -138,7 +145,6 @@ function SignUpForm() {
                 />
                 {errors.password && <span className="error">{errors.password}</span>}
             </div>
-
             <div>
                 <label>
                     <input
@@ -152,7 +158,6 @@ function SignUpForm() {
                 </label>
                 {errors.agreedGDPR && <span className="error">{errors.agreedGDPR}</span>}
             </div>
-
             <div>
                 <label>
                     <input
@@ -167,14 +172,17 @@ function SignUpForm() {
                 {errors.agreedTnC && <span className="error">{errors.agreedTnC}</span>}
             </div>
 
+            {/* Explicitly rendered Turnstile CAPTCHA widget */}
+            <div className="cf-turnstile" data-sitekey="0x4AAAAAAAyTlqCXTIWAluQM"></div>
+
             <button type="submit">Sign Up</button>
 
-            {message && <p>{message}</p>} {/* Show success or error messages */}
+            {message && <p>{message}</p>}
         </form>
     );
 }
 
-// This is an example SignInForm. You can replace it with your actual SignIn form.
+// Example SignInForm component for after successful registration
 function SignInForm() {
     return (
         <div>
@@ -195,6 +203,3 @@ function SignInForm() {
 }
 
 export default SignUpForm;
-
-
-

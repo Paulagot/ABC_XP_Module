@@ -8,62 +8,88 @@ import { useAuth } from "../../context/auth_context"; // Import the AuthContext
 
 
 function Bites_main_body() {
-    const { user } = useAuth();  // Access the logged-in user from AuthContext
+    const { user } = useAuth(); // Access the logged-in user from AuthContext
     const [selectedSubcategory, setSelectedSubcategory] = useState(null);
     const [activeFilter, setActiveFilter] = useState(null);
     const [bitesData, setBitesData] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [dataLoaded, setDataLoaded] = useState(false); // New state to track data loading completion
 
+    // Function to trigger initial database updates
+    const triggerInitialDataUpdate = async () => {
+        try {
+            await fetch('http://localhost:3000/api/fetch-data');
+            await fetch('http://localhost:3000/api/zenler-progress/all');
+            setDataLoaded(true); // Set to true after initial data update completes
+        } catch (error) {
+            console.error('Error during initial data update:', error);
+        }
+    };
+
+    // Run initial database update only once
     useEffect(() => {
-        const fetchBitesData = async () => {
-            try {
-                const response = await fetch('http://localhost:3000/api/bitescards');
-                const data = await response.json();
-                setBitesData(data);
-            } catch (error) {
-                console.error('Error fetching bites data:', error);
-            }
-        };
-
-        fetchBitesData();
+        triggerInitialDataUpdate();
     }, []);
 
+    // Fetch bites data only after initial data update completes
     useEffect(() => {
-        const fetchSubcategories = async () => {
-            try {
-                const response = await fetch('http://localhost:3000/api/fetchsubcategories');
-                const data = await response.json();
-                setSubcategories(data);
-            } catch (error) {
-                console.error('Error fetching subcategories:', error);
-            }
-        };
+        if (dataLoaded) {
+            const fetchBitesData = async () => {
+                try {
+                    const response = await fetch('http://localhost:3000/api/bitescards');
+                    const data = await response.json();
+                    setBitesData(data);
+                } catch (error) {
+                    console.error('Error fetching bites data:', error);
+                }
+            };
 
-        fetchSubcategories();
-    }, []);
+            fetchBitesData();
+        }
+    }, [dataLoaded]);
 
+    // Fetch subcategories only after initial data update completes
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch('http://localhost:3000/api/categories');
-                const data = await response.json();
-                setCategories(data);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
+        if (dataLoaded) {
+            const fetchSubcategories = async () => {
+                try {
+                    const response = await fetch('http://localhost:3000/api/fetchsubcategories');
+                    const data = await response.json();
+                    setSubcategories(data);
+                } catch (error) {
+                    console.error('Error fetching subcategories:', error);
+                }
+            };
 
-        fetchCategories();
-    }, []);
+            fetchSubcategories();
+        }
+    }, [dataLoaded]);
+
+    // Fetch categories only after initial data update completes
+    useEffect(() => {
+        if (dataLoaded) {
+            const fetchCategories = async () => {
+                try {
+                    const response = await fetch('http://localhost:3000/api/categories');
+                    const data = await response.json();
+                    setCategories(data);
+                } catch (error) {
+                    console.error('Error fetching categories:', error);
+                }
+            };
+
+            fetchCategories();
+        }
+    }, [dataLoaded]);
 
     const availableSubcategories = subcategories.filter(subcat =>
-        bitesData.some(bite => bite.subcategory === subcat.name && 
+        bitesData.some(bite => bite.subcategory === subcat.name &&
                                (activeFilter ? bite.category === activeFilter : true))
     );
 
     const availableFilters = categories.filter(category => 
-        bitesData.some(bite => bite.category === category.name && 
+        bitesData.some(bite => bite.category === category.name &&
                                (selectedSubcategory ? bite.subcategory === selectedSubcategory : true))
     );
 
@@ -77,7 +103,7 @@ function Bites_main_body() {
     };
 
     const handleFilterSelect = (filter) => {
-                setActiveFilter(filter);
+        setActiveFilter(filter);
     };
 
     const filteredData = bitesData.filter(item => {
@@ -85,8 +111,6 @@ function Bites_main_body() {
         const matchesCategory = activeFilter ? item.category === activeFilter : true;
         return matchesSubcategory && matchesCategory;
     });
-
- 
 
     return (
         <main className="container__right" id="main">
@@ -109,11 +133,8 @@ function Bites_main_body() {
                 item={filteredData} 
             />
 
-            {/* Render the popup component */}
-            
             {/* Conditionally render the LearningAchievement component only if the user is logged in */}
             {user && <LearningAchievement userId={user.user_id} />}
-
         </main>
     );
 }

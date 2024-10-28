@@ -1,21 +1,90 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import db from './config_db.js'; // Replace with your actual database connection
-
+import db from './config_db.js';
+import axios from 'axios'; // To handle CAPTCHA verification
 import crypto from 'crypto';
+import { log } from 'console';
+import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
+
 
 
 const Registarrouter = express.Router();
 const saltRounds = 10; // Complexity for bcrypt password hashing
+const SECRET_KEY = '0x4AAAAAAAyTltxYNhSI2tBoL6GiMKF78Gc'; // Replace with your actual Turnstile secret key from Cloudflare
+const NEW_ZENLER_API_KEY = process.env.NEW_ZENLER_API_KEY; // Store your API key in environment variables
+
+// Set up your email transporter using Nodemailer
+const transporter = nodemailer.createTransport({
+    host: 'mail.privateemail.com', // Use your SMTP server or email provider
+    port: 587,
+    secure: false, // true for port 465, false for other ports
+    auth: {
+        user: 'donotreply@ablockofcrypto.com',
+        pass: 'donotr3plypa$$word',
+    },
+});
+
 
 // ---------------------------------
-// SIGN-UP ROUTE
+// SIGN-UP ROUTE WITH CAPTCHA VALIDATION
 // ---------------------------------
-// This route allows new users to sign up. It hashes the password and stores the user's details in the database.
-// Sign-Up Route
-Registarrouter.post('/signup', (req, res) => {
-    const { first_name, last_name, email, password } = req.body;
+Registarrouter.post('/signup', async (req, res) => {
+    const { first_name, last_name, email, password, captchaToken } = req.body;
+    console.log("Received CAPTCHA token:", captchaToken); 
 
+    async function handlePost() {
+        try {
+            const formData = new URLSearchParams();
+            formData.append("secret", SECRET_KEY);
+            formData.append("response", captchaToken);
+            formData.append("remoteip", req.ip);
+            const idempotencyKey = crypto.randomUUID();
+            formData.append("idempotency_key", idempotencyKey);
+
+            const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+
+            // First verification attempt
+            const firstResponse = await fetch(url, {
+                body: formData,
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+            const firstOutcome = await firstResponse.json();
+            console.log("First CAPTCHA verification attempt:", firstOutcome);
+            if (firstOutcome.success) {
+                console.log("CAPTCHA verification succeeded on first attempt.");
+            } else {
+                console.error("First CAPTCHA verification failed:", firstOutcome['error-codes']);
+                return res.status(400).json({ error: 'CAPTCHA verification failed. Please try again.' });
+            }
+
+            // Optional second verification request with idempotency key
+            const subsequentResponse = await fetch(url, {
+                body: formData,
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+            const subsequentOutcome = await subsequentResponse.json();
+            console.log("Second CAPTCHA verification attempt:", subsequentOutcome);
+            if (subsequentOutcome.success) {
+                console.log("CAPTCHA verification succeeded on second attempt.");
+            }
+
+        } catch (error) {
+            console.error("Error during CAPTCHA verification:", error);
+            return res.status(500).json({ error: "Error verifying CAPTCHA. Please try again later." });
+        }
+    }
+
+    // Run the CAPTCHA validation function
+    await handlePost();
+
+    // Continue with the sign-up process if CAPTCHA is successful
     // Check if the user already exists
     const checkUserSql = 'SELECT * FROM users WHERE email = ?';
     db.query(checkUserSql, [email], (err, result) => {
@@ -27,18 +96,17 @@ Registarrouter.post('/signup', (req, res) => {
             return res.status(400).json({ error: 'User already exists' });
         }
 
-        // Hash the password before storing it
+        // Hash the password and insert the new user into the database
         bcrypt.hash(password, saltRounds, (hashErr, hash) => {
             if (hashErr) {
                 console.error('Error hashing password:', hashErr);
                 return res.status(500).json({ error: 'Error hashing password' });
             }
 
-            // Insert user into the database
             const insertUserSql = 'INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)';
             db.query(insertUserSql, [first_name, last_name, email, hash, 'student'], (dbErr, dbResult) => {
                 if (dbErr) {
-                    console.error('Error inserting user into database:', dbErr);  // Log the exact database error
+                    console.error('Error inserting user into database:', dbErr);
                     return res.status(500).json({ error: 'Error inserting user into database' });
                 }
                 res.status(201).json({ message: 'User registered successfully!' });
@@ -46,54 +114,63 @@ Registarrouter.post('/signup', (req, res) => {
         });
     });
 });
-
+/// ---------------------------------
+// SIGN-IN ROUTE (UPDATED FOR SSO)
 // ---------------------------------
-// SIGN-IN ROUTE
-// ---------------------------------
-// This route allows users to log in by comparing the entered password with the stored hashed password.
+// POST /login: Login route that authenticates a user, creates an SSO token, and stores session data
 Registarrouter.post('/login', (req, res) => {
     const { email, password } = req.body;
 
-    // Retrieve the user by email from the database
+    // SQL query to retrieve user data by email from the database
     const getUserSql = 'SELECT * FROM users WHERE email = ?';
     db.query(getUserSql, [email], (err, result) => {
         if (err) {
-            // If there's a database error, return a 500 error
-            return res.status(500).json({ error: 'Database error occurred during login' });
+            return res.status(500).json({ error: 'Database error during login' });
         }
         if (result.length === 0) {
-            // If no user is found, return a 401 unauthorized error
             return res.status(401).json({ error: 'User not found' });
         }
 
         const user = result[0];
 
-        // Compare the entered password with the stored hashed password
+        // Compare entered password with hashed password in the database
         bcrypt.compare(password, user.password, (bcryptErr, match) => {
             if (bcryptErr || !match) {
-                // If the passwords do not match, return a 401 error for invalid credentials
                 return res.status(401).json({ error: 'Invalid credentials' });
             }
 
-            // If the password matches, authentication is successful
-            // **CREATE A SESSION**: Store user info in req.session
+            // Set session data for the authenticated user
             req.session.user = {
                 user_id: user.user_id,
                 first_name: user.first_name,
+                last_name: user.last_name,
                 email: user.email,
                 role: user.role
             };
 
-            // Ensure the session is saved before responding
+            // Generate JWT for Zenler SSO
+            const token = jwt.sign(
+                {
+                    first_name: user.first_name,
+                    email: user.email
+                },
+                'ONPDVVIYMEGX6WHFL1QCEJ7KN798IXV2', // Replace with Zenler's API key or secret
+                { algorithm: 'HS256', expiresIn: '1h' }
+            );
+
+            // Store the Zenler token in session
+            req.session.zenlerToken = token;
+
             req.session.save((saveErr) => {
                 if (saveErr) {
                     return res.status(500).json({ error: 'Failed to save session' });
                 }
 
-                console.log('Session after login:', req.session);  // Log the session to verify
+                // Send session user data and Zenler token to the frontend
                 res.status(200).json({
                     message: 'Logged in successfully!',
-                    user: req.session.user  // Return the session data
+                    user: req.session.user,
+                    zenlerToken: req.session.zenlerToken
                 });
             });
         });
@@ -101,80 +178,161 @@ Registarrouter.post('/login', (req, res) => {
 });
 
 
-// ---------------------------------
-// PASSWORD RESET ROUTE - Generate Reset Token
-// ---------------------------------
-// This route generates a reset token when a user requests to reset their password.
-// The reset token is stored in the database and typically sent via email to the user.
-Registarrouter.post('/password-reset', (req, res) => {
-    const { email } = req.body;
 
-    // Find the user by their email
-    const sql = 'SELECT * FROM users WHERE email = ?';
-    db.query(sql, [email], (err, result) => {
-        if (err || result.length === 0) {
-            // If the user is not found or a database error occurs, return a 400 error
+// ---------------------------------
+// PASSWORD RESET ROUTE - Generate Reset Token and Send Email
+// ---------------------------------
+Registarrouter.post('/password-reset', async (req, res) => {
+    const { email, captchaToken } = req.body;
+
+    console.log("Received CAPTCHA token:", captchaToken); 
+
+    async function handleCap() {
+        try {
+            const formData = new URLSearchParams();
+            formData.append("secret", SECRET_KEY);
+            formData.append("response", captchaToken);
+            formData.append("remoteip", req.ip);
+            const idempotencyKey = crypto.randomUUID();
+            formData.append("idempotency_key", idempotencyKey);
+
+            const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+
+            // First verification attempt
+            const firstResponse = await fetch(url, {
+                body: formData,
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+            const firstOutcome = await firstResponse.json();
+            console.log("First CAPTCHA verification attempt:", firstOutcome);
+            if (firstOutcome.success) {
+                console.log("CAPTCHA verification succeeded on first attempt.");
+            } else {
+                console.error("First CAPTCHA verification failed:", firstOutcome['error-codes']);
+                return res.status(400).json({ error: 'CAPTCHA verification failed. Please try again.' });
+            }
+
+            // Optional second verification request with idempotency key
+            const subsequentResponse = await fetch(url, {
+                body: formData,
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+            const subsequentOutcome = await subsequentResponse.json();
+            console.log("Second CAPTCHA verification attempt:", subsequentOutcome);
+            if (subsequentOutcome.success) {
+                console.log("CAPTCHA verification succeeded on second attempt.");
+            }
+
+        } catch (error) {
+            console.error("Error during CAPTCHA verification:", error);
+            return res.status(500).json({ error: "Error verifying CAPTCHA. Please try again later." });
+        }
+    }
+
+    // Run the CAPTCHA validation function
+    await handleCap();
+
+    // Step 2: Check if the user exists
+    const checkUserSql = 'SELECT * FROM users WHERE email = ?';
+    db.query(checkUserSql, [email], (err, result) => {
+        if (err) {
+            console.error('Database error during user lookup:', err);
+            return res.status(500).json({ error: 'Database error during password reset request' });
+        }
+        if (result.length === 0) {
             return res.status(400).json({ error: 'User not found' });
         }
 
-        const user = result[0];
-        const resetToken = crypto.randomBytes(32).toString('hex'); // Generate a random reset token
-        const resetTokenExpiration = Date.now() + 3600000; // Token valid for 1 hour (3600000 ms)
+        // Step 3: Generate reset token and expiration
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetTokenExpiration = Date.now() + 3600000; // 1 hour expiration
 
-        // Store the reset token and its expiration time in the database
+        // Step 4: Update the user record with reset token and expiration
         const updateSql = 'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE user_id = ?';
-        db.query(updateSql, [resetToken, resetTokenExpiration, user.user_id], (dbErr) => {
+        db.query(updateSql, [resetToken, resetTokenExpiration, result[0].user_id], (dbErr) => {
             if (dbErr) {
-                // If there's an issue updating the database, return a 500 error
+                console.error('Database error while updating reset token:', dbErr);
                 return res.status(500).json({ error: 'Database error while generating reset token' });
             }
 
-            // In a production app, you would send an email containing the reset link with the token.
-            // Example reset link: `https://your-app-url/reset-password/${resetToken}`
-            res.status(200).json({ message: 'Password reset token generated. Check your email!' });
+            // Log reset link for testing (replace with actual email sending in production)
+            const resetUrl = `http://localhost:5173/registar?view=setPassword&token=${resetToken}`;
+            console.log(`Password reset link (for testing): ${resetUrl}`);
+
+            // Placeholder email sending (log for now)
+            const mailOptions = {
+                from: 'donotreply@ablockofcrypto.com',
+                to: email,
+                subject: 'Password Reset Request',
+                html: `
+                    <p>Hello,</p>
+                    <p>You requested a password reset. Click the link below to reset your password:</p>
+                    <a href="${resetUrl}">Reset Password</a>
+                    <p>If you did not request this, please ignore this email.</p>
+                `,
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error('Error sending password reset email:', error);
+                    return res.status(500).json({ error: 'Failed to send password reset email.' });
+                }
+                console.log('Password reset email sent:', info.response);
+                res.status(200).json({ message: 'Password reset token generated and email sent.' });
+            });
         });
     });
 });
 
+
+
 // ---------------------------------
-// PASSWORD RESET ROUTE - Reset Password
+// PASSWORD RESET CONFIRMATION - Update Password
 // ---------------------------------
-// This route allows the user to reset their password using the reset token provided.
-// The token is validated, and if it's valid, the user's password is updated.
 Registarrouter.post('/password-reset/:token', (req, res) => {
     const { password } = req.body;
     const { token } = req.params;
 
-    // Validate the reset token and ensure it hasn't expired
+    // Step 1: Validate the reset token and check expiration
     const sql = 'SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > ?';
     db.query(sql, [token, Date.now()], (err, result) => {
-        if (err || result.length === 0) {
-            // If the token is invalid or expired, return a 400 error
+        if (err) {
+            console.error('Database error during token validation:', err);
+            return res.status(500).json({ error: 'Database error while validating token.' });
+        }
+        if (result.length === 0) {
             return res.status(400).json({ error: 'Invalid or expired token' });
         }
 
         const user = result[0];
 
-        // Hash the new password before storing it
+        // Step 2: Hash the new password and update the database
         bcrypt.hash(password, saltRounds, (hashErr, hash) => {
             if (hashErr) {
-                // If there's an error during the hashing process, return a 500 error
+                console.error('Error hashing new password:', hashErr);
                 return res.status(500).json({ error: 'Error hashing new password' });
             }
 
-            // Update the user's password and clear the reset token from the database
+            // Clear reset token and update with the new password
             const updateSql = 'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE user_id = ?';
             db.query(updateSql, [hash, user.user_id], (dbErr) => {
                 if (dbErr) {
-                    // If there's an issue updating the database, return a 500 error
-                    return res.status(500).json({ error: 'Database error while updating password' });
+                    console.error('Database error while updating password:', dbErr);
+                    return res.status(500).json({ error: 'Database error while updating password.' });
                 }
 
-                // Success! The user's password has been reset.
-                res.status(200).json({ message: 'Password reset successfully!' });
+                res.status(200).json({ message: 'Password successfully reset! You can now log in with your new password.' });
             });
         });
     });
 });
+
+
 
 export default Registarrouter;

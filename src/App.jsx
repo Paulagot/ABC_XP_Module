@@ -18,7 +18,7 @@ function App() {
       <div className="app-container">
         
         <Routes>
-          {/* <Route path="/" element={<Bytes />} /> */}
+          <Route path="/" element={<Bytes />} />
           <Route path="/bites" element={<Bytes />} />
           <Route path="/missions" element={<Missions />} />
           <Route path="/profile" element={<Profile />} />

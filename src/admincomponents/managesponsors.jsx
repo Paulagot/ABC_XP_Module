@@ -235,7 +235,7 @@ return (
             )}    
         </div>
 
-        <form onSubmit={sponsorId ? updateSponsor : addSponsor}>
+        <form className="adminForm" onSubmit={sponsorId ? updateSponsor : addSponsor}>
             <label htmlFor="partnerName">Partner Name:</label>
             <input 
                 type="text" 

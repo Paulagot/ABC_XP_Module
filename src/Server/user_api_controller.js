@@ -38,35 +38,44 @@ export const fetchUserData = async (req, res) => {
 }
 };
 
-// Function to process users data
 const processUserData = async (usersItems) => {
-let updatedItems = [];
-for (const item of usersItems) {
-  const [rows] = await db.promise().query('SELECT * FROM users WHERE zenler_id = ?', [item.id]);
+  let updatedItems = [];
+  for (const item of usersItems) {
+    // Determine role based on roles array
+    const role = item.roles.includes(1) ? 'admin' : 'student';
 
-  if (rows.length > 0) {
-    const existingItem = rows[0];
-    if (existingItem.first_name !== item.first_name || existingItem.email !== item.email ||
-        existingItem.last_name !== item.last_name ) {
+    // Check if the user exists by email
+    const [rows] = await db.promise().query('SELECT * FROM users WHERE email = ?', [item.email]);
+
+    if (rows.length > 0) {
+      const existingUser = rows[0];
+      
+      // Update only if zenler_id or other fields are different
+      if (existingUser.zenler_id !== item.id || 
+          existingUser.first_name !== item.first_name || 
+          existingUser.last_name !== item.last_name || 
+          existingUser.role !== role) {
+
+        await db.promise().query(
+          'UPDATE users SET first_name = ?, last_name = ?, zenler_id = ?, role = ?, updated_at = NOW() WHERE email = ?',
+          [item.first_name, item.last_name, item.id, role, item.email]
+        );
+        updatedItems.push(item.first_name);
+      }
+    } else {
+      // Insert new user if email doesn't exist in the database
       await db.promise().query(
-        'UPDATE users SET first_name = ?, email = ?, last_name = ?,  updated_at = NOW() WHERE zenler_id = ?',
-        [item.first_name, item.email, item.last_name,  item.id]
+        'INSERT INTO users (first_name, last_name, email, zenler_id, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())',
+        [item.first_name, item.last_name, item.email, item.id, role]
       );
       updatedItems.push(item.first_name);
     }
-  } else {
-    await db.promise().query(
-      'INSERT INTO users (first_name, email, last_name,  zenler_id, created_at, updated_at) VALUES (?,  ?, ?, ?, NOW(), NOW())',
-      [item.first_name, item.email, item.last_name,  item.id]
-    );
-    updatedItems.push(item.first_name);
   }
-}
 
-if (updatedItems.length > 0) {
-  console.log('Users updated:', updatedItems);
-} else {
-  console.log('No updates necessary for users.');
-}
+  if (updatedItems.length > 0) {
+    console.log('Users updated or added:', updatedItems);
+  } else {
+    console.log('No updates necessary for users.');
+  }
 };
 

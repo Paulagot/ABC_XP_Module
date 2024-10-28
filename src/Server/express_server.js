@@ -27,6 +27,9 @@ import session from 'express-session';  // Import express-session
 import Knex from 'knex';
 import { ConnectSessionKnexStore } from "connect-session-knex"
 import knexConstructor from "knex";
+import missionprogressrouter from './zenler_progress_updates/missions_progress_endpoint.js';
+import userprogressrouter from './../Server/zenler_progress_updates/Bytes_progress_endpoint.js'
+
 
 // Create the express app
 const app = express();
@@ -99,10 +102,13 @@ app.use ('/api',UserCompletedMissionsRouter);// this route is for the user compl
 app.use ('/api', UserBytesCardsRouter);
 app.use('/api', WebhookByteStatusRouter); //this route is for updating the user bytes status when a byte is started or complete
 app.use('/api', WebhookMissionStatusRouter); //this route is for updating the user mission status when a mission is started or complete
-app.use('/api', leaderboardRouter);
+app.use('/api', leaderboardRouter); //this route calcaultes the leaderboard
 app.use('/api',userProfileRouter);
-app.use('/api',Registarrouter);
+app.use('/api',Registarrouter); // this route is used for the sign in/sign up/reset password options
 app.use('/session', sessionRouter); // All session-related routes will be prefixed with /session
+app.use('/api',missionprogressrouter); // this route updates the db with learner mission progress from zenler
+app.use('/api',userprogressrouter); // this route updates the db with learner byte progress from zenler
+
 
 
 // Basic route to test server is working

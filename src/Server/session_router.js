@@ -16,7 +16,7 @@ sessionRouter.get('/check-session', (req, res) => {
     if (req.session && req.session.user) {
         // If session and user data exist, the user is authenticated
         // Send back the authenticated status and the user data stored in the session
-        res.json({ isAuthenticated: true, user: req.session.user });
+        res.json({ isAuthenticated: true, user: req.session.user, zenlerToken: req.session.zenlerToken || null });
     } else {
         // If no session or user data is found, the user is not authenticated
         res.json({ isAuthenticated: false });

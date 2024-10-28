@@ -10,8 +10,7 @@
 }
 
 
-body, html {
-    
+body, html {    
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -38,7 +37,7 @@ button {
     padding: 10px;
     margin-left: 30px;
     border: none;
-    border-radius: 20px;
+    
     background-color: #285c41;
     color: white;
     font-size: 16px;
@@ -79,12 +78,9 @@ button:hover {
     max-width: 400px; 
 }
 
-#userForm, #addCategoryForm, #manageUser, #manageCategory,
- #manageBites, #addBitesForm, #editBitesForm, 
- #editCategoryForm, #manageSubCategory, 
- #manageMissions, 
- #addMissionsForm, #editMissionsForm, #managePartner, 
- #newPartnerForm, #editPartnerForm, #manageChain, #manageCriteria {
+#userForm, #manageUser, #manageCategory, #manageBites, 
+#manageSubCategory, #manageMissions, #managePartner, 
+  #manageChain, #manageCriteria {
     display:block;
     position: fixed;
     top: 10vh; 
@@ -95,13 +91,20 @@ button:hover {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: left; /* Aligned form content to the left */
-    height:auto;
-    width: 80vw;
-    max-width: 80%;
+    
     z-index: 9999;
     margin:auto;
-    overflow: auto; /* Enable scrolling if needed */
+    
 }
+.adminForm{   
+    background-color: white;      /* White background for the form */
+    padding: 30px;                /* Add padding inside the form */
+    border-radius: 10px;          /* Rounded corners */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Subtle box shadow */
+    display: flex;
+    flex-direction: column;       /* Stack form elements vertically */
+    width: 80%;
+  }
 
 
 
@@ -197,3 +200,5 @@ button.searchButton, #addCriteriaBtn {
 #missionFormButtons button {
     width: 150px;
 }
+
+

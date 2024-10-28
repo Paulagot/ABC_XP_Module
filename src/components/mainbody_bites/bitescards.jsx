@@ -1,84 +1,97 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useAuth } from "../../context/auth_context";
+import { useAuth } from "../../context/auth_context"; // Import useAuth to access authentication context, including user data and JWT token
 
 
+// Bites_Cards component is responsible for rendering each course card (byte) and managing redirection with Zenler SSO
 function Bites_Cards({ item = [] }) {
-    const { user } = useAuth();  // Access session user data
+    const { user, zenlerToken } = useAuth(); // Access user and Zenler SSO token from AuthContext
 
+    // State to store user-specific progress data for each byte (course)
     const [userBytesData, setUserBytesData] = useState([]);
-    const userId = user?.user_id;  // Get user ID from the session context
+    const [isLoggedIntoZenler, setIsLoggedIntoZenler] = useState(false); // Flag to track if the user is already logged into Zenler
 
-    console.log('Incoming item data:', item); // Log the incoming item data
+    // Get user ID from the AuthContext's `user` object, if available
+    const userId = user?.user_id;
 
+    // Fetch the user's progress data for each byte (course) when the component mounts or the user ID changes
     useEffect(() => {
         if (userId) {
-            // Fetch user bytes data for the logged-in user
+            // API call to fetch user-specific progress data for bytes
             fetch(`http://localhost:3000/api/user_bytes?user_id=${userId}`)
                 .then(response => response.json())
-                .then(data => {
-                    console.log('Fetched user bytes data:', data); // Log the fetched data
-                    if (data && data.length > 0) {
-                        setUserBytesData(data); // Set the entire data as user bytes data
-                    } else {
-                        console.error('Unexpected API response format:', data); // Log unexpected formats
-                    }
-                })
+                .then(data => setUserBytesData(data)) // Store the fetched data in `userBytesData` state
                 .catch(err => console.error("Failed to fetch user bytes data", err));
         }
     }, [userId]);
 
-    // Function to determine the byte status for each item
+    // Function to determine the status of each byte (Explore, Continue, Complete) based on progress data
     const getByteStatus = (biteId) => {
-        if (!userId) return { text: "Explore Byte", className: "not-enrolled", order: 2 }; // No user logged in
-    
-        const userByte = userBytesData.find(ub => ub.bite_id === biteId);
-    
-        console.log('Checking byte status for biteId:', biteId, 'User Byte:', userByte); // Log for debugging
-    
-        if (userByte && userByte.start_date && !userByte.completion_date) {
-            return { text: "Continue Byte", className: "started", order: 1 }; // Started but not completed
-        }
-    
-        if (userByte && userByte.completion_date) {
-            return { text: "Byte Complete", className: "completed", order: 3 }; // Completed
-        }
-    
-        return { text: "Explore Byte", className: "not-enrolled", order: 2 }; // Not enrolled
-    };
-    
+        // Return default "Explore Byte" status if no user is logged in
+        if (!userId) return { text: "Explore Byte", className: "not-enrolled", order: 2 };
 
-    // Apply sorting logic before rendering
-    const sortedData = useMemo(() => {
-        if (!item || item.length === 0) {
-            console.warn('No item data available to sort:', item); // Log if no data to display
-            return [];
+        // Check for matching byte in user progress data
+        const userByte = userBytesData.find(ub => ub.bite_id === biteId);
+
+        // Return appropriate status based on user progress data
+        if (userByte && userByte.start_date && !userByte.completion_date) {
+            return { text: "Continue Byte", className: "started", order: 1 };
         }
-    
-        // Log each item and its corresponding status
-        const mappedData = item.map(val => {
-            const status = getByteStatus(val.bite_id); // Determine status
-            console.log('Byte ID:', val.bite_id, 'Status:', status); // Log to check status
-            return { ...val, ...status }; // Combine status info with the card data
-        });
-    
-        console.log('Mapped data before sorting:', mappedData); // Log the complete mapped data before sorting
-    
-        return mappedData.sort((a, b) => a.order - b.order); // Sort by the 'order' field
+
+        if (userByte && userByte.completion_date) {
+            return { text: "Byte Complete", className: "completed", order: 3 };
+        }
+
+        return { text: "Explore Byte", className: "not-enrolled", order: 2 }; // Default status for non-enrolled bytes
+    };
+
+    // Memoized sortedData: Combines byte data with status information and sorts by `order`
+    const sortedData = useMemo(() => {
+        if (!item || item.length === 0) return []; // Return empty array if no items provided
+
+        // Map over each byte to add status and order, then sort
+        return item.map(val => {
+            const status = getByteStatus(val.bite_id); // Determine the status for each byte
+            return { ...val, ...status }; // Combine byte data with status
+        }).sort((a, b) => a.order - b.order); // Sort bytes by status order
     }, [item, userBytesData]);
+
+    // Event handler to manage Zenler SSO and course redirection
+    const handleByteClick = (courseUrl) => {
+        if (!isLoggedIntoZenler && zenlerToken) { // If user is not logged in and token is available
+            const errorUrl = "https://www.ablockofcrypto.com/blog"; // URL for error handling if SSO fails
+
+            // Construct Zenler SSO URL with token, course URL, and error URL
+            const zenlerBaseUrl = `https://ABlockofCrypto.newzenler.com/api/sso/v1?token=${zenlerToken}&return_to=${encodeURIComponent(courseUrl)}&error_url=${encodeURIComponent(errorUrl)}`;
+
+            console.log("Redirecting to Zenler SSO URL:", zenlerBaseUrl);
+            window.location.href = zenlerBaseUrl; // Open Zenler SSO link in the same tab
+
+            setIsLoggedIntoZenler(true); // Set Zenler login status to true after successful SSO login
+        } else {
+            console.log("User already logged into Zenler; redirecting directly to course.");
+            window.location.href = courseUrl; // Directly open course URL in the same tab
+        }
+    };
 
     return (
         <div className="container_bites">
             {sortedData.map((val) => (
                 <div
-                    key={val.course_id || `${val.name}-${val.category}-${val.subcategory}`} // Ensure the key is unique
+                    key={val.course_id || `${val.name}-${val.category}-${val.subcategory}`}
                     className="byte_container_content"
                     onMouseEnter={(e) => e.currentTarget.querySelector('.hover_content').style.display = 'block'}
                     onMouseLeave={(e) => e.currentTarget.querySelector('.hover_content').style.display = 'none'}
                 >
                     <div className="byte_card_content" style={{ position: 'relative' }}>
-                        
-                        <a className="byte_link" href={val.url} target="_blank" rel="noreferrer">
-                            {/* Apply the dynamic class to the .byte_card element */}
+                        <a
+                            className="byte_link"
+                            onClick={(e) => {
+                                e.preventDefault(); // Prevent default link behavior to handle redirect
+                                handleByteClick(val.url); // Trigger course redirection with Zenler SSO
+                            }}
+                            href="#"
+                            rel="noreferrer"
+                        >
                             <div className={`byte_card ${val.className}`}>
                                 <img src={val.thumbnail} alt="course-img" className="byte_img" />
                                 <div className="top_content">
@@ -95,7 +108,6 @@ function Bites_Cards({ item = [] }) {
                                     </div>
                                 </div>
                             </div>
-                            {/* Hover content */}
                             <div className="hover_content">
                                 <p className="byte-description">{val.subtitle}</p>
                                 {val.sponsor_img && (
@@ -104,7 +116,6 @@ function Bites_Cards({ item = [] }) {
                                         <img src={val.sponsor_img} alt="sponsor-logo" className="hover_sponsor_logo" />
                                     </div>
                                 )}
-                                {/* Dynamic Status Display */}
                                 <div className={`byte-user_status ${val.className}`}>{val.text}</div>
                             </div>
                         </a>

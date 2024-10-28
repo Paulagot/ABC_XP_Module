@@ -13,13 +13,13 @@ function Bites_Sub_filter({ subcategories = [], selectedSubcategory, onSelectSub
         <div className="container_sub-filter">
            
             {subcategories.map((subcat) => (
-                <button
+                <div
                     key={subcat.subcategory_id}  // Use subcategory_id as the unique key
                     className={`sub_filter ${selectedSubcategory === subcat.name ? 'active' : ''}`}
                     onClick={() => onSelectSubcategory(subcat.name)}
                 >
                     {subcat.name}
-                </button>
+                </div>
             ))}
              <button onClick={resetAllFilters} className="reset_all_filters">
                 Reset All Filters
