@@ -6,8 +6,9 @@ import Meetup from "./meetup_update";
 function Adminupdate (){
     return(     
         <div className="container-sidebar_admin">  
-            <Blog />
-            <Meetup />         
+        <Meetup /> 
+         <Blog />
+                    
          </div>                                
         )
 }

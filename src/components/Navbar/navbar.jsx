@@ -9,10 +9,12 @@ function Navbar (){
     return(
         <div className="navbar">
             <Navbar_btn />
+            <div className="hide-on-small-screen">           
             <Navbar_logo />
-            <div className="hide-on-small-screen">
-                <Page_header />
             </div>
+            
+            <Page_header />
+            
             <Singin_btn />
         </div>        
     )

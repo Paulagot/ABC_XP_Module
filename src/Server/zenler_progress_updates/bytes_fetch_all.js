@@ -2,7 +2,7 @@ import db from './../config_db.js'
 
 /**
  * Function to fetch all zenler_id (courseIds) from the bites table.
- *
+ * the aim is to use these zenler-ids to created endpoints so we can fetch user progress on each byte.
  * @returns {Promise<Array>} - Returns an array of zenler_id (courseIds).
  */
 export const fetchAllZenlerIds = async () => {

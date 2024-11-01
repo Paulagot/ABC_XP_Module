@@ -11,7 +11,7 @@ import missionsSearchRouter from "../Server/manage_missions/mission_search.js"
 import missionsRouter from "./manage_missions/missionsRouter.js";
 import chainRouter from "./chains_routes.js";
 import criteriaRouter from "./criteria_router.js";
-import userapiRoutes from "./userapi.js";
+import userapiRoutes from "./database_sync_routes/users_api.js";
 import missionDisplayRoutes from "./manage_missions/missions_display_api.js"
 import UserBytesRouter from "./user_bites_routes.js"
 import UserMissionsRouter from "./user_mission_routes.js";
@@ -21,14 +21,15 @@ import WebhookByteStatusRouter from "./user_bytes_stats_update.js";
 import WebhookMissionStatusRouter from "./user_missions_stats_update.js";
 import leaderboardRouter from './leaderboard.js';
 import userProfileRouter from './user_profile.js';
-import Registarrouter from "./registar_router.js";
+import Registerrouter from "./registar_router.js";
 import sessionRouter from "./session_router.js";
 import session from 'express-session';  // Import express-session
-import Knex from 'knex';
 import { ConnectSessionKnexStore } from "connect-session-knex"
 import knexConstructor from "knex";
 import missionprogressrouter from './zenler_progress_updates/missions_progress_endpoint.js';
 import userprogressrouter from './../Server/zenler_progress_updates/Bytes_progress_endpoint.js'
+import allmissionprogressrouter from './../Server/database_sync_routes/all_missions_progress_endpoint.js'
+import alluserprogressrouter from './database_sync_routes/all_Bytes_progress_endpoint.js'
 
 
 // Create the express app
@@ -104,10 +105,12 @@ app.use('/api', WebhookByteStatusRouter); //this route is for updating the user 
 app.use('/api', WebhookMissionStatusRouter); //this route is for updating the user mission status when a mission is started or complete
 app.use('/api', leaderboardRouter); //this route calcaultes the leaderboard
 app.use('/api',userProfileRouter);
-app.use('/api',Registarrouter); // this route is used for the sign in/sign up/reset password options
+app.use('/api',Registerrouter); // this route is used for the sign in/sign up/reset password options
 app.use('/session', sessionRouter); // All session-related routes will be prefixed with /session
 app.use('/api',missionprogressrouter); // this route updates the db with learner mission progress from zenler
 app.use('/api',userprogressrouter); // this route updates the db with learner byte progress from zenler
+app.use('/api', allmissionprogressrouter); //this route syncs the DB with zenler for user progress on missions
+app.use('/api', alluserprogressrouter); //this route syncs the DB with zenler for user progress on bytes
 
 
 

@@ -118,9 +118,7 @@ function Missions_main_body() {
 
     return (
         <main className="container__right" id="main">
-            <div className="show-on-small-screen">
-                <Page_header />
-            </div>
+           
 
             <Missions_Sub_filter
                 subcategories={availableSubcategories}

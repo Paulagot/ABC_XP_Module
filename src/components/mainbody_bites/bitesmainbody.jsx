@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Bites_Sub_filter from "./bitessubfilter";
 import Bites_Main_filter from "./bitesmainfilters";
-import Bites_Cards from "./bitescards";
-import Page_header from "../Navbar/pageheader";
+import Bites_Cards from "./bitescards"
 import LearningAchievement from "./bitescompletepopup";
 import { useAuth } from "../../context/auth_context"; // Import the AuthContext
 
@@ -19,13 +18,19 @@ function Bites_main_body() {
     // Function to trigger initial database updates
     const triggerInitialDataUpdate = async () => {
         try {
-            await fetch('http://localhost:3000/api/fetch-data');
-            await fetch('http://localhost:3000/api/zenler-progress/all');
+            await fetch('http://localhost:3000/api/zenler-progress/all', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include' // Include credentials to send session cookies
+            });
             setDataLoaded(true); // Set to true after initial data update completes
         } catch (error) {
             console.error('Error during initial data update:', error);
         }
     };
+    
 
     // Run initial database update only once
     useEffect(() => {
@@ -114,9 +119,7 @@ function Bites_main_body() {
 
     return (
         <main className="container__right" id="main">
-            <div className="show-on-small-screen">
-                <Page_header />
-            </div>
+        
             
             <Bites_Sub_filter
                 subcategories={availableSubcategories}

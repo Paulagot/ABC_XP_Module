@@ -2,23 +2,26 @@
 import React, { useState } from 'react';
 
 /**
- * Component for setting a new password using a reset token.
- * @param {string} token - The reset token for verifying the password reset request.
+ * Component for setting a new password with a provided reset token.
+ * Validates the password fields and submits the new password to the backend.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} props.token - The reset token used for verifying the password reset request.
  */
 function SetPasswordForm({ token }) {
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [errors, setErrors] = useState({});
-    const [message, setMessage] = useState('');
+    const [password, setPassword] = useState(''); // Holds the new password
+    const [confirmPassword, setConfirmPassword] = useState(''); // Holds the confirmed password
+    const [errors, setErrors] = useState({}); // Stores any validation errors
+    const [message, setMessage] = useState(''); // Holds success/error message for the user
 
-    // Handle form input changes for password and confirm password fields
+    // Handles input changes for password and confirm password fields
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'password') setPassword(value);
         if (name === 'confirmPassword') setConfirmPassword(value);
     };
 
-    // Validate password and confirm password inputs
+    // Validates password inputs and ensures they match
     const validate = () => {
         let formErrors = {};
         if (!password) formErrors.password = 'Password is required';
@@ -30,7 +33,7 @@ function SetPasswordForm({ token }) {
         return formErrors;
     };
 
-    // Handle form submission to reset password
+    // Handles form submission to set a new password
     const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validate();
@@ -39,9 +42,10 @@ function SetPasswordForm({ token }) {
             setErrors(validationErrors);
         } else {
             setErrors({});
-            setMessage(''); // Clear previous messages
+            setMessage(''); // Clear any previous messages
 
             try {
+                // Send the new password to the backend with the reset token
                 const response = await fetch(`http://localhost:3000/api/password-reset/${token}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -50,7 +54,7 @@ function SetPasswordForm({ token }) {
 
                 if (response.ok) {
                     setMessage('Password successfully reset! You can now log in with your new password.');
-                    setPassword('');
+                    setPassword(''); // Clear password fields after successful reset
                     setConfirmPassword('');
                 } else {
                     const data = await response.json();
@@ -64,9 +68,10 @@ function SetPasswordForm({ token }) {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="registerForm" onSubmit={handleSubmit}>
             <h2>Set New Password</h2>
 
+            {/* Input for new password */}
             <div>
                 <label>New Password</label>
                 <input
@@ -79,6 +84,7 @@ function SetPasswordForm({ token }) {
                 {errors.password && <span className="error">{errors.password}</span>}
             </div>
 
+            {/* Input to confirm new password */}
             <div>
                 <label>Confirm New Password</label>
                 <input
@@ -91,12 +97,15 @@ function SetPasswordForm({ token }) {
                 {errors.confirmPassword && <span className="error">{errors.confirmPassword}</span>}
             </div>
 
+            {/* Submission button */}
             <button type="submit">Set Password</button>
 
+            {/* Display message for success or error */}
             {message && <p>{message}</p>}
         </form>
     );
 }
 
 export default SetPasswordForm;
+
 

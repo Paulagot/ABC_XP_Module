@@ -1,11 +1,12 @@
 import axios from "axios";
-import db from "./config_db.js"
+import db from "./../config_db.js"
 
 //this is to connect to the zenler API and pull in data relating to the users
-// admin end
+//  it syncs the users from zenler to the XP module
+//  it is triggered when a user logs in to ensure both zenler and the xp module are synced for the user id.
 //currently not triggered!!!!!!!
 
-export const fetchUserData = async (req, res) => {
+export const fetchUsersData = async (req, res) => {
   try {
     // Fetch data from the external API
     const response = await axios.get('https://api.newzenler.com/api/v1/users?limit=100000&role=4', {

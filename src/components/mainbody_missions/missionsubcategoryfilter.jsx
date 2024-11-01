@@ -11,13 +11,13 @@ function Missions_Sub_filter({ subcategories = [], selectedSubcategory, onSelect
     return (
         <div className="container_sub-filter">
             {subcategories.map((subcat) => (
-                <button
+                <div
                     key={subcat.subcategory_id}
                     className={`sub_filter ${selectedSubcategory === subcat.subcategory_id ? 'active' : ''}`}
                     onClick={() => onSelectSubcategory(subcat.subcategory_id)}
                 >
                     {subcat.name}
-                </button>
+                </div>
             ))}
             <button onClick={resetAllFilters} className="reset_all_filters">
                 Reset All Filters

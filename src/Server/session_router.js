@@ -1,5 +1,5 @@
 import express from 'express';
-import session from 'express-session'
+
 
 const sessionRouter = express.Router();
 
@@ -23,37 +23,49 @@ sessionRouter.get('/check-session', (req, res) => {
     }
 });
 
-// -----------------------------------------------
+/// -----------------------------------------------
 // Route: POST /session/logout
-// Description: This route logs the user out by destroying the session.
-//              If a session exists, it will be destroyed, and the session cookie will be cleared.
-//              If there is no active session, it returns an error response.
+// Description: Logs the user out by clearing the session and Zenler SSO token.
+//              Also attempts to log out from Zenler by calling the external logout endpoint.
 // -----------------------------------------------
-sessionRouter.post('/logout', (req, res) => {
-    // Check if the session exists (i.e., the user is logged in)
-    if (req.session) {
-        // Destroy the session, which will remove all session data for this user.
-        req.session.destroy((err) => {
-            if (err) {
-                // If there was an error while destroying the session, return a 500 status code
-                // This can happen due to internal server issues
-                console.error("Logout failed:", err); // Log the error for debugging
-                res.status(500).send("Logout failed"); // Send an error message to the client
-            } else {
-                // If session destruction was successful, clear the session cookie on the client-side
-                // 'connect.sid' is the default cookie name used by express-session to store the session ID
-                res.clearCookie('connect.sid');
-                
-                // Send a 200 OK status code to indicate the user was successfully logged out
-                res.sendStatus(200);
-            }
-        });
-    } else {
-        // If there was no active session, return a 400 Bad Request
-        // This means the user was already logged out or never logged in
-        res.status(400).send("No active session");
+sessionRouter.post('/logout', async (req, res) => {
+    try {
+        if (req.session) {
+            // Step 1: Attempt to log out of Zenler by calling their logout endpoint
+            await fetch('https://www.ablockofcrypto.com/logout', {
+                method: 'POST', // or 'GET' if Zenler requires a different method
+                credentials: 'include', // Include credentials if Zenler requires it
+            });
+
+            console.log("Attempted to log out from Zenler");
+
+            // Step 2: Clear Zenler token from session data
+            req.session.zenlerToken = null;
+
+            // Step 3: Destroy the session, removing all session data including user data and Zenler token
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error("Logout failed:", err); // Log the error if session destruction fails
+                    res.status(500).send("Logout failed"); // Respond with an error status if logout fails
+                } else {
+                    // Clear the session cookie on the client-side
+                    res.clearCookie('connect.sid'); // 'connect.sid' is the default cookie name for express-session
+                    console.log("User logged out and session destroyed"); // Log for debugging
+                    res.sendStatus(200); // Respond with success status if logout is successful
+                }
+            });
+        } else {
+            // If no session exists, respond with 400 status indicating no active session to log out from
+            res.status(400).send("No active session");
+        }
+    } catch (error) {
+        console.error("Failed to log out from Zenler:", error);
+        res.status(500).send("Logout failed"); // Respond with a 500 status if logout from Zenler fails
     }
 });
 
+
 export default sessionRouter;
+
+
 

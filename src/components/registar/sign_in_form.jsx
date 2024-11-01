@@ -1,16 +1,18 @@
+// sign_in_form.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate from React Router
+import { useNavigate } from 'react-router-dom';
 
-function SignInForm() {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-    });
+/**
+ * SignInForm component handles user login requests.
+ * Validates email and password inputs, and sends them to the backend for authentication.
+ */
+function SignInForm({ onSignIn }) {
+    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [errors, setErrors] = useState({}); // Stores validation errors for form inputs
+    const [message, setMessage] = useState(''); // Success or error message for login response
+    const navigate = useNavigate(); // Used for page navigation on successful login
 
-    const [errors, setErrors] = useState({});
-    const [message, setMessage] = useState(''); // To show success or error messages
-    const navigate = useNavigate(); // Initialize navigate hook
-
+    // Handles input change and updates formData state
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -19,17 +21,16 @@ function SignInForm() {
         });
     };
 
+    // Validates email and password inputs, adding errors to 'errors' state if needed
     const validate = () => {
         let formErrors = {};
 
-        // Email validation
         if (!formData.email) {
             formErrors.email = 'Email is required';
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             formErrors.email = 'Email address is invalid';
         }
 
-        // Password validation
         if (!formData.password) {
             formErrors.password = 'Password is required';
         }
@@ -37,9 +38,11 @@ function SignInForm() {
         return formErrors;
     };
 
+    // Submits form data to backend API if inputs are valid
     const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validate();
+
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
         } else {
@@ -47,17 +50,14 @@ function SignInForm() {
             try {
                 const response = await fetch('http://localhost:3000/api/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include', // Include session cookies
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData),
+                    credentials: 'include', // Send cookies for session handling
                 });
-    
+
                 if (response.ok) {
-                    const data = await response.json();
                     setMessage('Logged in successfully!');
-                    // navigate('/bites'); // Redirect on successful login
+                    navigate('/bytes'); // Redirect on successful login
                 } else {
                     const errorData = await response.json();
                     setMessage(errorData.error || 'An error occurred during sign-in');
@@ -67,12 +67,10 @@ function SignInForm() {
             }
         }
     };
-    
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="registerForm" onSubmit={handleSubmit}>
             <h2>Sign In</h2>
-
             <div>
                 <label>Email</label>
                 <input
@@ -84,7 +82,6 @@ function SignInForm() {
                 />
                 {errors.email && <span className="error">{errors.email}</span>}
             </div>
-
             <div>
                 <label>Password</label>
                 <input
@@ -96,14 +93,10 @@ function SignInForm() {
                 />
                 {errors.password && <span className="error">{errors.password}</span>}
             </div>
-
             <button type="submit">Sign In</button>
-
-            {message && <p>{message}</p>} {/* Show success or error messages */}
+            {message && <p>{message}</p>}
         </form>
     );
 }
 
 export default SignInForm;
-
-

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function SignUpForm() {
-    // State to hold form input data
+
+
+function SignUpForm({ onSignUp }) {
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
@@ -12,11 +13,32 @@ function SignUpForm() {
     });
     const [errors, setErrors] = useState({});
     const [message, setMessage] = useState('');
-    const [isSignedUp, setIsSignedUp] = useState(false);
     const [captchaToken, setCaptchaToken] = useState('');
 
-    // Ref to keep track of CAPTCHA rendering
     const captchaRenderedRef = useRef(false);
+
+    useEffect(() => {
+        // Log when SignUpForm is mounted
+        console.log('SignUpForm mounted');
+
+        // Render CAPTCHA if not already rendered
+        if (!captchaRenderedRef.current && window.turnstile) {
+            try {
+                window.turnstile.render('.cf-turnstile', {
+                    sitekey: '0x4AAAAAAAyTlqCXTIWAluQM',
+                    callback: (token) => {
+                        console.log('CAPTCHA success:', token);
+                        setCaptchaToken(token);
+                    },
+                });
+                captchaRenderedRef.current = true; // Mark CAPTCHA as rendered
+            } catch (error) {
+                console.error('Error rendering CAPTCHA:', error);
+            }
+        } else {
+            console.warn('CAPTCHA is not available or already rendered.');
+        }
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -56,16 +78,8 @@ function SignUpForm() {
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    setMessage('User registered successfully! You can now sign in.');
-                    setFormData({
-                        first_name: '',
-                        last_name: '',
-                        email: '',
-                        password: '',
-                        agreedGDPR: false,
-                        agreedTnC: false,
-                    });
-                    setIsSignedUp(true);
+                    setMessage('User registered successfully! Redirecting to sign in...');
+                    onSignUp(); // Trigger view change in SignInMainBody
                 } else {
                     setMessage(data.error || 'An error occurred during sign-up');
                 }
@@ -75,32 +89,10 @@ function SignUpForm() {
         }
     };
 
-    useEffect(() => {
-        // Check if CAPTCHA has already been rendered to avoid duplicates
-        if (!captchaRenderedRef.current && window.turnstile) {
-            window.turnstile.render('.cf-turnstile', {
-                sitekey: '0x4AAAAAAAyTlqCXTIWAluQM',
-                callback: (token) => {
-                    console.log('CAPTCHA success:', token);
-                    setCaptchaToken(token);
-                },
-            });
-            captchaRenderedRef.current = true; // Mark CAPTCHA as rendered
-        }
-    }, []);
-
-    if (isSignedUp) {
-        return (
-            <div>
-                <h2>Sign In</h2>
-                <SignInForm />
-            </div>
-        );
-    }
-
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="registerForm" onSubmit={handleSubmit}>
             <h2>Sign Up</h2>
+
             <div>
                 <label>First Name</label>
                 <input
@@ -112,6 +104,7 @@ function SignUpForm() {
                 />
                 {errors.first_name && <span className="error">{errors.first_name}</span>}
             </div>
+
             <div>
                 <label>Last Name</label>
                 <input
@@ -123,6 +116,7 @@ function SignUpForm() {
                 />
                 {errors.last_name && <span className="error">{errors.last_name}</span>}
             </div>
+
             <div>
                 <label>Email</label>
                 <input
@@ -134,6 +128,7 @@ function SignUpForm() {
                 />
                 {errors.email && <span className="error">{errors.email}</span>}
             </div>
+
             <div>
                 <label>Password</label>
                 <input
@@ -145,6 +140,7 @@ function SignUpForm() {
                 />
                 {errors.password && <span className="error">{errors.password}</span>}
             </div>
+
             <div>
                 <label>
                     <input
@@ -158,6 +154,7 @@ function SignUpForm() {
                 </label>
                 {errors.agreedGDPR && <span className="error">{errors.agreedGDPR}</span>}
             </div>
+
             <div>
                 <label>
                     <input
@@ -172,33 +169,11 @@ function SignUpForm() {
                 {errors.agreedTnC && <span className="error">{errors.agreedTnC}</span>}
             </div>
 
-            {/* Explicitly rendered Turnstile CAPTCHA widget */}
             <div className="cf-turnstile" data-sitekey="0x4AAAAAAAyTlqCXTIWAluQM"></div>
 
             <button type="submit">Sign Up</button>
-
             {message && <p>{message}</p>}
         </form>
-    );
-}
-
-// Example SignInForm component for after successful registration
-function SignInForm() {
-    return (
-        <div>
-            <h3>Sign In</h3>
-            <form>
-                <div>
-                    <label>Email</label>
-                    <input type="email" required />
-                </div>
-                <div>
-                    <label>Password</label>
-                    <input type="password" required />
-                </div>
-                <button type="submit">Sign In</button>
-            </form>
-        </div>
     );
 }
 

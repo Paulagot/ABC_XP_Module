@@ -9,10 +9,13 @@ import jwt from 'jsonwebtoken';
 
 
 
-const Registarrouter = express.Router();
+const Registerrouter = express.Router();
 const saltRounds = 10; // Complexity for bcrypt password hashing
 const SECRET_KEY = '0x4AAAAAAAyTltxYNhSI2tBoL6GiMKF78Gc'; // Replace with your actual Turnstile secret key from Cloudflare
-const NEW_ZENLER_API_KEY = process.env.NEW_ZENLER_API_KEY; // Store your API key in environment variables
+const ZENLER_API_KEY = 'ONPDVVIYMEGX6WHFL1QCEJ7KN798IXV2';
+const ZENLER_ACCOUNT_NAME = 'ABlockofCrypto'; 
+const ZENLER_API_URL = 'https://ABlockOfCrypto.newzenler.com/api/v1/users';
+
 
 // Set up your email transporter using Nodemailer
 const transporter = nodemailer.createTransport({
@@ -26,66 +29,52 @@ const transporter = nodemailer.createTransport({
 });
 
 
-// ---------------------------------
-// SIGN-UP ROUTE WITH CAPTCHA VALIDATION
-// ---------------------------------
-Registarrouter.post('/signup', async (req, res) => {
-    const { first_name, last_name, email, password, captchaToken } = req.body;
-    console.log("Received CAPTCHA token:", captchaToken); 
 
-    async function handlePost() {
+// ---------------------------------
+// SIGN-UP ROUTE WITH CAPTCHA AND ZENLER INTEGRATION
+// ---------------------------------
+Registerrouter.post('/signup', async (req, res) => {
+    // Extract user details from the request body
+    const { first_name, last_name, email, password, captchaToken } = req.body;
+    console.log("Received CAPTCHA token:", captchaToken);
+
+    // CAPTCHA validation function to verify if the CAPTCHA token is valid
+    async function handleCaptchaValidation() {
         try {
             const formData = new URLSearchParams();
             formData.append("secret", SECRET_KEY);
             formData.append("response", captchaToken);
             formData.append("remoteip", req.ip);
-            const idempotencyKey = crypto.randomUUID();
-            formData.append("idempotency_key", idempotencyKey);
 
-            const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-
-            // First verification attempt
-            const firstResponse = await fetch(url, {
+            const captchaUrl = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+            const response = await fetch(captchaUrl, {
                 body: formData,
                 method: "POST",
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
-            const firstOutcome = await firstResponse.json();
-            console.log("First CAPTCHA verification attempt:", firstOutcome);
-            if (firstOutcome.success) {
-                console.log("CAPTCHA verification succeeded on first attempt.");
+            const outcome = await response.json();
+            console.log("CAPTCHA verification attempt:", outcome);
+
+            if (outcome.success) {
+                console.log("CAPTCHA verification succeeded.");
+                return true; // CAPTCHA succeeded
             } else {
-                console.error("First CAPTCHA verification failed:", firstOutcome['error-codes']);
-                return res.status(400).json({ error: 'CAPTCHA verification failed. Please try again.' });
+                console.error("CAPTCHA verification failed:", outcome['error-codes']);
+                return false; // CAPTCHA failed
             }
-
-            // Optional second verification request with idempotency key
-            const subsequentResponse = await fetch(url, {
-                body: formData,
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            });
-            const subsequentOutcome = await subsequentResponse.json();
-            console.log("Second CAPTCHA verification attempt:", subsequentOutcome);
-            if (subsequentOutcome.success) {
-                console.log("CAPTCHA verification succeeded on second attempt.");
-            }
-
         } catch (error) {
             console.error("Error during CAPTCHA verification:", error);
-            return res.status(500).json({ error: "Error verifying CAPTCHA. Please try again later." });
+            return false; // Error during CAPTCHA validation
         }
     }
 
-    // Run the CAPTCHA validation function
-    await handlePost();
+    // Run CAPTCHA validation
+    const isCaptchaValid = await handleCaptchaValidation();
+    if (!isCaptchaValid) {
+        return res.status(400).json({ error: 'CAPTCHA verification failed. Please try again.' });
+    }
 
-    // Continue with the sign-up process if CAPTCHA is successful
-    // Check if the user already exists
+    // Check if the user already exists in the local database
     const checkUserSql = 'SELECT * FROM users WHERE email = ?';
     db.query(checkUserSql, [email], (err, result) => {
         if (err) {
@@ -93,32 +82,90 @@ Registarrouter.post('/signup', async (req, res) => {
             return res.status(500).json({ error: 'Database error during sign-up' });
         }
         if (result.length > 0) {
+            console.warn('Attempt to register an existing user:', email);
             return res.status(400).json({ error: 'User already exists' });
         }
 
-        // Hash the password and insert the new user into the database
-        bcrypt.hash(password, saltRounds, (hashErr, hash) => {
+        // Hash the password and create a new user record
+        bcrypt.hash(password, saltRounds, async (hashErr, hash) => {
             if (hashErr) {
                 console.error('Error hashing password:', hashErr);
                 return res.status(500).json({ error: 'Error hashing password' });
             }
 
+            // Insert user into local database
             const insertUserSql = 'INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)';
-            db.query(insertUserSql, [first_name, last_name, email, hash, 'student'], (dbErr, dbResult) => {
+            db.query(insertUserSql, [first_name, last_name, email, hash, 'student'], async (dbErr, dbResult) => {
                 if (dbErr) {
                     console.error('Error inserting user into database:', dbErr);
                     return res.status(500).json({ error: 'Error inserting user into database' });
                 }
-                res.status(201).json({ message: 'User registered successfully!' });
+                console.log("User successfully registered in local database:", email);
+
+                try {
+                    // Construct the Zenler API URL with query parameters
+                    const zenlerUrl = new URL(ZENLER_API_URL);
+                    zenlerUrl.searchParams.append('first_name', first_name);
+                    zenlerUrl.searchParams.append('last_name', last_name);
+                    zenlerUrl.searchParams.append('email', email);
+                    zenlerUrl.searchParams.append('password', password);
+                    zenlerUrl.searchParams.append('commission', '10'); // default value
+                    zenlerUrl.searchParams.append('roles[]', '4'); // default role for student
+                    zenlerUrl.searchParams.append('gdpr_consent_status', '1'); // GDPR accepted by default
+
+                    // Log the Zenler API URL for debugging purposes
+                    console.log("Zenler API request URL:", zenlerUrl.toString());
+
+                    // Make the request to Zenler, including both API key and account name headers
+                    const zenlerResponse = await fetch(zenlerUrl, {
+                        method: 'POST',
+                        headers: {
+                            'X-API-Key': ZENLER_API_KEY,           // API key as per Zenler's requirement
+                            'X-Account-Name': ZENLER_ACCOUNT_NAME  // Account name exactly as needed
+                        }
+                    });
+
+                    // Parse and log the response from Zenler
+                    const zenlerData = await zenlerResponse.json();
+                    console.log("Zenler registration response:", zenlerData);
+
+                    // Check if the Zenler API response was successful
+                    if (zenlerResponse.ok && zenlerData.response_code === 201) {
+                        console.log("User registered successfully on Zenler:", zenlerData.data);
+
+                        // Extract the Zenler user ID
+                        const zenlerId = zenlerData.data.id;
+
+                        // Update the local database with the Zenler user ID
+                        const updateUserSql = 'UPDATE users SET zenler_id = ? WHERE email = ?';
+                        db.query(updateUserSql, [zenlerId, email], (updateErr, updateResult) => {
+                            if (updateErr) {
+                                console.error('Error updating zenler_id in local database:', updateErr);
+                                return res.status(500).json({ error: 'Error updating zenler_id in local database' });
+                            }
+
+                            console.log(`Zenler ID ${zenlerId} successfully updated for user ${email} in local database.`);
+                            return res.status(201).json({ message: 'User registered successfully!' });
+                        });
+                    } else {
+                        console.error("Zenler registration failed:", zenlerData.message);
+                        return res.status(500).json({ error: 'Error registering user on Zenler' });
+                    }
+                } catch (zenlerError) {
+                    console.error('Error during Zenler registration:', zenlerError);
+                    return res.status(500).json({ error: 'Error communicating with Zenler' });
+                }
             });
         });
     });
 });
+
+
 /// ---------------------------------
 // SIGN-IN ROUTE (UPDATED FOR SSO)
 // ---------------------------------
 // POST /login: Login route that authenticates a user, creates an SSO token, and stores session data
-Registarrouter.post('/login', (req, res) => {
+Registerrouter.post('/login', (req, res) => {
     const { email, password } = req.body;
 
     // SQL query to retrieve user data by email from the database
@@ -182,7 +229,7 @@ Registarrouter.post('/login', (req, res) => {
 // ---------------------------------
 // PASSWORD RESET ROUTE - Generate Reset Token and Send Email
 // ---------------------------------
-Registarrouter.post('/password-reset', async (req, res) => {
+Registerrouter.post('/password-reset', async (req, res) => {
     const { email, captchaToken } = req.body;
 
     console.log("Received CAPTCHA token:", captchaToken); 
@@ -262,7 +309,7 @@ Registarrouter.post('/password-reset', async (req, res) => {
             }
 
             // Log reset link for testing (replace with actual email sending in production)
-            const resetUrl = `http://localhost:5173/registar?view=setPassword&token=${resetToken}`;
+            const resetUrl = `http://localhost:5173/register?view=setPassword&token=${resetToken}`;
             console.log(`Password reset link (for testing): ${resetUrl}`);
 
             // Placeholder email sending (log for now)
@@ -295,7 +342,7 @@ Registarrouter.post('/password-reset', async (req, res) => {
 // ---------------------------------
 // PASSWORD RESET CONFIRMATION - Update Password
 // ---------------------------------
-Registarrouter.post('/password-reset/:token', (req, res) => {
+Registerrouter.post('/password-reset/:token', (req, res) => {
     const { password } = req.body;
     const { token } = req.params;
 
@@ -335,4 +382,4 @@ Registarrouter.post('/password-reset/:token', (req, res) => {
 
 
 
-export default Registarrouter;
+export default Registerrouter;

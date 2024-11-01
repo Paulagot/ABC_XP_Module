@@ -1,19 +1,27 @@
+// reset_password_form.js
 import React, { useState, useEffect, useRef } from 'react';
 
+/**
+ * Component to handle requesting a password reset. 
+ * Includes CAPTCHA verification and sends a reset email if inputs are valid.
+ *
+ * @param {Object} props - Component properties.
+ * @param {function} props.onReset - Callback function to handle the password reset process.
+ */
 function ResetPasswordForm({ onReset }) {
-    const [email, setEmail] = useState('');
-    const [errors, setErrors] = useState({});
-    const [captchaToken, setCaptchaToken] = useState('');
-    const [isLoading, setIsLoading] = useState(false); // Loading state for form submission
-    const [message, setMessage] = useState(''); // Success message after email is sent
-    const captchaRenderedRef = useRef(false);
+    const [email, setEmail] = useState(''); // Holds user's email input
+    const [errors, setErrors] = useState({}); // Stores any validation errors
+    const [captchaToken, setCaptchaToken] = useState(''); // CAPTCHA verification token
+    const [isLoading, setIsLoading] = useState(false); // Loading state during email send
+    const [message, setMessage] = useState(''); // Message displayed to the user
+    const captchaRenderedRef = useRef(false); // Ref to track if CAPTCHA has already been rendered
 
-    // Handle changes in email input
+    // Updates email state on input change
     const handleChange = (e) => {
         setEmail(e.target.value);
     };
 
-    // Validate email input
+    // Validates email input for proper format and non-emptiness
     const validate = () => {
         let formErrors = {};
         if (!email) {
@@ -24,7 +32,7 @@ function ResetPasswordForm({ onReset }) {
         return formErrors;
     };
 
-    // Handle form submission
+    // Handles form submission to request a password reset email
     const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validate();
@@ -34,43 +42,43 @@ function ResetPasswordForm({ onReset }) {
             setErrors({ captcha: 'Please complete the CAPTCHA' });
         } else {
             setErrors({});
-            setIsLoading(true); // Set loading state to true
-            setMessage(''); // Clear any previous message
+            setIsLoading(true); // Shows loading message while sending email
+            setMessage(''); // Clears previous messages
 
             // Send email and CAPTCHA token to backend
-            const success = await onReset(email, captchaToken); // Pass `onReset` to control success
+            const success = await onReset(email, captchaToken); // Triggers parent function for backend interaction
             if (success) {
-                setMessage('An email has been sent with instructions to reset your password. Please check your spam folder and mark the email as not junk.');
+                setMessage('An email has been sent with instructions to reset your password.');
             } else {
                 setMessage('There was an issue sending the reset email. Please try again.');
             }
-            setIsLoading(false); // Stop loading after response
+            setIsLoading(false); // Stops loading message after email send
         }
     };
 
-    // Render CAPTCHA once when the component mounts
+    // Ensures CAPTCHA renders only once
     useEffect(() => {
         if (!captchaRenderedRef.current && window.turnstile) {
             window.turnstile.render('.cf-turnstile', {
-                sitekey: '0x4AAAAAAAyTlqCXTIWAluQM', // Use your actual site key
-                callback: (token) => setCaptchaToken(token), // Set the token upon successful CAPTCHA completion
+                sitekey: '0x4AAAAAAAyTlqCXTIWAluQM', // Replace with actual CAPTCHA site key
+                callback: (token) => setCaptchaToken(token), // Sets CAPTCHA token on success
             });
-            captchaRenderedRef.current = true; // Prevent re-rendering CAPTCHA
+            captchaRenderedRef.current = true; // Marks CAPTCHA as rendered
         }
     }, []);
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="registerForm" onSubmit={handleSubmit}>
             <h2>Reset Password</h2>
 
-            {/* Show loading message while sending the email */}
+            {/* Shows loading message during form submission */}
             {isLoading ? (
                 <p>Hold tight while we prepare the email...</p>
             ) : message ? (
-                // Show confirmation message after email is sent
+                // Shows confirmation message upon email send success
                 <p>{message}</p>
             ) : (
-                // Show form if not loading and no success message
+                // Shows form if not loading and no success message
                 <>
                     <div>
                         <label>Email</label>
@@ -96,5 +104,6 @@ function ResetPasswordForm({ onReset }) {
 }
 
 export default ResetPasswordForm;
+
 
 

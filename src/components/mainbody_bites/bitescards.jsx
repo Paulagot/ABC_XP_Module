@@ -2,37 +2,27 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../../context/auth_context"; // Import useAuth to access authentication context, including user data and JWT token
 
 
-// Bites_Cards component is responsible for rendering each course card (byte) and managing redirection with Zenler SSO
 function Bites_Cards({ item = [] }) {
-    const { user, zenlerToken } = useAuth(); // Access user and Zenler SSO token from AuthContext
-
-    // State to store user-specific progress data for each byte (course)
+    const { user, zenlerToken } = useAuth(); // Use auth context for user and Zenler token
     const [userBytesData, setUserBytesData] = useState([]);
-    const [isLoggedIntoZenler, setIsLoggedIntoZenler] = useState(false); // Flag to track if the user is already logged into Zenler
+    const [zenlerLoggedIn, setZenlerLoggedIn] = useState(false); // Track Zenler login dynamically
 
-    // Get user ID from the AuthContext's `user` object, if available
     const userId = user?.user_id;
 
-    // Fetch the user's progress data for each byte (course) when the component mounts or the user ID changes
     useEffect(() => {
         if (userId) {
-            // API call to fetch user-specific progress data for bytes
             fetch(`http://localhost:3000/api/user_bytes?user_id=${userId}`)
                 .then(response => response.json())
-                .then(data => setUserBytesData(data)) // Store the fetched data in `userBytesData` state
+                .then(data => setUserBytesData(data))
                 .catch(err => console.error("Failed to fetch user bytes data", err));
         }
     }, [userId]);
 
     // Function to determine the status of each byte (Explore, Continue, Complete) based on progress data
     const getByteStatus = (biteId) => {
-        // Return default "Explore Byte" status if no user is logged in
         if (!userId) return { text: "Explore Byte", className: "not-enrolled", order: 2 };
-
-        // Check for matching byte in user progress data
         const userByte = userBytesData.find(ub => ub.bite_id === biteId);
 
-        // Return appropriate status based on user progress data
         if (userByte && userByte.start_date && !userByte.completion_date) {
             return { text: "Continue Byte", className: "started", order: 1 };
         }
@@ -41,37 +31,37 @@ function Bites_Cards({ item = [] }) {
             return { text: "Byte Complete", className: "completed", order: 3 };
         }
 
-        return { text: "Explore Byte", className: "not-enrolled", order: 2 }; // Default status for non-enrolled bytes
+        return { text: "Explore Byte", className: "not-enrolled", order: 2 };
     };
 
-    // Memoized sortedData: Combines byte data with status information and sorts by `order`
     const sortedData = useMemo(() => {
-        if (!item || item.length === 0) return []; // Return empty array if no items provided
-
-        // Map over each byte to add status and order, then sort
+        if (!item || item.length === 0) return [];
         return item.map(val => {
-            const status = getByteStatus(val.bite_id); // Determine the status for each byte
-            return { ...val, ...status }; // Combine byte data with status
-        }).sort((a, b) => a.order - b.order); // Sort bytes by status order
+            const status = getByteStatus(val.bite_id);
+            return { ...val, ...status };
+        }).sort((a, b) => a.order - b.order);
     }, [item, userBytesData]);
 
     // Event handler to manage Zenler SSO and course redirection
     const handleByteClick = (courseUrl) => {
-        if (!isLoggedIntoZenler && zenlerToken) { // If user is not logged in and token is available
-            const errorUrl = "https://www.ablockofcrypto.com/blog"; // URL for error handling if SSO fails
-
-            // Construct Zenler SSO URL with token, course URL, and error URL
-            const zenlerBaseUrl = `https://ABlockofCrypto.newzenler.com/api/sso/v1?token=${zenlerToken}&return_to=${encodeURIComponent(courseUrl)}&error_url=${encodeURIComponent(errorUrl)}`;
-
-            console.log("Redirecting to Zenler SSO URL:", zenlerBaseUrl);
-            window.location.href = zenlerBaseUrl; // Open Zenler SSO link in the same tab
-
-            setIsLoggedIntoZenler(true); // Set Zenler login status to true after successful SSO login
+        // Check if user is already logged into Zenler using sessionStorage
+        const zenlerLoggedIn = sessionStorage.getItem("zenlerLoggedIn");
+    
+        if (!zenlerLoggedIn && zenlerToken) { // Redirect to SSO only if not logged in
+            console.log("Redirecting to Zenler SSO endpoint for login.");
+    
+            const errorUrl = "https://www.ablockofcrypto.com/blog";
+            const ssoUrl = `https://ABlockofCrypto.newzenler.com/api/sso/v1?token=${zenlerToken}&return_to=${encodeURIComponent(courseUrl)}&error_url=${encodeURIComponent(errorUrl)}`;
+    
+            console.log("Zenler SSO URL:", ssoUrl);
+            window.location.href = ssoUrl; // Open SSO link in the same tab
+            sessionStorage.setItem("zenlerLoggedIn", "true"); // Set Zenler login state in sessionStorage after first redirect
         } else {
             console.log("User already logged into Zenler; redirecting directly to course.");
-            window.location.href = courseUrl; // Directly open course URL in the same tab
+            window.location.href = courseUrl; // Directly open course URL in the same tab if already logged in
         }
     };
+    
 
     return (
         <div className="container_bites">
@@ -86,8 +76,8 @@ function Bites_Cards({ item = [] }) {
                         <a
                             className="byte_link"
                             onClick={(e) => {
-                                e.preventDefault(); // Prevent default link behavior to handle redirect
-                                handleByteClick(val.url); // Trigger course redirection with Zenler SSO
+                                e.preventDefault();
+                                handleByteClick(val.url);
                             }}
                             href="#"
                             rel="noreferrer"

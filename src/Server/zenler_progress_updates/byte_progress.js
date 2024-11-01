@@ -1,54 +1,58 @@
+// getCourseProgress.js
 import axios from 'axios';
 
 /**
- * Function to fetch detailed course progress data from the Zenler API.
- * This function dynamically accepts a `courseId` parameter and handles paginated responses.
+ * Fetches detailed course progress data from the Zenler API for a specific course, 
+ * filtered by a user’s email to retrieve only that user’s progress. The function 
+ * handles paginated responses from the API.
  *
- * @param {number} courseId - The ID of the course to fetch progress data for.
- * @returns {Promise<Object|null>} - Returns an object containing all user progress data if successful, otherwise `null`.
+ * @param {string} courseId - The unique identifier (zenler_id) of the course in Zenler.
+ * @param {string} email - The email address of the logged-in user to filter the results.
+ * @returns {Promise<Object|null>} - Returns an object containing all user progress data 
+ *                                   across pages for the specified course, or `null` in case of an error.
  */
-export const getCourseProgress = async (courseId) => {
-  let allItems = {};        // Store all user progress data across pages
-  let pageIndex = 1;        // Initialize page index for pagination
-  let hasMorePages = true;  // Flag to continue fetching if more pages are available
+export const getCourseProgress = async (courseId, email) => {
+  let allItems = {};
+  let pageIndex = 1;
+  let af_v = 1;
 
-  while (hasMorePages) {
-    try {
-      // console.log(`Fetching course progress for courseId: ${courseId}, page: ${pageIndex}`);
+  try {
+    console.log(`Fetching course progress for courseId: ${courseId}, page: ${pageIndex}`);
 
-      // API request to Zenler to fetch course progress details for the specified page
-      const response = await axios.get('https://ABlockOfCrypto.newzenler.com/api/v1/reports/course-progress/detailed', {
-        headers: {
-          'X-API-Key': 'ONPDVVIYMEGX6WHFL1QCEJ7KN798IXV2',
-          'X-Account-Name': 'ABlockOfCrypto',
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        params: { course_id: courseId, page: pageIndex } // Pass the courseId and current page number as parameters
-      });
+    const response = await axios.get('https://ABlockOfCrypto.newzenler.com/api/v1/reports/course-progress/detailed', {
+      headers: {
+        'X-API-Key': 'ONPDVVIYMEGX6WHFL1QCEJ7KN798IXV2',
+        'X-Account-Name': 'ABlockOfCrypto',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      params: {limit:1, course_id: courseId, page: pageIndex, af_v: af_v, 'email_is[]': email }
+    });
 
-      // Check if the response contains user progress data
-      if (response.data.data && response.data.data.items) {
-        // Combine data items from the current page with allItems
-        Object.assign(allItems, response.data.data.items);
+    // Log the full response to understand what data is returned
+    console.log('Full API Response:', JSON.stringify(response.data, null, 2));
 
-        const { pagination } = response.data.data;
-        
-        // Determine if there is another page to fetch
-        if (pagination.page_index < pagination.total_pages) {
-          pageIndex++; // Increment to fetch the next page
-        } else {
-          hasMorePages = false; // No more pages to fetch
-        }
-      } else {
-        hasMorePages = false; // End pagination if no items are found
-      }
-    } catch (error) {
-      console.error('Error fetching course progress:', error);
-      return null; // Return null if any error occurs
-    }
+    // Apply local filtering by email
+    const filteredItems = Object.fromEntries(
+      Object.entries(response.data.data.items).filter(([key, value]) => value.email === email)
+    );
+
+    // Merge filtered items into the main allItems object
+    Object.assign(allItems, filteredItems);
+
+    // No need to go to the next page, so remove pagination logic
+  } catch (error) {
+    console.error(`Error fetching course progress for courseId ${courseId}:`, error);
+    return null; // Return `null` if any error occurs during the fetch
   }
 
-  // console.log(`Fetched all pages for courseId ${courseId}`);
-  return allItems; // Return combined user progress data across all pages
+  // Log the filtered data for verification
+  console.log(`Filtered Data for ${email}:`, JSON.stringify(allItems, null, 2));
+  return allItems; // Returns the complete progress data for the user for the specific course
+
+  
 };
+
+
+  
+
