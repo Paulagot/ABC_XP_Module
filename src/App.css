@@ -47,7 +47,7 @@
 }
 
 .sidebar__link span{
-  color: #ffff;
+  color:white;
   background-color:  #5a8992;
   font-size: 1.3vw;
 }
@@ -394,7 +394,7 @@
   font-size: 18px;
   width: 140px; 
   height: 40px; 
-  background-color: #fff; 
+  background-color: white; 
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -451,7 +451,10 @@
   margin: 10px;
   gap: 30px;
   margin-top: 25px;
+  
 }
+
+
 
 .byte_container_content {
   width: 300px;
@@ -460,13 +463,17 @@
   margin-left: 25px;
   transition: transform 0.7s ease-in-out; /* Smooth transition for the entire container */
   position: relative; /* Added position relative to make z-index work on child elements */
+  border: 1px solid blue;
 }
+
+
 
 .byte_card_content {
   height: 100%;
   width: 100%;
   transition: transform 0.7s ease, opacity 0.7s ease; /* Smooth transition for transform and opacity */
   position: relative; /* Ensure child elements are positioned relative to this container */
+  
 }
 
 /* Default style for .byte_card */
@@ -480,18 +487,6 @@
   transition: box-shadow 0.7s ease, transform 0.7s ease; /* Smooth transition for box-shadow and transform */
 }
 
-/* Confetti container to appear behind other content */
-.confetti-container {
-  position: absolute; /* Positioned absolutely within the hover content */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 2rem;
-  z-index: 0; /* Lower z-index to be behind the hover content elements */
-  pointer-events: none; /* Ensure it doesn't interfere with user interactions */
-}
 
 /* Hover content styling */
 .hover_content {
@@ -679,27 +674,35 @@
 
 /* Popup container styling */
 .achievement-popup {
-  position: relative;
-  width: 30%; /* Set to a percentage for responsiveness */
-  max-width: 400px; /* Maximum width to control the popup size */
-  min-width: 280px; /* Minimum width for smaller screens */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
   padding: 20px;
-  background-color: white; /* White background */
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-  text-align: center; /* Center text */
-  z-index: 2010; /* Slightly above the overlay */
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  width: 400px;
+  text-align: center;
 }
+
+.popup-content p {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+
 
 /* Close button styling */
 .achievement-popup .close-button {
-  background: transparent;
+  background-color: #285C41;
+  color: #fff;
   border: none;
-  font-size: 1.2rem;
+  
   cursor: pointer;
-  position: absolute;
-  right: 10px;
-  top: 10px;
+  
+  margin-top: 20px;
 }
 
 
@@ -984,13 +987,16 @@
 
   .leaderboard-container {
     width: 100%;
+    height: 100%;
     max-width: 800px;
-    margin: 0 auto;
+    margin: 100px auto;
     text-align: center;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: white;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+    z-index: 4;
+    border: .2px  rgba(0, 0, 0, 0.3);
 }
 
 .leaderboard-table {
@@ -1023,7 +1029,7 @@
   margin-bottom: 30px;
   font-weight: 800;
   font-style: italic;
-  font-style: 30px;
+  font-size: 22px;
 }
 
 @media (max-width: 600px) {

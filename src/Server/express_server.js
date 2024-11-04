@@ -30,6 +30,7 @@ import missionprogressrouter from './zenler_progress_updates/missions_progress_e
 import userprogressrouter from './../Server/zenler_progress_updates/Bytes_progress_endpoint.js'
 import allmissionprogressrouter from './../Server/database_sync_routes/all_missions_progress_endpoint.js'
 import alluserprogressrouter from './database_sync_routes/all_Bytes_progress_endpoint.js'
+import MissionUnlockRouter from './user_mission_unlock_router.js';
 
 
 // Create the express app
@@ -111,7 +112,7 @@ app.use('/api',missionprogressrouter); // this route updates the db with learner
 app.use('/api',userprogressrouter); // this route updates the db with learner byte progress from zenler
 app.use('/api', allmissionprogressrouter); //this route syncs the DB with zenler for user progress on missions
 app.use('/api', alluserprogressrouter); //this route syncs the DB with zenler for user progress on bytes
-
+app.use('/api', MissionUnlockRouter); //this route calcualtes unlocked missions for a user
 
 
 // Basic route to test server is working

@@ -4,56 +4,49 @@ import AchievementLogic from "./achievementlogic"; // Import AchievementLogic
 
 
 const LearningAchievement = ({ userId }) => {
-    const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
-    const [completedByte, setCompletedByte] = useState({}); // State to store the last completed byte data
-    const [missions, setMissions] = useState([]); // State to store unlocked missions
-    const [userName, setUserName] = useState(""); // State to store the user's name
+  const [showPopup, setShowPopup] = useState(false);
+  const [completedByte, setCompletedByte] = useState(null);
+  const [missions, setMissions] = useState([]);
+  const [userName, setUserName] = useState("");
 
-    // Function to handle data from AchievementLogic and trigger popup
-    const handleAchievementData = (byte, newMissions, user) => {
-        console.log("handleAchievementData called with:", byte, newMissions, user); // Debug log to ensure this function is called
+  // Callback to handle achievement data, invoked from AchievementLogic
+  const handleAchievementData = (newByte, unlockedMissions, name) => {
+      setCompletedByte(newByte); // Set the completed byte details
+      setMissions(unlockedMissions); // Set unlocked missions, now with mission names
+      setUserName(name); // Set the user's name for display
+      setShowPopup(true); // Show the popup with the updated data
+      console.log("Popup state updated to show with completed byte:", newByte, "and unlocked missions:", unlockedMissions);
+  };
 
-        if (byte) {
-            setCompletedByte(byte); // Set the data of the completed byte
-            setMissions(newMissions); // Set any new missions unlocked
-            setUserName(user); // Set the user's name from the logic
-            setShowPopup(true); // Show the popup if there's a new completion
-            console.log("Popup state updated to show with completed byte:", byte, "and user:", user); // Log state update
-        } else {
-            console.log("No valid byte data received, popup will not be shown.");
-        }
-    };
+  // Close the popup when the user clicks the close button
+  const closePopup = () => setShowPopup(false);
 
-    return (
-        <>
-            {/* Render the AchievementLogic component and pass the handler function */}
-            <AchievementLogic userId={userId} onAchievement={handleAchievementData} />
-            
-            {/* Conditionally render the popup */}
-            {showPopup && (
-                <div className="popup-overlay"> {/* Popup overlay for dimmed background */}
-                    <div className="achievement-popup">
-                        <div className="popup-header">
-                            <span role="img" aria-label="Star">🌟</span> Congratulations! {userName} <span role="img" aria-label="Star">🌟</span>
-                            <button onClick={() => setShowPopup(false)} className="close-button">X</button>
-                        </div>
-                        <div className="achievement-message">
-                            You have successfully completed the byte <strong>{completedByte.byte_name}</strong>!
-                        </div>
-                        {/* Show unlocked missions if any */}
-                        {missions.length > 0 && (
-                            <div className="unlocked-missions">
-                                <strong>You've unlocked new missions!</strong>
-                                {missions.map((mission, index) => (
-                                    <div key={index}>{mission.mission_name}: {mission.subtitle}</div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-        </>
-    );
+  return (
+      <>
+          {showPopup && (
+              <div className="achievement-popup">
+                  <div className="popup-content">
+                      <h3><span role="img" aria-label="Star">🌟</span>Congratulations, {userName}!<span role="img" aria-label="Star">🌟</span></h3>
+                      <p>You've completed the byte: <br></br> {completedByte?.byte_name || "Unnamed Byte"}</p>
+                      {missions.length > 0 && (
+                          <div>
+                              <h4>Newly Unlocked Missions:</h4>
+                              <ul>
+                                  {missions.map((mission) => (
+                                      <li key={mission.mission_id}>
+                                          {mission.mission_name || `Unnamed Mission ${mission.mission_id}`}
+                                      </li>
+                                  ))}
+                              </ul>
+                          </div>
+                      )}
+                      <button className="close-button" onClick={closePopup}>Close</button>
+                  </div>
+              </div>
+          )}
+          <AchievementLogic userId={userId} onAchievement={handleAchievementData} />
+      </>
+  );
 };
 
 export default LearningAchievement;

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Missions_Sub_filter from "./missionsubcategoryfilter";
-import Page_header from "../Navbar/pageheader"
 import Mission_Chain_Filter from "./missionschainsfilter";
 import MissionEvaluator from "./mission_evulation";
 import { useAuth } from "../../context/auth_context"; // Import the AuthContext

@@ -1,10 +1,10 @@
 import React from "react";
 import { useLeaderboardData } from "./leaderboarddata";
-import Page_header from "../Navbar/pageheader";
 import LeaderboardHeader from "./leaderboardheader";
 import LeaderboardRow from "./leaderboardrow";
 import LeaderboardBackground from "./leaderboardbackground";
 import { useAuth } from "../../context/auth_context"; // Import the AuthContext
+
 
 // Main Leaderboard component responsible for rendering leaderboard table and user ranking information
 function Leaderboard_main_body() {
@@ -21,12 +21,13 @@ function Leaderboard_main_body() {
             <LeaderboardBackground />
 
             <div className="leaderboard-container">
-                <h5>This Leaderboard will update at midnight every Sunday</h5>
+                <h4>
+                📣 This Leaderboard will update at the beginning of every month 📣</h4>
 
                 {/* Show user-specific ranking message if user is logged in */}
                 {isAuthenticated && userData && userRank && (
                     <div className="user-ranking">
-                        {userData.user_name}, you rank {userRank} with {userData.learning_points} Learning Points and {userData.experience_points} Experience Points.
+                       🎯 {userData.user_name}, you rank {userRank} with {userData.learning_points} Learning Points and {userData.experience_points} Experience Points.
                     </div>
                 )}
 

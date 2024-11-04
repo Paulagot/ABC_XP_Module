@@ -1,4 +1,4 @@
-.leaderboard-background {
+/* .leaderboard-background {
     position: absolute;
     top: 0;
     left: 0;
@@ -9,4 +9,44 @@
     z-index: 2;
     opacity: .2;
    
+} */
+
+/* Background container */
+.leaderboard-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 2;
+}
+
+/* Icon container */
+.icon-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+/* Floating icons with animation */
+.floating-icon {
+    position: absolute;
+    opacity: 0.8;
+    filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.2));
+    animation-name: float;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    background: transparent;
+}
+
+/* Floating animation */
+@keyframes float {
+    from {
+        transform: translateY(0px) translateX(0px);
+    }
+    to {
+        transform: translateY(-20px) translateX(10px); /* Adjust values to control movement range */
+    }
 }

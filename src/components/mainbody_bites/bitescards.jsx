@@ -5,7 +5,7 @@ import { useAuth } from "../../context/auth_context"; // Import useAuth to acces
 function Bites_Cards({ item = [] }) {
     const { user, zenlerToken } = useAuth(); // Use auth context for user and Zenler token
     const [userBytesData, setUserBytesData] = useState([]);
-    const [zenlerLoggedIn, setZenlerLoggedIn] = useState(false); // Track Zenler login dynamically
+    
 
     const userId = user?.user_id;
 
@@ -65,6 +65,7 @@ function Bites_Cards({ item = [] }) {
 
     return (
         <div className="container_bites">
+           
             {sortedData.map((val) => (
                 <div
                     key={val.course_id || `${val.name}-${val.category}-${val.subcategory}`}
@@ -72,7 +73,9 @@ function Bites_Cards({ item = [] }) {
                     onMouseEnter={(e) => e.currentTarget.querySelector('.hover_content').style.display = 'block'}
                     onMouseLeave={(e) => e.currentTarget.querySelector('.hover_content').style.display = 'none'}
                 >
+                   
                     <div className="byte_card_content" style={{ position: 'relative' }}>
+                       
                         <a
                             className="byte_link"
                             onClick={(e) => {
@@ -109,7 +112,9 @@ function Bites_Cards({ item = [] }) {
                                 <div className={`byte-user_status ${val.className}`}>{val.text}</div>
                             </div>
                         </a>
+                   
                     </div>
+                    
                 </div>
             ))}
         </div>

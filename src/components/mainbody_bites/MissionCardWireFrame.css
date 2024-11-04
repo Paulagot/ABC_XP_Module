@@ -1,0 +1,165 @@
+
+/*  container */
+.mainouttercontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    height: 400px;
+    background-color: #285c41;    
+    border-radius: 1rem;    
+    padding: 10px;
+   
+   margin-left: 50px;
+}
+/* Outer frame container */
+.outer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 290px;
+    height: 380px;
+    background-color: #D4B94E;    
+    border-radius: .7rem;    
+    padding: 10px;
+    border: solid 1px #285c41;
+    
+   
+}
+
+/* Inner main card container */
+.inner-container {
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* box-shadow: inset 0 0  15px 15px #285c41;  */
+    
+}
+/* Title banner scroll styling */
+.title-banner {
+    background: url(../../assets/ribbon.svg);
+    background-repeat: no-repeat;
+    
+    background-size: 125% auto; /* Stretches SVG to fill the div, allowing skew */
+    padding: 10px 0;
+    height: 150px;
+    width: 150%;
+    position: relative;
+    top: -20px;
+    left: -19%;
+    text-align: center;
+    z-index: 1;
+   
+   
+    border-radius: 10px;
+}
+
+
+
+/* Styling for the title text */
+.title-text {
+    font-size:.8rem;
+    font-weight: bold;
+    position: relative;
+    z-index: 3;
+    background: transparent;
+    margin-top: 25px;
+}
+
+
+/* Icon section with three placeholders */
+.icon-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Circle icons on the left and right */
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #8fe7f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #285c41;
+}
+
+/* Main square icon in the center */
+.icon-square {
+    width: 80px;
+    height: 80px;
+    background-color: #285c41;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 0.5rem;
+}
+
+/* Sponsor section styling */
+.sponsor-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 0.5rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+.sponsor-text {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #285c41;
+}
+
+.sponsor-logo {
+    width: 50px;
+    height: 50px;
+    background-color: #8fe7f4;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #285c41;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+/* Points section styling */
+.points-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #5a8992;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.points-icon {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.points-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+  
