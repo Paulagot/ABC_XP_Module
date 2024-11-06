@@ -2,7 +2,7 @@
 * {
     font-family: 'Times New Roman', Times, serif;
     background-color: white;
-    color: #285c41;
+    color: hsl(149, 39%, 26%);
     margin: 0;
 }
 
@@ -10,7 +10,7 @@
   width: 20%;
   position: fixed;
   height: 100vh;
-  background-color:  #5a8992;
+  background-color:  hsl(190, 24%, 46%);
   overflow-y: hidden; 
   z-index: 999;
   padding: 1px;
@@ -40,7 +40,7 @@
 .sidebar__list {
   list-style-type: none;
   padding: 0;    
-  background-color:  #5a8992;
+  background-color:  hsl(190, 24%, 46%);
   margin-top: 40px;
   margin-bottom: 30px;
  
@@ -84,7 +84,7 @@
 
 .sidebar__link:hover {     
   border-radius: 30%;
-  box-shadow: 0 0 20px #28caf6;  
+  box-shadow: 0 0 20px hsl(193, 92%, 56%);  
 }
 
 .sidebar__link.active {     
@@ -449,8 +449,8 @@
   flex-wrap: wrap;
   justify-content: center;
   margin: 10px;
-  gap: 30px;
-  margin-top: 25px;
+  gap: 45px;
+  margin-top: 30px;
   
 }
 
@@ -463,7 +463,7 @@
   margin-left: 25px;
   transition: transform 0.7s ease-in-out; /* Smooth transition for the entire container */
   position: relative; /* Added position relative to make z-index work on child elements */
-  border: 1px solid blue;
+  
 }
 
 

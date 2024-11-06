@@ -60,10 +60,10 @@ const store = new ConnectSessionKnexStore({
   knex: knexConstructor({
     client: 'mysql2',  // or 'pg' for PostgreSQL
   connection: {
-    host: 'localhost',
-    user: 'root',
-    password: 'Tra1ning',
-    database: 'xp_module'
+    host: 'xpmodule.c188ccsye2s8.us-east-1.rds.amazonaws.com',
+    user: 'admin',
+    password: 'Paulaisth3best$',
+    database: 'xpmodule'
   }
 })
 });

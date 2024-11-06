@@ -4,7 +4,7 @@ import Bites_Main_filter from "./bitesmainfilters";
 import Bites_Cards from "./bitescards"
 import LearningAchievement from "./bitescompletepopup";
 import { useAuth } from "../../context/auth_context"; // Import the AuthContext
-import MissionCardWireframe from "./wireframe";
+import  MissionCardWireframe from "./wireframe.jsx"
 
 
 
@@ -135,7 +135,7 @@ function Bites_main_body() {
                 onFilterSelect={handleFilterSelect}
             />
             {/* <Bites_Cards item={filteredData} /> */}
-            <MissionCardWireframe></MissionCardWireframe>
+            <MissionCardWireframe item={filteredData} />
 
             {/* Conditionally render the LearningAchievement component only if user is authenticated and data is loaded */}
             {user && dataLoaded && <LearningAchievement userId={user.user_id} />}

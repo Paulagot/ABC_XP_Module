@@ -1,10 +1,10 @@
 import mysql from "mysql2";
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Tra1ning',
-  database: 'xp_module'
+  host: 'xpmodule.c188ccsye2s8.us-east-1.rds.amazonaws.com',
+  user: 'admin',
+  password: 'Paulaisth3best$',
+  database: 'xpmodule'
 });
 
 // Connect to the database
@@ -18,10 +18,9 @@ db.connect((err) => {
 
 export default db;
 
-// // Replace 'your-endpoint' with the actual RDS endpoint you copied from AWS
 // const db = mysql.createConnection({
-//   host: 'your-endpoint.rds.amazonaws.com',
-//   user: 'your-aws-username', // The username you set for the RDS instance
-//   password: 'your-aws-password', // The password you set for the RDS instance
-//   database: 'xp_module' // The database name you want to connect to
+//   host: 'localhost',
+//   user: 'root',
+//   password: 'Tra1ning',
+//   database: 'xp_module'
 // });

@@ -54,11 +54,11 @@ function Bites_Cards({ item = [] }) {
             const ssoUrl = `https://ABlockofCrypto.newzenler.com/api/sso/v1?token=${zenlerToken}&return_to=${encodeURIComponent(courseUrl)}&error_url=${encodeURIComponent(errorUrl)}`;
     
             console.log("Zenler SSO URL:", ssoUrl);
-            window.location.href = ssoUrl; // Open SSO link in the same tab
+            window.open(ssoUrl, "_blank"); // Open SSO link in the same tab
             sessionStorage.setItem("zenlerLoggedIn", "true"); // Set Zenler login state in sessionStorage after first redirect
         } else {
             console.log("User already logged into Zenler; redirecting directly to course.");
-            window.location.href = courseUrl; // Directly open course URL in the same tab if already logged in
+            window.open(courseUrl, "_blank") // Directly open course URL in the same tab if already logged in
         }
     };
     
@@ -67,6 +67,7 @@ function Bites_Cards({ item = [] }) {
         <div className="container_bites">
            
             {sortedData.map((val) => (
+                 
                 <div
                     key={val.course_id || `${val.name}-${val.category}-${val.subcategory}`}
                     className="byte_container_content"

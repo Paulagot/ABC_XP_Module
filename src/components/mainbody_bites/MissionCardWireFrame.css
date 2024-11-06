@@ -1,74 +1,106 @@
 
-/*  container */
-.mainouttercontainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 300px;
-    height: 400px;
-    background-color: #285c41;    
-    border-radius: 1rem;    
-    padding: 10px;
-   
-   margin-left: 50px;
-}
+
 /* Outer frame container */
 .outer-container {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 290px;
-    height: 380px;
-    background-color: #D4B94E;    
+    height: 300px;
+    background-color: #5a8992;    
     border-radius: .7rem;    
     padding: 10px;
-    border: solid 1px #285c41;
+    position: relative;
+    cursor: pointer;
     
-   
+}
+
+.hover_contents {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent overlay */
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.outer-container:hover .hover_contents {
+    display: flex;
+    flex-direction: column; /* Shows hover content on hover */
 }
 
 /* Inner main card container */
 .inner-container {
     width: 100%;
-    height: 100%;
-    background-color: #ffffff;
-    border-radius: 0.75rem;
+    height: 100%;    
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6);
+    
+}
+
+/* Points section styling */
+.points-section {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    /* box-shadow: inset 0 0  15px 15px #285c41;  */
-    
+    align-items: center;
+    justify-content: space-between;       
+    position: relative;
+    top: 0;
+    height: 30px;
+    background-color: transparent;
 }
-/* Title banner scroll styling */
-.title-banner {
-    background: url(../../assets/ribbon.svg);
+
+.points-icon {
+    margin-right: 10px;
+    background-image: url(https://img.icons8.com/clouds/100/trophy--v2.png);
+    height: 70px;
+    width: 70px;
     background-repeat: no-repeat;
-    
-    background-size: 125% auto; /* Stretches SVG to fill the div, allowing skew */
-    padding: 10px 0;
-    height: 150px;
-    width: 150%;
+    background-size: 100%;
     position: relative;
+    left: 140px;
     top: -20px;
-    left: -19%;
-    text-align: center;
-    z-index: 1;
-   
-   
-    border-radius: 10px;
+    background-color: transparent;
 }
 
 
+.hex-icon {
+    background-image: url(../../assets/card_icons/hex.svg);
+background-position: center;
+background-size: 200%;
+height: 100px;
+width: 100px;
+background-color: transparent;
+position: relative;
+top:-20px;
+left: 10px;
+font-size: 1.1rem;
+font-weight: bold;
+display: flex;
+justify-content: center;
+align-items: center;
+}
 
-/* Styling for the title text */
-.title-text {
-    font-size:.8rem;
-    font-weight: bold;
-    position: relative;
-    z-index: 3;
-    background: transparent;
-    margin-top: 25px;
+.byte_lpoints {
+   background-color: white;
+    width: 50%;   
+    text-align: center;
+    border-radius: 40%;
+}
+
+.overlap-section{
+width: 100%;
+height: 45%;
+background-color: transparent;
+background-image: url(../../assets/card_icons/circle.svg);
+background-position: center top;
+background-size: 140%;
+background-repeat: no-repeat;
+position: relative;
+
 }
 
 
@@ -78,88 +110,145 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    background-color: transparent; 
+    position: relative;
+    top: -112px;
+       
 }
 
 /* Circle icons on the left and right */
 .icon-circle {
     width: 60px;
     height: 60px;
-    border-radius: 50%;
-    background-color: #8fe7f4;
+    border-radius: 50%;    
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: transparent;
     font-size: 0.9rem;
     font-weight: bold;
-    color: #285c41;
+    background-image: url(../../assets/card_icons/triangle.svg);
+   background-size: 200px;
+   background-position: center center;
 }
 
-/* Main square icon in the center */
-.icon-square {
-    width: 80px;
-    height: 80px;
-    background-color: #285c41;
+/* Main byte image in the center */
+.icon-byte {
+    width: 140px;
+    height: 88px;    
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: bold;
-    color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 0.5rem;
+   
+    background-color: transparent;
+
 }
 
-/* Sponsor section styling */
-.sponsor-section {
+.Byte_icon_main {
+    width: 100%;
+ /* border-radius: 50%; */
+    
+}
+
+.Bytes-section{    position: relative;
+    top: -110px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px;
-    background-color: #f0f0f0;
+    padding: 10px;   
     border-radius: 0.5rem;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
 }
 
-.sponsor-text {
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #285c41;
+.byte-text {
+    text-align: center;
 }
 
-.sponsor-logo {
-    width: 50px;
-    height: 50px;
-    background-color: #8fe7f4;
-    border-radius: 50%;
+.bytes-description {
+    background-color: #285c41;
+    color: white;
+}
+
+.grattude{
+    margin-top: 20px;
+    background-color: transparent;
+}
+
+.byte_zenler_link {
+    font-weight: 500;
+    font-size: 15px;
+    width: 130px; 
+    height: 35px; 
+    background-color:  #285c41;
+    color: white; 
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    color: #285c41;
-    margin-top: 5px;
-    font-weight: bold;
-}
+   margin: 20px;
+    box-shadow: 10px 10px 15px  
+    #8fe7f4; 
+  }
 
-/* Points section styling */
-.points-section {
+  /* Style when the user is not enrolled */
+.outer-container.not-enrolled {
+    box-shadow: 10px 10px 15px rgb(229, 93, 93); /* Default box-shadow */
+  }
+  
+  /* Style when the user has started the byte but not completed it */
+  .outer-container.started {
+    box-shadow: 10px 10px 15px #285c41; /* Example: yellow shadow for started */
+  }
+  
+  /* Style when the user has completed the byte */
+  .outer-container.completed {
+    box-shadow: 10px 10px 15px rgba(255, 215, 0, 0.6); /* Example: green shadow for completed */
+  }
+
+/* Sponsor section styling */
+.sponsor-section {
+    position: relative;
+    top: -110px;
+    left: 5%;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #5a8992;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    justify-content: space-between; /* Space between the text and logo */
+    align-items: center; /* Vertically centers content */
+    width: 90%;
+    text-align: center;    
+    height:20px;
 }
 
-.points-icon {
-    font-size: 1.5rem;
-    margin-right: 10px;
-}
-
-.points-text {
-    font-size: 1.1rem;
+/* Sponsor text styling */
+.sponsor-text {
+    font-size: 0.8rem;
     font-weight: bold;
+    color: #285c41;
+    margin-left: 10px;
+    display: flex;
+    align-items: center; /* Center text vertically */
+    flex: 2; /* Ensures the text takes up its space on the left */
 }
+
+/* Sponsor logo container styling */
+.sponsor-logo {
+    display: flex;
+    justify-content: center; /* Centers logo horizontally within the div */
+    align-items: center; /* Centers logo vertically within the div */
+    margin-left: 20px;
+    height: 60px;
+    width: 60px;
+    background-color: transparent;
+}
+
+/* Logo image styling */
+.slogo {
+    max-width: 80%; /* Adjusts the image to fit within the container */
+    max-height: 80%; /* Prevents the image from overflowing */
+    object-fit: contain; /* Maintains the aspect ratio and prevents distortion */
+    background-color: transparent;
+
+}
+
 
   
