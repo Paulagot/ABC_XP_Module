@@ -1,0 +1,127 @@
+
+      <xml version="1.0" encoding="UTF-8">
+      <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        
+          <url>
+            <loc>http://localhost:5173/bytes</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>1</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/missions</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>1</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/profile</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.8</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/leaderboard</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.8</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/loyalty</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.7</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/meme</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/tsest</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/wallet-wisdom</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/xxxxxxxxxxxxxxxx</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/publish</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/hive</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/interest-rates-crypto-understanding-the-impact-on-your-investments</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/doing-a-test</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/h</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/missions/thisis</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/missions/mission-3</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/bytes/v</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/missions/hivem</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/missions/last-test-today</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+          <url>
+            <loc>http://localhost:5173/missions/sadafs</loc>
+            <lastmod>2024-12-15</lastmod>
+            <priority>0.5</priority>
+          </url>
+        
+      </urlset>
+      </xml>
+    

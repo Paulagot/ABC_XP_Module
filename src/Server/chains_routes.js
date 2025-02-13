@@ -3,7 +3,7 @@
 // this is to allow manage chains form in admin.
 
 import express from 'express';
-import db from './config_db.js';
+import pool from './config_db.js';
 
 const chainRouter = express.Router();
 
@@ -22,7 +22,7 @@ chainRouter.post('/chains', (req, res) => {
 
      // Check for duplicate name
      const checkDuplicateQuery = 'SELECT COUNT(*) as count FROM chains WHERE name = ?';
-     db.query(checkDuplicateQuery, [name], (err, results) => {
+     pool.query(checkDuplicateQuery, [name], (err, results) => {
          if (err) {
              console.error('Database query error:', err);
              return res.status(500).json({ error: 'Database error', details: err });
@@ -35,7 +35,7 @@ chainRouter.post('/chains', (req, res) => {
        const query = 'INSERT INTO chains (name, chain_image,  created_at, updated_at) VALUES (?,  ?, NOW(), NOW())';
        const values = [name, chain_image];
 
-       db.query(query, values, (err, result) => {
+       pool.query(query, values, (err, result) => {
            if (err) {
                console.error('Database query error:', err);
                return res.status(500).json({ error: 'Database error', details: err });
@@ -51,7 +51,7 @@ chainRouter.get('/chains/search', (req, res) => {
     const query = 'SELECT * FROM chains WHERE name LIKE ?';
     const values = [`%${q}%`];
 
-    db.query(query, values, (err, results) => {
+    pool.query(query, values, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -73,7 +73,7 @@ chainRouter.put('/chains/:id', (req, res) => {
     const query = 'UPDATE chains SET name = ?, chain_image = ?,   updated_at = NOW() WHERE chain_id = ?';
     const values = [name, chain_image,  id];
 
-    db.query(query, values, (err, results) => {
+    pool.query(query, values, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -90,7 +90,7 @@ chainRouter.delete('/chains/:id', (req, res) => {
     const { id } = req.params;
     const query = 'DELETE FROM chains WHERE chain_id = ?';
 
-    db.query(query, [id], (err, results) => {
+    pool.query(query, [id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error' });
@@ -107,7 +107,7 @@ chainRouter.delete('/chains/:id', (req, res) => {
 chainRouter.get('/chains', (req, res) => {
     const query = 'SELECT * FROM chains';
     
-    db.query(query, (err, results) => {
+    pool.query(query, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });

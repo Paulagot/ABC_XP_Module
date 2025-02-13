@@ -1,5 +1,5 @@
 import express from 'express';
-import db from './config_db.js';
+import pool from './config_db.js';
 
 const UserCompletedMissionsRouter = express.Router();
 
@@ -26,7 +26,7 @@ UserCompletedMissionsRouter.get('/completed_missions', (req, res) => {
         LIMIT 1;
     `;
 
-    db.query(query, [user_id], (err, results) => {
+    pool.query(query, [user_id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error' });

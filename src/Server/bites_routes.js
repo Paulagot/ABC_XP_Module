@@ -1,5 +1,5 @@
 import express from 'express';
-import db from './config_db.js';
+import pool from './config_db.js';
 
 // this is for the admin end and manage bytes
 
@@ -11,7 +11,7 @@ bitesRouter.get('/bites/search', (req, res) => {
   const query = 'SELECT * FROM bites WHERE name LIKE ?';
   const values = [`%${q}%`];
 
-  db.query(query, values, (err, results) => {
+  pool.query(query, values, (err, results) => {
     if (err) {
       console.error('Database query error:', err);
       return res.status(500).json({ error: 'Database error', details: err });
@@ -24,7 +24,7 @@ bitesRouter.get('/bites/search', (req, res) => {
 bitesRouter.get('/bites', (req, res) => {
   const query = 'SELECT * FROM bites';
 
-  db.query(query, (err, results) => {
+ pool.query(query, (err, results) => {
     if (err) {
       console.error('Database query error:', err);
       return res.status(500).json({ error: 'Database error', details: err });
@@ -33,40 +33,45 @@ bitesRouter.get('/bites', (req, res) => {
   });
 });
 
+
+
 // Route to update an existing bite
 bitesRouter.put('/bites/:id', (req, res) => {
-    const { id } = req.params;
-    const { points, category_id, subcategory_id, player_url, sponsor_id, published } = req.body;
+  const { id } = req.params;
+  const { points, category_id, subcategory_id, sponsor_id, published } = req.body;
 
-    // Log incoming data
-    console.log('Update request received for bite_id:', id);
-    console.log('Update data:', req.body);
+  
 
-    // Check if required fields are present
-    if (!points || !category_id || !subcategory_id || !player_url) {
-        return res.status(400).json({ error: 'Points, category_id, subcategory_id, and player_url are required.' });
-    }
+  // SQL Query: Update bite record. Note that 'player_url' is intentionally omitted,
+  // and 'url' is used instead to ensure they always match.
+  const query = `
+    UPDATE bites 
+    SET points = ?, category_id = ?, subcategory_id = ?, 
+        sponsor_id = ?, published = ?, 
+        player_url = url, updated_at = NOW() 
+    WHERE bite_id = ?`;
 
-    const query = 'UPDATE bites SET points = ?, category_id = ?, subcategory_id = ?, player_url = ?, sponsor_id = ?, published = ?, updated_at = NOW() WHERE bite_id = ?';
-    const values = [points, category_id, subcategory_id, player_url, sponsor_id, published, id];
+  // Array of values to match SQL placeholders
+  const values = [points, category_id, subcategory_id, sponsor_id || null, published, id];
 
-    db.query(query, values, (err, results) => {
-        if (err) {
-            console.error('Database query error:', err);
-            return res.status(500).json({ error: 'Database error', details: err });
-        }
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ error: 'Bite not found' });
-        }
-        return res.status(200).json({ message: 'Bite updated successfully', points, category_id, subcategory_id, player_url, sponsor_id, published });
-    });
+  // Execute SQL query with provided values
+  pool.query(query, values, (err, results) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).json({ error: 'Database error', details: err });
+      }
+      if (results.affectedRows === 0) {
+          return res.status(404).json({ error: 'Bite not found' });
+      }
+      return res.status(200).json({ message: 'Bite updated successfully', points, category_id, subcategory_id, sponsor_id, published });
+  });
 });
 
 // Fetch all categories
 bitesRouter.get('/categories', (req, res) => {
   const query = 'SELECT * FROM categories';
 
-  db.query(query, (err, results) => {
+  pool.query(query, (err, results) => {
     if (err) {
       console.error('Database query error:', err);
       return res.status(500).json({ error: 'Database error', details: err });
@@ -79,7 +84,7 @@ bitesRouter.get('/categories', (req, res) => {
 bitesRouter.get('/subcategories', (req, res) => {
   const query = 'SELECT * FROM subcategories';
 
-  db.query(query, (err, results) => {
+  pool.query(query, (err, results) => {
     if (err) {
       console.error('Database query error:', err);
       return res.status(500).json({ error: 'Database error', details: err });
@@ -92,7 +97,7 @@ bitesRouter.get('/subcategories', (req, res) => {
 bitesRouter.get('/sponsors', (req, res) => {
     const query = 'SELECT sponsor_id, name FROM sponsors';
     
-    db.query(query, (err, results) => {
+    pool.query(query, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -105,7 +110,7 @@ bitesRouter.get('/sponsors', (req, res) => {
 bitesRouter.get('/bites/unpublished', (req, res) => {
   const query = 'SELECT name FROM bites WHERE published = 0';
 
-  db.query(query, (err, results) => {
+  pool.query(query, (err, results) => {
     if (err) {
       console.error('Database query error:', err);
       return res.status(500).json({ error: 'Database error', details: err });
@@ -115,6 +120,8 @@ bitesRouter.get('/bites/unpublished', (req, res) => {
 });
 
 export default bitesRouter;
+
+
 
 
 

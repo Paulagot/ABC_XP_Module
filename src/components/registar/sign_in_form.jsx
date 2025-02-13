@@ -38,26 +38,29 @@ function SignInForm({ onSignIn }) {
         return formErrors;
     };
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     // Submits form data to backend API if inputs are valid
     const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validate();
-
+    
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
         } else {
             setErrors({});
             try {
-                const response = await fetch('http://localhost:3000/api/login', {
+                const response = await fetch(`${API_BASE_URL}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData),
                     credentials: 'include', // Send cookies for session handling
                 });
-
+    
                 if (response.ok) {
+                    const data = await response.json();
                     setMessage('Logged in successfully!');
-                    navigate('/bytes'); // Redirect on successful login
+                    navigate('/bytes'); // Redirect to /bytes or dashboard
                 } else {
                     const errorData = await response.json();
                     setMessage(errorData.error || 'An error occurred during sign-in');
@@ -67,6 +70,7 @@ function SignInForm({ onSignIn }) {
             }
         }
     };
+    
 
     return (
         <form className="registerForm" onSubmit={handleSubmit}>

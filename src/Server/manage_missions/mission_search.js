@@ -1,5 +1,5 @@
 import express from 'express';
-import db from "../config_db.js";
+import pool from "../config_db.js";
 
 //admin end used to search missions by name
 
@@ -15,7 +15,7 @@ missionsSearchRouter.get('/search', (req, res) => {
     }
   
     const query = 'SELECT * FROM missions WHERE name LIKE ?';
-    db.query(query, [`%${name}%`], (err, results) => {
+    pool.query(query, [`%${name}%`], (err, results) => {
       if (err) {
         console.error('Error executing query:', err);
         return res.status(500).json({ error: 'An error occurred while searching for missions' });

@@ -1,5 +1,5 @@
 import express from 'express';
-import db from './config_db.js';
+import pool from './config_db.js';
 
 const UserBytesCardsRouter = express.Router();
 
@@ -31,7 +31,7 @@ UserBytesCardsRouter.get('/user_bytes_cards', (req, res) => {
         ub.user_id = ?;
 `;
 
-    db.query(query, [user_id], (err, results) => {
+    pool.query(query, [user_id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error' });
@@ -83,7 +83,7 @@ UserBytesCardsRouter.get('/user_completed_bytes', (req, res) => {
             ub.user_id = ? AND ub.completion_date IS NOT NULL;  -- Only fetch completed bytes
     `;
 
-    db.query(query, [user_id], (err, results) => {
+    pool.query(query, [user_id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error' });

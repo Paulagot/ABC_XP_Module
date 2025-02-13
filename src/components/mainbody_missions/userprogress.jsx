@@ -1,75 +1,95 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import ConfettiBoom from "react-confetti-boom";
+
 
 // Helper function to log session status
-const logSessionStatus = (zenlerToken, zenlerLoggedIn) => {
-    console.log("Zenler Token:", zenlerToken);
-    console.log("Zenler Logged In (sessionStorage):", zenlerLoggedIn);
-};
+const logSessionStatus = (zenlerLoggedIn) => {};
 
 function UserProgressStatus({ mission }) {
-    const [zenlerToken, setZenlerToken] = useState(null);
+    const [showConfetti, setShowConfetti] = useState(false); // Track confetti rendering
 
-    useEffect(() => {
-        // Clear sessionStorage to avoid stale login state on each new session
-        if (!sessionStorage.getItem("zenlerLoggedIn")) {
-            sessionStorage.removeItem("zenlerLoggedIn");
-        }
-
-        const fetchSessionData = async () => {
-            try {
-                const response = await fetch("http://localhost:3000/session/check-session");
-                console.log("Session response status:", response.status);
-                if (!response.ok) throw new Error("Failed to fetch session data.");
-
-                const data = await response.json();
-                console.log("Session data received:", data);
-
-                if (data.isAuthenticated && data.zenlerToken) {
-                    setZenlerToken(data.zenlerToken);
-                    logSessionStatus(data.zenlerToken, sessionStorage.getItem("zenlerLoggedIn"));
-                } else {
-                    console.warn("Zenler token not available in session data.");
-                }
-            } catch (error) {
-                console.error("Error fetching session data:", error);
-            }
-        };
-
-        fetchSessionData();
-    }, []);
-
-    const handleStatusClick = () => {
-        const zenlerLoggedIn = sessionStorage.getItem("zenlerLoggedIn");
-
-        // Log session status for debugging
-        logSessionStatus(zenlerToken, zenlerLoggedIn);
-
-        if (mission.mission_url) {
-            if (!zenlerLoggedIn && zenlerToken) {
-                console.log("User not logged into Zenler. Redirecting to SSO endpoint.");
-
-                const errorUrl = "https://www.ablockofcrypto.com/blog";
-                const ssoUrl = `https://ABlockofCrypto.newzenler.com/api/sso/v1?token=${zenlerToken}&return_to=${encodeURIComponent(mission.mission_url)}&error_url=${encodeURIComponent(errorUrl)}`;
-                
-                console.log("Constructed SSO URL:", ssoUrl);
-                window.open(ssoUrl, "_blank"); // Open the SSO link in a new tab for testing
-
-                // Set Zenler login state in sessionStorage after first redirect
-                sessionStorage.setItem("zenlerLoggedIn", "true");
-            } else if (zenlerLoggedIn) {
-                console.log("Session indicates user already logged into Zenler; redirecting directly to mission.");
-                window.open(mission.mission_url, "_blank"); // Directly open mission URL if already logged in
-            } else {
-                console.warn("Zenler token missing or undefined. Cannot perform SSO.");
-            }
-        } else {
-            console.warn("Mission URL missing. Cannot redirect to mission.");
+    const handleMouseEnter = () => {
+        // Only show confetti if the mission is complete
+        if (mission.text === "Mission Complete") {
+            setShowConfetti(true);
         }
     };
 
+    const handleMouseLeave = () => {
+        // Hide confetti when the hover ends
+        setShowConfetti(false);
+    };
+
+    const handleStatusClick = async () => {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+        const zenlerLoggedIn = sessionStorage.getItem("zenlerLoggedIn");
+
+        logSessionStatus(zenlerLoggedIn);
+
+        if (mission.text === "Explore Mission") {
+            if (mission.landing_page_url) {
+                window.location.href = mission.landing_page_url;
+            } else {
+                console.warn("[UserProgressStatus] Landing page URL missing for mission:", mission.name);
+            }
+            return;
+        }
+
+        if (!zenlerLoggedIn) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/sso`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ courseUrl: mission.mission_url, type: "mission" }),
+                    credentials: "include",
+                });
+
+                if (response.ok) {
+                    const { ssoUrl } = await response.json();
+                    sessionStorage.setItem("zenlerLoggedIn", "true");
+                    window.location.href = ssoUrl;
+                } else {
+                    console.error("[UserProgressStatus] SSO token generation failed:", await response.json());
+                }
+            } catch (error) {
+                console.error("[UserProgressStatus] Error during SSO token generation:", error);
+            }
+        } else {
+            window.location.href = mission.mission_url;
+        }
+    };
+
+    // Define dynamic inline styles based on `mission.text`
+    const cardStyle = (() => {
+        if (mission.text === "Mission Complete") {
+            return { boxShadow: "10px 10px 25px rgba(255, 215, 0, 0.6)" };
+        }
+        if (mission.text === "Continue Mission") {
+            return { boxShadow: "10px 10px 15px #285c41" };
+        }
+        return { boxShadow: "10px 10px 15px rgb(229, 93, 93)" }; // Default to "Explore Mission"
+    })();
+
     return (
-        <div className="mission_card_container">
+        <div
+            className="mission_card_container"
+            style={cardStyle} // Apply the dynamic inline style
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
             <div className="mission_card_content">
+                {showConfetti && (
+                    <div className="mission-confetti-container">
+                        <ConfettiBoom
+                            mode="boom"
+                            particleCount={300}
+                            spread={200}
+                            duration={4500}
+                            colors={["#f39c12", "#e74c3c", "#3498db", "#2ecc71"]}
+                        />
+                    </div>
+                )}
+
                 <p className="mission-description">{mission.subtitle}</p>
 
                 {mission.sponsor_img && (
@@ -81,9 +101,9 @@ function UserProgressStatus({ mission }) {
                 )}
 
                 <div
-                    className={`byte-user_status ${mission.className}`}
+                    className="byte-user_status"
                     onClick={handleStatusClick}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: "pointer" }}
                 >
                     {mission.text}
                 </div>
@@ -93,12 +113,3 @@ function UserProgressStatus({ mission }) {
 }
 
 export default UserProgressStatus;
-
-
-
-
-
-
-
-
-

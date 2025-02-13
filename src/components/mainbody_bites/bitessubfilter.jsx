@@ -21,7 +21,7 @@ function Bites_Sub_filter({ subcategories = [], selectedSubcategory, onSelectSub
                     {subcat.name}
                 </div>
             ))}
-             <button onClick={resetAllFilters} className="reset_all_filters">
+             <button  onClick={resetAllFilters} className="reset_all_filters">
                 Reset All Filters
             </button>
         </div>

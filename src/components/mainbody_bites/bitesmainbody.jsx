@@ -1,12 +1,10 @@
+//bytes main body
 import React, { useState, useEffect } from "react";
 import Bites_Sub_filter from "./bitessubfilter";
 import Bites_Main_filter from "./bitesmainfilters";
-import Bites_Cards from "./bitescards"
 import LearningAchievement from "./bitescompletepopup";
 import { useAuth } from "../../context/auth_context"; // Import the AuthContext
-import  MissionCardWireframe from "./wireframe.jsx"
-
-
+import MissionCardWireframe from "./wireframe.jsx";
 
 function Bites_main_body() {
     const { user } = useAuth(); // Access the logged-in user from AuthContext
@@ -15,106 +13,99 @@ function Bites_main_body() {
     const [bitesData, setBitesData] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [dataLoaded, setDataLoaded] = useState(false); // Track if all necessary data is loaded
+    const [isReadyToRender, setIsReadyToRender] = useState(false); // Controls rendering
+    const [isLoading, setIsLoading] = useState(true); // For managing overall loading state
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    // Function to trigger initial progress update, only if user is logged in
+    // Sequentially load data after triggering the progress update
+    const fetchAllData = async () => {
+        try {
+           
+
+            // Fetch bitesData
+            const bitesResponse = await fetch(`${API_BASE_URL}/api/bitescards`);
+            const bitesData = await bitesResponse.json();
+            setBitesData(bitesData);
+
+            // Fetch subcategories
+            const subcategoriesResponse = await fetch(`${API_BASE_URL}/api/fetchsubcategories`);
+            const subcategoriesData = await subcategoriesResponse.json();
+            setSubcategories(subcategoriesData);
+
+            // Fetch categories
+            const categoriesResponse = await fetch(`${API_BASE_URL}/api/categories`);
+            const categoriesData = await categoriesResponse.json();
+            setCategories(categoriesData);
+
+          
+        } catch (error) {
+            console.error("[Bites_main_body] Error during data fetch:", error);
+        }
+    };
+
     const triggerInitialDataUpdate = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/zenler-progress/all', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include' // Include credentials for session cookies if needed
+           
+            const response = await fetch(`${API_BASE_URL}/api/update-progress`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include", // Include credentials for session cookies
             });
+
+            if (!response.ok) {
+                throw new Error(`Failed to update progress: ${response.statusText}`);
+            }
+
             const result = await response.json();
-            console.log(result.message); // Log update summary
-            setDataLoaded(true); // Set to true after progress update completes
+           
+
+            if (result.error) {
+                console.error("[Bites_main_body] Error returned by progress update API:", result.error);
+            }
         } catch (error) {
-            console.error('Error during initial data update:', error);
+            console.error("[Bites_main_body] Error during initial progress update:", error);
         }
     };
 
-    // Decide whether to run progress update or set dataLoaded directly based on user authentication
+    // Master useEffect to handle the sequential flow
     useEffect(() => {
-        if (user) {
-            console.log("User is authenticated, triggering progress update.");
-            triggerInitialDataUpdate(); // Run progress update if user is logged in
-        } else {
-            // If there's no user, mark data as loaded immediately for the other data fetches
-            setDataLoaded(true);
-        }
+        const loadData = async () => {
+            if (user) {
+               
+                await triggerInitialDataUpdate(); // Wait for the progress update to complete
+            } else {
+                console.log("[Bites_main_body] No user detected, skipping progress update.");
+            }
+
+            await fetchAllData(); // Fetch data for both authenticated and unauthenticated users
+            setIsReadyToRender(true); // Mark as ready to render after fetching data
+            setIsLoading(false); // Stop the loading spinner
+        };
+
+        loadData();
     }, [user]);
 
-    // Fetch bites data only after progress update completes or immediately if no user is logged in
-    useEffect(() => {
-        if (dataLoaded) {
-            const fetchBitesData = async () => {
-                try {
-                    const response = await fetch('http://localhost:3000/api/bitescards');
-                    const data = await response.json();
-                    setBitesData(data);
-                } catch (error) {
-                    console.error('Error fetching bites data:', error);
-                }
-            };
-            fetchBitesData();
-        }
-    }, [dataLoaded]);
+    // Early return for loading state
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
-    // Fetch subcategories only after progress update completes or immediately if no user is logged in
-    useEffect(() => {
-        if (dataLoaded) {
-            const fetchSubcategories = async () => {
-                try {
-                    const response = await fetch('http://localhost:3000/api/fetchsubcategories');
-                    const data = await response.json();
-                    setSubcategories(data);
-                } catch (error) {
-                    console.error('Error fetching subcategories:', error);
-                }
-            };
-            fetchSubcategories();
-        }
-    }, [dataLoaded]);
+    // Prevent rendering until all updates are done
+    if (!isReadyToRender) {
+        return <div>Preparing your content...</div>;
+    }
 
-    // Fetch categories only after progress update completes or immediately if no user is logged in
-    useEffect(() => {
-        if (dataLoaded) {
-            const fetchCategories = async () => {
-                try {
-                    const response = await fetch('http://localhost:3000/api/categories');
-                    const data = await response.json();
-                    setCategories(data);
-                } catch (error) {
-                    console.error('Error fetching categories:', error);
-                }
-            };
-            fetchCategories();
-        }
-    }, [dataLoaded]);
-
-    // Filter available subcategories based on bites data and active filters
+    // Filter available subcategories and categories
     const availableSubcategories = subcategories.filter(subcat =>
         bitesData.some(bite => bite.subcategory === subcat.name &&
-                               (activeFilter ? bite.category === activeFilter : true))
+            (activeFilter ? bite.category === activeFilter : true))
     );
 
-    // Filter available categories based on bites data and selected subcategory
-    const availableFilters = categories.filter(category => 
+    const availableFilters = categories.filter(category =>
         bitesData.some(bite => bite.category === category.name &&
-                               (selectedSubcategory ? bite.subcategory === selectedSubcategory : true))
+            (selectedSubcategory ? bite.subcategory === selectedSubcategory : true))
     );
 
-    // Reset all filters to show full data
-    const resetAllFilters = () => {
-        setSelectedSubcategory(null);
-        setActiveFilter(null);
-    };
-
-    // Handlers to set subcategory and main filter
-    const handleSelectSubcategory = (subcat) => setSelectedSubcategory(subcat);
-    const handleFilterSelect = (filter) => setActiveFilter(filter);
-
-    // Filter bites data based on selected filters
     const filteredData = bitesData.filter(item => {
         const matchesSubcategory = selectedSubcategory ? item.subcategory === selectedSubcategory : true;
         const matchesCategory = activeFilter ? item.category === activeFilter : true;
@@ -126,19 +117,19 @@ function Bites_main_body() {
             <Bites_Sub_filter
                 subcategories={availableSubcategories}
                 selectedSubcategory={selectedSubcategory}
-                onSelectSubcategory={handleSelectSubcategory}
-                resetAllFilters={resetAllFilters}
+                onSelectSubcategory={setSelectedSubcategory}
+                resetAllFilters={() => {
+                    setSelectedSubcategory(null);
+                    setActiveFilter(null);
+                }}
             />
-            <Bites_Main_filter 
+            <Bites_Main_filter
                 categories={availableFilters}
                 activeFilter={activeFilter}
-                onFilterSelect={handleFilterSelect}
+                onFilterSelect={setActiveFilter}
             />
-            {/* <Bites_Cards item={filteredData} /> */}
             <MissionCardWireframe item={filteredData} />
-
-            {/* Conditionally render the LearningAchievement component only if user is authenticated and data is loaded */}
-            {user && dataLoaded && <LearningAchievement userId={user.user_id} />}
+            {user && <LearningAchievement userId={user.user_id} />}
         </main>
     );
 }

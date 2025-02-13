@@ -7,16 +7,21 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [zenlerToken, setZenlerToken] = useState(null);
     const [authError, setAuthError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     const checkSession = useCallback(async () => {
         try {
-            const response = await fetch('http://localhost:3000/session/check-session', { credentials: 'include' });
+            const response = await fetch(`${API_BASE_URL}/session/check-session`, {
+                credentials: 'include', // Ensure cookies are sent
+            });
             if (response.ok) {
                 const data = await response.json();
                 setIsAuthenticated(data.isAuthenticated);
                 setUser(data.user || null);
                 setZenlerToken(data.zenlerToken || null);
                 setAuthError(null);
+                setLoading(false); // Ensure loading is updated
             } else {
                 throw new Error('Session check failed');
             }
@@ -26,18 +31,21 @@ export function AuthProvider({ children }) {
             setUser(null);
             setZenlerToken(null);
             setAuthError('Failed to verify session. Please try again.');
+            setLoading(false); // Ensure loading is updated even on error
         }
-    }, []);
+    }, [API_BASE_URL]);
 
-    // Logout function that calls the session logout route to clear session data on both client and server
     const logout = async () => {
         try {
-            const response = await fetch('http://localhost:3000/session/logout', { method: 'POST', credentials: 'include' });
+            const response = await fetch(`${API_BASE_URL}/session/logout`, {
+                method: 'POST',
+                credentials: 'include',
+            });
             if (response.ok) {
-                setIsAuthenticated(false); // Update local state to reflect logout
+                setIsAuthenticated(false);
                 setUser(null);
                 setZenlerToken(null);
-                localStorage.removeItem('auth'); // Optional: removes auth from storage to sync across tabs
+                localStorage.removeItem('auth');
             } else {
                 throw new Error('Failed to log out');
             }
@@ -67,8 +75,10 @@ export function AuthProvider({ children }) {
         user,
         zenlerToken,
         authError,
-        logout, // Expose logout function in context
+        loading, // Expose the loading state
+        logout,
         refreshSession: checkSession,
+        hasRole: (role) => user?.role === role, // Add this helper
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -77,6 +87,7 @@ export function AuthProvider({ children }) {
 export function useAuth() {
     return useContext(AuthContext);
 }
+
 
 
 

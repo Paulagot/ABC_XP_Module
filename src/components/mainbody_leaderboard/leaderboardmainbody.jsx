@@ -22,7 +22,7 @@ function Leaderboard_main_body() {
 
             <div className="leaderboard-container">
                 <h4>
-                📣 This Leaderboard will update at the beginning of every month 📣</h4>
+                📣 Rolling 30 Day Leaderboard 📣</h4>
 
                 {/* Show user-specific ranking message if user is logged in */}
                 {isAuthenticated && userData && userRank && (

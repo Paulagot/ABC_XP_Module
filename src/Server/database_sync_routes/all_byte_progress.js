@@ -1,6 +1,9 @@
 // getAllCourseProgress.js
 
 import axios from 'axios';
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 /**
  * Fetches detailed course progress for all users from the Zenler API for a specific course.
@@ -16,13 +19,13 @@ export const getAllCourseProgress = async (courseId) => {
   
   try {
     while (true) {
-      console.log(`Fetching course progress for courseId: ${courseId}, page: ${pageIndex}`);
+      
 
       // API call to fetch course progress data
-      const response = await axios.get('https://ABlockOfCrypto.newzenler.com/api/v1/reports/course-progress/detailed', {
+      const response = await axios.get(process.env.ZENLER_ALL_BYTE_PROGRESS_URL, {
         headers: {
-          'X-API-Key': 'ONPDVVIYMEGX6WHFL1QCEJ7KN798IXV2',
-          'X-Account-Name': 'ABlockOfCrypto',
+          'X-API-Key': process.env.ZENLER_API_KEY,
+          'X-Account-Name': process.env.ZENLER_ACCOUNT_NAME,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },

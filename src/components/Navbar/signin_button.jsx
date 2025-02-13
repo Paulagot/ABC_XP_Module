@@ -2,14 +2,17 @@ import React, { useState, useEffect } from "react";
 
 function SigninButton() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const APP_URL = import.meta.env.VITE_APP_URL; // Vite environment variable
+
 
     // Effect to check if the user is currently logged in by calling the backend session check
     useEffect(() => {
-        fetch('http://localhost:3000/session/check-session', { credentials: 'include' })
+        fetch(`${API_BASE_URL}/session/check-session`, { credentials: 'include' })
             .then((res) => res.json())
             .then((data) => {
                 setIsLoggedIn(data.isAuthenticated); // Update login state based on response
-                console.log("User is authenticated:", data.isAuthenticated); // Log for debugging
+               
             })
             .catch((error) => console.error("Session check failed:", error));
     }, []);
@@ -18,17 +21,17 @@ function SigninButton() {
     const handleClick = () => {
         if (isLoggedIn) {
             // Log the user out by calling the backend logout route
-            fetch('http://localhost:3000/session/logout', { method: 'POST', credentials: 'include' })
+            fetch(`${API_BASE_URL}/session/logout`, { method: 'POST', credentials: 'include' })
                 .then(() => {
                     setIsLoggedIn(false); // Update state to reflect logged-out status
-                    console.log("User logged out successfully"); // Log for debugging
+                   
                     // Redirect to home page after logout
-                    window.location.href = 'http://localhost:5173/bytes';
+                    window.location.href = `${APP_URL}/bytes`;
                 })
                 .catch((error) => console.error("Logout failed:", error));
         } else {
             // Redirect to the sign-in (register) page
-            window.location.href = 'http://localhost:5173/register'; // Redirect for sign-in
+            window.location.href = `${APP_URL}/register`;// Redirect for sign-in
         }
     };
 

@@ -9,11 +9,12 @@ export function useLeaderboardData(userId = null) {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     useEffect(() => {
         const fetchLeaderboardData = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/api/leaderboard${userId ? `?userId=${userId}` : ""}`);
+                const response = await fetch(`${API_BASE_URL}/api/leaderboard${userId ? `?userId=${userId}` : ""}`);
 
                 const data = await response.json();
 

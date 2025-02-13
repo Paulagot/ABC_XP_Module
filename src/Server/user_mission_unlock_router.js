@@ -1,6 +1,6 @@
 // MissionUnlockRouter.js
 import express from 'express';
-import db from './config_db.js';
+import pool from './config_db.js';
 
 const MissionUnlockRouter = express.Router();
 
@@ -25,7 +25,7 @@ MissionUnlockRouter.post('/check-mission-unlocks', async (req, res) => {
             WHERE user_id = ? AND completion_date IS NOT NULL;
         `;
         
-        const [completedBytes] = await db.query(completedBytesQuery, [user_id]);
+        const [completedBytes] = await pool(completedBytesQuery, [user_id]);
 
         // Step 2: Fetch all mission criteria
         const criteriaQuery = `
@@ -33,7 +33,7 @@ MissionUnlockRouter.post('/check-mission-unlocks', async (req, res) => {
             FROM mission_criteria;
         `;
         
-        const [criteria] = await db.query(criteriaQuery);
+        const [criteria] = await pool(criteriaQuery);
 
         // Step 3: Check if any missions are unlocked based on completed bytes
         const unlockedMissions = calculateUnlockedMissions(completedBytes, criteria, latest_completed_byte_id);

@@ -22,17 +22,18 @@ const ManageCriteria = ({ closePopup }) => {
     const [messageType, setMessageType] = useState(''); // State to hold the type of the message (success or error)
     const [showConfirm, setShowConfirm] = useState(false); // State to control visibility of the confirmation dialog
     const [criterionToDelete, setCriterionToDelete] = useState(null); // State to store the criterion ID pending deletion
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     // Fetch bites and subcategories when component mounts
     useEffect(() => {
         const fetchData = async () => {
             try {
                 // Fetch subcategories
-                const subcategoriesResponse = await axios.get('http://localhost:3000/api/subcategories');
+                const subcategoriesResponse = await axios.get(`${API_BASE_URL}/api/subcategories`);
                 setSubcategories(subcategoriesResponse.data);
 
                 // Fetch bites
-                const bitesResponse = await axios.get('http://localhost:3000/api/bitescards');
+                const bitesResponse = await axios.get(`${API_BASE_URL}/api/bitescards`);
                 setBites(bitesResponse.data);
             } catch (error) {
                 console.error('Error fetching bites or subcategories:', error);
@@ -54,7 +55,7 @@ const ManageCriteria = ({ closePopup }) => {
 
         try {
             // Fetch criteria for the selected mission
-            const response = await axios.get(`http://localhost:3000/api/criteria?mission_id=${mission.mission_id}`);
+            const response = await axios.get(`${API_BASE_URL}/api/criteria?mission_id=${mission.mission_id}`);
             setCriteriaList(response.data);
         } catch (error) {
             console.error('Error fetching criteria:', error);
@@ -89,7 +90,7 @@ const ManageCriteria = ({ closePopup }) => {
 
         try {
             // Send a DELETE request to the backend to remove the criterion from the database
-            await axios.delete(`http://localhost:3000/api/criteria/${criterionToDelete}`);
+            await axios.delete(`${API_BASE_URL}/api/criteria/${criterionToDelete}`);
 
             // Update the local state to reflect the deletion in the UI
             setCriteriaList(criteriaList.filter(criteria => criteria.criteria_id !== criterionToDelete));

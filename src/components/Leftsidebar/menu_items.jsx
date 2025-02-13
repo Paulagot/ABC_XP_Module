@@ -5,11 +5,11 @@ function Menu_items() {
   const navigate = useNavigate();
 
   const menuItems = [
-    { name: "Profile (soon)", imgSrc: "https://img.icons8.com/clouds/100/gender-neutral-user.png" },
+    { name: "Dashboard", imgSrc: "https://img.icons8.com/clouds/100/gender-neutral-user.png",path: "/dashboard" },
     { name: "Leaderboard", imgSrc: "https://img.icons8.com/clouds/100/leaderboard.png", path: "/leaderboard" },
     { name: "Bytes", imgSrc: "https://img.icons8.com/clouds/100/book-philosophy.png", path: "/bytes " },
     { name: "Missions", imgSrc: "https://img.icons8.com/clouds/100/rocket.png", path: "/missions" },
-    { name: "Loyalty (soon)", imgSrc: "https://img.icons8.com/stickers/100/loyalty.png" },
+    { name: "Loyalty (soon)", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
   ];
 
   const handleNavigation = (item) => {

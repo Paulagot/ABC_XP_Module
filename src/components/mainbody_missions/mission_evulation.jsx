@@ -1,37 +1,49 @@
 import { useEffect, useState } from "react";
 import Mission_Cards from "./missionscards";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// Function to evaluate if the user meets the mission criteria
+/**
+ * Helper function to evaluate if the user meets the mission criteria.
+ * Returns `true` if the mission is locked, otherwise `false`.
+ */
 const evaluateCriteria = (criteriaList, userBytes) => {
     let isLocked = false;
+
     for (let i = 0; i < criteriaList.length; i++) {
         const criterion = criteriaList[i];
 
         if (criterion.criteria_type === 'Bite Complete') {
             const userHasCompleted = userBytes.some(
-                byte => byte.bite_id === criterion.bite_id && byte.completion_date !== null
+                (byte) => byte.bite_id === criterion.bite_id && byte.completion_date !== null
             );
             if (!userHasCompleted) {
+              
                 isLocked = true;
                 break;
             }
         } else if (criterion.lp_value) {
             const userLP = userBytes
-                .filter(byte => byte.subcategory_id === criterion.subcategory_id)
-                .reduce((total, byte) => total + byte.lp_value, 0);
+                .filter((byte) => byte.subcategory_id === criterion.subcategory_id)
+                .reduce((total, byte) => total + (byte.lp_value || 0), 0);
+
             if (userLP < criterion.lp_value) {
+               
                 isLocked = true;
                 break;
             }
         }
     }
+
     return isLocked;
 };
 
-// Function to determine the mission status
+/**
+ * Helper function to determine the mission status based on user progress.
+ * Returns an object with `text`, `className`, and `order`.
+ */
 const getMissionStatus = (mission, userMissionsData) => {
-    const userMission = userMissionsData.find((ub) => ub.mission_id === mission.mission_id);
+    const userMission = userMissionsData.find((um) => um.mission_id === mission.mission_id);
 
     if (userMission && userMission.start_date && !userMission.completion_date) {
         return { text: "Continue Mission", className: "started", order: 1 }; // Continue Mission
@@ -45,21 +57,26 @@ const getMissionStatus = (mission, userMissionsData) => {
     return { text: "Explore Mission", className: "not-enrolled", order: 2 };
 };
 
-function MissionEvaluator({ missions = [], criteria = [], userBytes = [], userId }) {
+/**
+ * MissionEvaluator Component: Evaluates and separates locked and unlocked missions.
+ */
+function MissionEvaluator({ missions = [], criteria = [], userBytes = [], userId, isReadyToRender }) {
     const [lockedMissions, setLockedMissions] = useState([]);
     const [unlockedMissions, setUnlockedMissions] = useState([]);
     const [userMissionsData, setUserMissionsData] = useState([]);
 
-    // Fetch userMissions data (for logged-in users)
+    // Fetch user mission progress data
     useEffect(() => {
         if (userId) {
             const fetchUserMissions = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3000/api/user_missions?user_id=${userId}`);
+             
+                    const response = await fetch(`${API_BASE_URL}/api/user_missions?user_id=${userId}`);
                     const data = await response.json();
-                    setUserMissionsData(data); // Store userMissions data
+                   
+                    setUserMissionsData(data);
                 } catch (error) {
-                    console.error('Error fetching user missions:', error);
+                    console.error("[MissionEvaluator] Error fetching user missions:", error);
                 }
             };
 
@@ -67,43 +84,46 @@ function MissionEvaluator({ missions = [], criteria = [], userBytes = [], userId
         }
     }, [userId]);
 
+    // Evaluate missions and classify as locked/unlocked
     useEffect(() => {
-        const evaluateMissions = async () => {
+        if (!missions || !criteria || !isReadyToRender) return; // Prevent premature evaluation
+        const evaluateMissions = () => {
             const locked = [];
             const unlocked = [];
 
-            // Iterate over each mission to determine if it's locked or unlocked
-            missions.forEach(mission => {
-                const missionCriteria = criteria.filter(c => c.mission_id === mission.mission_id);
+            missions.forEach((mission) => {
+                // Get criteria for the mission
+                const missionCriteria = criteria.filter((c) => c.mission_id === mission.mission_id);
+
+                // Evaluate if the mission is locked
                 const isLocked = evaluateCriteria(missionCriteria, userBytes);
 
                 if (isLocked) {
-                    // If locked, push to lockedMissions array
-                    locked.push({ ...mission, missionStatus: 'locked', criteria: missionCriteria, userBytes });
+                  
+                    locked.push({ ...mission, missionStatus: "locked", criteria: missionCriteria, userBytes });
                 } else {
-                    // Determine the mission status (started, not-enrolled, or completed)
+                    // Get mission status for unlocked missions
                     const status = getMissionStatus(mission, userMissionsData);
+                   
 
-                    // Push the unlocked mission with its status to unlockedMissions array
                     unlocked.push({ ...mission, ...status, userBytes, userId });
                 }
             });
 
-            // Sort the unlocked missions based on their status order (1 = Continue, 2 = Explore, 3 = Complete)
+            // Sort unlocked missions by their status order
             const sortedUnlockedMissions = unlocked.sort((a, b) => a.order - b.order);
 
-            // Update state with locked and unlocked missions
             setLockedMissions(locked);
             setUnlockedMissions(sortedUnlockedMissions);
         };
 
         evaluateMissions();
-    }, [missions, criteria, userBytes, userMissionsData, userId]);
+    }, [missions, criteria, userBytes, userMissionsData, userId, isReadyToRender]);
 
     return (
-        <Mission_Cards 
-            unlockedMissions={unlockedMissions} 
-            lockedMissions={lockedMissions} 
+        <Mission_Cards
+            unlockedMissions={unlockedMissions}
+            lockedMissions={lockedMissions}
         />
     );
 }

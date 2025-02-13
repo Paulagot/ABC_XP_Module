@@ -5,46 +5,59 @@ import SignInForm from './sign_in_form';
 import ResetPasswordForm from './reset_password';
 import SetPasswordForm from './set_password';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/auth_context';
 
 /**
  * Main container component for handling sign-in, sign-up, reset password, and set password views.
  * Dynamically renders the appropriate form based on the 'view' state and URL parameters.
+ * Integrates with auth context to ensure proper session management.
  */
 function SignInMainBody() {
-    const [view, setView] = useState('signIn'); // Default to 'signIn' to show SignInForm first
-    const [resetToken, setResetToken] = useState(null); // Stores token for password reset
+    const [view, setView] = useState('signIn');
+    const [resetToken, setResetToken] = useState(null);
     const location = useLocation();
+    const { refreshSession } = useAuth();
 
-    // Effect to parse URL parameters on component mount and set initial view/token if provided
+    // Effect to handle URL parameters for different views
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const urlView = params.get('view');
         const urlToken = params.get('token');
 
-        if (urlView) {
-            setView(urlView); // Sets initial view based on URL param if available
-        }
-
-        if (urlView === 'setPassword' && urlToken) {
-            setResetToken(urlToken); // Sets token for setting a new password
-        }
+        if (urlView) setView(urlView);
+        if (urlView === 'setPassword' && urlToken) setResetToken(urlToken);
     }, [location]);
 
-    // Callback to switch to sign-in view after successful registration
+    /**
+     * Handler for successful sign-up
+     * Switches view back to sign-in form
+     */
     const handleSignUp = () => {
         setView('signIn');
     };
 
-    // Callback to handle sign-in and redirect on successful login
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const APP_URL = import.meta.env.VITE_APP_URL;
+
+    /**
+     * Handles the sign-in process
+     * Attempts to log in the user and redirects on success
+     * @param {Object} formData - Contains email and password
+     */
     const handleSignIn = async (formData) => {
         try {
-            const response = await fetch('http://localhost:3000/api/login', {
+            const response = await fetch(`${API_BASE_URL}/api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
+                credentials: 'include', // Important for session cookies
             });
+            
             if (response.ok) {
-                window.location.href = 'http://localhost:5173/bytes'; // Redirect to /bytes after login
+                // First refresh the session to update auth context
+                await refreshSession();
+                // Then redirect using window.location to ensure full page reload
+                window.location.href = `${APP_URL}/bytes`;
             } else {
                 const data = await response.json();
                 console.error(data.error);
@@ -54,15 +67,36 @@ function SignInMainBody() {
         }
     };
 
+    /**
+     * Handles password reset requests
+     * Sends reset email if successful
+     * @param {string} email - User's email address
+     * @param {string} captchaToken - ReCAPTCHA token for verification
+     * @returns {boolean} Success status of the request
+     */
+    const handlePasswordReset = async (email, captchaToken) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/password-reset`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, captchaToken }),
+            });
+            return response.ok;
+        } catch (error) {
+            console.error('Password reset error:', error);
+            return false;
+        }
+    };
+
     return (
         <main className="container__right" id="main">
-            {/* Render the form based on the current view */}
+            {/* Render appropriate form based on current view */}
             {view === 'signIn' && <SignInForm onSignIn={handleSignIn} />}
             {view === 'signUp' && <SignUpForm onSignUp={handleSignUp} />}
-            {view === 'resetPassword' && <ResetPasswordForm />}
+            {view === 'resetPassword' && <ResetPasswordForm onReset={handlePasswordReset} />}
             {view === 'setPassword' && <SetPasswordForm token={resetToken} />}
 
-            {/* Conditional rendering of navigation buttons */}
+            {/* Toggle links for switching between different forms */}
             <div className="toggle-links">
                 {view !== 'signIn' && (
                     <button onClick={() => setView('signIn')}>Sign In</button>

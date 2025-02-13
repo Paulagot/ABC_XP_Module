@@ -1,5 +1,5 @@
 import express from 'express';
-import db from './config_db.js';  // Ensure this points to your actual db configuration
+import pool from './config_db.js';  // Ensure this points to your actual db configuration
 
 const WebhookMissionStatusRouter = express.Router();
 
@@ -18,7 +18,7 @@ WebhookMissionStatusRouter.post('/webhook/mission-status', async (req, res) => {
             FROM missions 
             WHERE zenler_id = ?
         `;
-        const [missionDetails] = await db.promise().query(missionQuery, [course_id]);
+        const [missionDetails] = await pool.promise().query(missionQuery, [course_id]);
 
         if (missionDetails.length === 0) {
             return res.status(404).json({ error: 'No matching mission found for the given course_id' });
@@ -30,7 +30,7 @@ WebhookMissionStatusRouter.post('/webhook/mission-status', async (req, res) => {
         const userMissionQuery = `
             SELECT user_mission_id FROM user_missions WHERE user_id = ? AND mission_id = ?
         `;
-        const [userMission] = await db.promise().query(userMissionQuery, [user_id, mission_id]);
+        const [userMission] = await pool.promise().query(userMissionQuery, [user_id, mission_id]);
 
         if (userMission.length === 0) {
             // No existing record: Insert new enrollment with null completion_date
@@ -38,7 +38,7 @@ WebhookMissionStatusRouter.post('/webhook/mission-status', async (req, res) => {
                 INSERT INTO user_missions (user_id, mission_id, start_date, completion_date, created_at, updated_at)
                 VALUES (?, ?, ?, NULL, NOW(), NOW())
             `;
-            await db.promise().query(insertEnrollmentQuery, [user_id, mission_id, enrol_date]);
+            await pool.promise().query(insertEnrollmentQuery, [user_id, mission_id, enrol_date]);
         } else if (completion_date) {
             // Existing record and completion_date provided: Update completion_date
             const updateCompletionQuery = `
@@ -46,14 +46,14 @@ WebhookMissionStatusRouter.post('/webhook/mission-status', async (req, res) => {
                 SET completion_date = ?, updated_at = NOW()
                 WHERE user_id = ? AND mission_id = ?
             `;
-            await db.promise().query(updateCompletionQuery, [completion_date, user_id, mission_id]);
+            await pool.promise().query(updateCompletionQuery, [completion_date, user_id, mission_id]);
 
             // Step 3: Insert into user_missions_stats if the mission is completed
             const insertStatsQuery = `
                 INSERT INTO xp_module.user_missions_stats (user_id, mission_id, subcategory_id, chain_id, experience_points)
                 VALUES (?, ?, ?, ?, ?)
             `;
-            await db.promise().query(insertStatsQuery, [
+            await pool.promise().query(insertStatsQuery, [
                 user_id,
                 mission_id,
                 subcategory_id,

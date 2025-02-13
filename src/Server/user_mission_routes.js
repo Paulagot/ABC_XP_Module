@@ -1,5 +1,5 @@
 import express from 'express';
-import db from './config_db.js';
+import pool from './config_db.js';
 
 const UserMissionsRouter = express.Router();
 
@@ -20,7 +20,7 @@ UserMissionsRouter.get('/user_missions', (req, res) => {
             um.user_id = ? ;
     `;
 
-    db.query(query, [user_id], (err, results) => {
+    pool.query(query, [user_id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error' });

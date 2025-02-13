@@ -3,7 +3,7 @@
 // this is for manage subcategories form
 
 import express from 'express';
-import db from './config_db.js';
+import pool from './config_db.js';
 
 const subCategoryRouter = express.Router();
 
@@ -19,7 +19,7 @@ subCategoryRouter.post('/subcategories', (req, res) => {
 
      // Check for duplicate name
      const checkDuplicateQuery = 'SELECT COUNT(*) as count FROM subcategories WHERE name = ?';
-     db.query(checkDuplicateQuery, [name], (err, results) => {
+     pool.query(checkDuplicateQuery, [name], (err, results) => {
          if (err) {
              console.error('Database query error:', err);
              return res.status(500).json({ error: 'Database error', details: err });
@@ -32,7 +32,7 @@ subCategoryRouter.post('/subcategories', (req, res) => {
        const query = 'INSERT INTO subcategories (name,  created_at, updated_at) VALUES (?,  NOW(), NOW())';
        const values = [name];
 
-       db.query(query, values, (err, result) => {
+       pool.query(query, values, (err, result) => {
            if (err) {
                console.error('Database query error:', err);
                return res.status(500).json({ error: 'Database error', details: err });
@@ -48,7 +48,7 @@ subCategoryRouter.get('/subcategories/search', (req, res) => {
     const query = 'SELECT * FROM subcategories WHERE name LIKE ?';
     const values = [`%${q}%`];
 
-    db.query(query, values, (err, results) => {
+    pool.query(query, values, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -70,7 +70,7 @@ subCategoryRouter.put('/subcategories/:id', (req, res) => {
     const query = 'UPDATE subcategories SET name = ?, updated_at = NOW() WHERE subcategory_id = ?';
     const values = [name,  id];
 
-    db.query(query, values, (err, results) => {
+    pool.query(query, values, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -87,7 +87,7 @@ subCategoryRouter.delete('/subcategories/:id', (req, res) => {
     const { id } = req.params;
     const query = 'DELETE FROM subcategories WHERE subcategory_id = ?';
 
-    db.query(query, [id], (err, results) => {
+    pool.query(query, [id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error' });
@@ -104,7 +104,7 @@ subCategoryRouter.delete('/subcategories/:id', (req, res) => {
 subCategoryRouter.get('/subcategories', (req, res) => {
     const query = 'SELECT * FROM subcategories';
     
-    db.query(query, (err, results) => {
+    pool.query(query, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });

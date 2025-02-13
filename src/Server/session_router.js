@@ -10,7 +10,7 @@ const sessionRouter = express.Router();
 //              and sends back user details. If not, it returns isAuthenticated: false.
 // -----------------------------------------------
 sessionRouter.get('/check-session', (req, res) => {
-    console.log('Session in check-session route:', req.session);  // Log the session data
+    // console.log('Session in check-session route:', req.session);  // Log the session data
     
     // Check if there is a session object and a user logged in within that session.
     if (req.session && req.session.user) {
@@ -37,10 +37,10 @@ sessionRouter.post('/logout', async (req, res) => {
                 credentials: 'include', // Include credentials if Zenler requires it
             });
 
-            console.log("Attempted to log out from Zenler");
+            
 
             // Step 2: Clear Zenler token from session data
-            req.session.zenlerToken = null;
+            // req.session.zenlerToken = null;
 
             // Step 3: Destroy the session, removing all session data including user data and Zenler token
             req.session.destroy((err) => {
@@ -49,8 +49,8 @@ sessionRouter.post('/logout', async (req, res) => {
                     res.status(500).send("Logout failed"); // Respond with an error status if logout fails
                 } else {
                     // Clear the session cookie on the client-side
-                    res.clearCookie('connect.sid'); // 'connect.sid' is the default cookie name for express-session
-                    console.log("User logged out and session destroyed"); // Log for debugging
+                    // res.clearCookie('connect.sid'); // 'connect.sid' is the default cookie name for express-session
+                    
                     res.sendStatus(200); // Respond with success status if logout is successful
                 }
             });

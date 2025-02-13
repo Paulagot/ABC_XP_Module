@@ -20,7 +20,7 @@ WebhookByteStatusRouter.post('/webhook/byte-status', async (req, res) => {
             FROM bites 
             WHERE zenler_id = ?
         `;
-        const [biteDetails] = await db.promise().query(biteQuery, [course_id]);
+        const [biteDetails] = await pool.promise().query(biteQuery, [course_id]);
 
         // If no matching bite found, return an error
         if (biteDetails.length === 0) {
@@ -34,7 +34,7 @@ WebhookByteStatusRouter.post('/webhook/byte-status', async (req, res) => {
         const userByteQuery = `
             SELECT user_course_id FROM user_bytes WHERE user_id = ? AND bite_id = ?
         `;
-        const [userByte] = await db.promise().query(userByteQuery, [user_id, bite_id]);
+        const [userByte] = await pool.promise().query(userByteQuery, [user_id, bite_id]);
 
         // Step 3: If no record exists, insert a new one; otherwise, update if completion_date is provided
         if (userByte.length === 0) {
@@ -43,7 +43,7 @@ WebhookByteStatusRouter.post('/webhook/byte-status', async (req, res) => {
                 INSERT INTO user_bytes (user_id, bite_id, enrol_date, start_date, completion_date, created_at, updated_at)
                 VALUES (?, ?, ?, ?, NULL, NOW(), NOW())
             `;
-            await db.promise().query(insertEnrollmentQuery, [user_id, bite_id, enrol_date, enrol_date]);
+            await pool.promise().query(insertEnrollmentQuery, [user_id, bite_id, enrol_date, enrol_date]);
         } else if (completion_date) {
             // Existing record and completion_date provided: Update completion_date
             const updateCompletionQuery = `
@@ -51,7 +51,7 @@ WebhookByteStatusRouter.post('/webhook/byte-status', async (req, res) => {
                 SET completion_date = ?, updated_at = NOW()
                 WHERE user_id = ? AND bite_id = ?
             `;
-            await db.promise().query(updateCompletionQuery, [completion_date, user_id, bite_id]);
+            await pool.promise().query(updateCompletionQuery, [completion_date, user_id, bite_id]);
 
             // Step 4: Insert into user_bytes_stats if the byte is completed
             const insertStatsQuery = `
@@ -59,7 +59,7 @@ WebhookByteStatusRouter.post('/webhook/byte-status', async (req, res) => {
                 VALUES (?, ?, ?, ?, ?, NOW(), NOW())
                 ON DUPLICATE KEY UPDATE learning_points = ?, updated_at = NOW()
             `;
-            await db.promise().query(insertStatsQuery, [
+            await pool.promise().query(insertStatsQuery, [
                 user_id,
                 bite_id,
                 category_id,

@@ -13,6 +13,7 @@ import axios from 'axios';
 const SearchMissions = memo(({ onSelectMission }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
     /**
      * searchMissions
@@ -24,7 +25,7 @@ const SearchMissions = memo(({ onSelectMission }) => {
     const searchMissions = useCallback(async (query) => {
       if (!query) return; // Skip empty queries
       try {
-        const response = await axios.get(`http://localhost:3000/api/missions/search?name=${query}`);
+        const response = await axios.get(`${API_BASE_URL}/api/missions/search?name=${query}`);
         setSearchResults(response.data); // Update search results state with the data received
       } catch (error) {
         console.error('Error searching missions:', error);

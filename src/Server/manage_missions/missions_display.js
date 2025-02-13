@@ -1,4 +1,4 @@
-import db from "../config_db.js"; // Import the database configuration to enable queries
+import pool from "../config_db.js"; // Import the database configuration to enable queries
 
 // Function to fetch data for mission cards for the front end
 export const fetchMissionsCards = (req, res) => {
@@ -28,7 +28,7 @@ export const fetchMissionsCards = (req, res) => {
   `;
 
   // Execute the SQL query using the database connection
-  db.query(query, (err, results) => {
+  pool.query(query, (err, results) => {
     if (err) {
       // Log the error and send a 500 status code if the query fails
       console.error('Database query error:', err);
@@ -55,7 +55,7 @@ export const fetchChains = (req, res) => {
   `;
 
   // Execute the SQL query using the database connection
-  db.query(query, (err, results) => {
+  pool.query(query, (err, results) => {
     if (err) {
       // Log the error and send a 500 status code if the query fails
       console.error('Database query error:', err);
@@ -82,7 +82,7 @@ export const fetchCategories = (req, res) => {
   `;
 
   // Execute the SQL query using the database connection
-  db.query(query, (err, results) => {
+  pool.query(query, (err, results) => {
     if (err) {
       // Log the error and send a 500 status code if the query fails
       console.error('Database query error:', err);

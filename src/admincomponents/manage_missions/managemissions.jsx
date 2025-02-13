@@ -14,11 +14,13 @@ import SearchMissions from './searchMissions.jsx';
  * - openManageSponsors: Function to open the Manage Sponsors/Partners popup.
  * - openManageSubcategories: Function to open the Manage Subcategories popup.
  */
-const ManageMissions = ({ closePopup, openManageChains, openManageSponsors, openManageSubcategories }) => {
+const ManageMissions = ({ closePopup, openManageChains, openManageSponsors, openManageSubcategories, openAddCriteria, openLandingPageEditor  }) => {
   const [selectedMission, setSelectedMission] = useState(null);
   const [sponsorData, setSponsorData] = useState([]);
   const [chainData, setChainData] = useState([]);
   const [subcategoryData, setSubcategoryData] = useState([]);
+  
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   /**
    * Fetches necessary data when the component mounts.
@@ -29,9 +31,9 @@ const ManageMissions = ({ closePopup, openManageChains, openManageSponsors, open
     const fetchData = async () => {
       try {
         const [sponsorsResponse, subcategoriesResponse, chainsResponse] = await Promise.all([
-          axios.get('http://localhost:3000/api/sponsors'),
-          axios.get('http://localhost:3000/api/Subcategories'),
-          axios.get('http://localhost:3000/api/chains'),
+          axios.get(`${API_BASE_URL}/api/sponsors`),
+          axios.get(`${API_BASE_URL}/api/Subcategories`),
+          axios.get(`${API_BASE_URL}/api/chains`),
         ]);
 
         setSponsorData(sponsorsResponse.data);
@@ -73,6 +75,8 @@ const ManageMissions = ({ closePopup, openManageChains, openManageSponsors, open
           openManageChains={openManageChains}
           openManageSponsors={openManageSponsors}
           openManageSubcategories={openManageSubcategories}
+          openAddCriteria={openAddCriteria} // Include missing prop
+          openLandingPageEditor={openLandingPageEditor} // Include missing prop
         />
       )}
     </div>

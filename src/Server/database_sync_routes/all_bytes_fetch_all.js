@@ -1,4 +1,4 @@
-import db from '../config_db.js'
+import pool from '../config_db.js'
 
 
 /**
@@ -9,7 +9,7 @@ import db from '../config_db.js'
  */
 export const fetchAllZenlerIds = async () => {
   return new Promise((resolve, reject) => {
-    db.query('SELECT zenler_id FROM bites', (err, results) => {
+    pool.query('SELECT zenler_id FROM bites', (err, results) => {
       if (err) {
         console.error('Error fetching zenler_ids:', err);
         reject(err);

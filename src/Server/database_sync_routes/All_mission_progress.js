@@ -1,8 +1,11 @@
 // mission_progress.js
 import axios from 'axios';
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 /**
- * Fetches detailed progress for a specific mission for a user, filtered by email.
+ * Fetches detailed progress for a specific mission for a user
  * This function dynamically accepts a `missionZenlerId` parameter and user email for 
  * Zenler API pagination and email filtering.
  *
@@ -20,12 +23,12 @@ export const getAllMissionProgress = async (missionZenlerId) => {
 
   while (hasMorePages) {
     try {
-      console.log(`Fetching mission progress for missionZenlerId: ${missionZenlerId}, page: ${pageIndex}`);
+      
 
-      const response = await axios.get('https://ABlockOfCrypto.newzenler.com/api/v1/reports/course-progress/detailed', {
+      const response = await axios.get(process.env.ZENLER_ALL_BYTE_PROGRESS_URL, {
         headers: {
-          'X-API-Key': 'ONPDVVIYMEGX6WHFL1QCEJ7KN798IXV2',
-          'X-Account-Name': 'ABlockOfCrypto',
+          'X-API-Key':process.env.ZENLER_API_KEY,
+          'X-Account-Name':process.env.ZENLER_ACCOUNT_NAME,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },

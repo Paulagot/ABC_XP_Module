@@ -31,17 +31,18 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate, setMessage, setMessageTyp
     const [lpRequiredDisplay, setLpRequiredDisplay] = useState('none');
     const [bites, setBites] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     // Fetch bites and subcategories options when component mounts
     useEffect(() => {
         const fetchData = async () => {
             try {
                 // Fetch subcategories from the server
-                const subcategoriesResponse = await axios.get('http://localhost:3000/api/subcategories');
+                const subcategoriesResponse = await axios.get(`${API_BASE_URL}/api/subcategories`);
                 setSubcategories(subcategoriesResponse.data);
 
                 // Fetch bites from the server
-                const bitesResponse = await axios.get('http://localhost:3000/api/bites');
+                const bitesResponse = await axios.get(`${API_BASE_URL}/api/bites`);
                 setBites(bitesResponse.data);
             } catch (error) {
                 console.error('Error fetching bites or subcategories:', error);
@@ -110,11 +111,11 @@ const CriteriaForm = ({ missionData, onCriteriaUpdate, setMessage, setMessageTyp
             lp_value: formData.lpValue || null
         };
 
-        console.log('Form data being sent:', formDataToSend);  // Debugging: log form data to console
+       
 
         try {
             // Send the form data to the server via a POST request
-            const response = await axios.post('http://localhost:3000/api/criteria', formDataToSend);
+            const response = await axios.post(`${API_BASE_URL}/api/criteria`, formDataToSend);
 
             // Call the update function passed as a prop to refresh the criteria list
             onCriteriaUpdate(response.data);

@@ -1,4 +1,4 @@
-import db from '../config_db.js'; // Import the database connection
+import pool from '../config_db.js'; // Import the database connection
 
 // all-mission_fetch_all.js
 /**
@@ -7,7 +7,7 @@ import db from '../config_db.js'; // Import the database connection
  */
 export const fetchAllMissionZenlerIds = async () => {
   return new Promise((resolve, reject) => {
-    db.query('SELECT mission_id, zenler_id, xp, subcategory_id, chain_id FROM missions', (err, results) => {
+    pool.query('SELECT mission_id, zenler_id, xp, subcategory_id, chain_id FROM missions', (err, results) => {
       if (err) {
         console.error('Error fetching mission zenler_ids:', err);
         reject(err);

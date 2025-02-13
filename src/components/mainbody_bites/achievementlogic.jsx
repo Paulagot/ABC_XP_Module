@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 
 const AchievementLogic = ({ userId, onAchievement }) => {
     const [userName, setUserName] = useState("");
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     // Function to fetch mission names from the API
     const fetchMissionNames = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/missionscards");
+            const response = await fetch(`${API_BASE_URL}/api/missionscards`);
             const missionData = await response.json();
             // Map mission IDs to their names for quick lookup
             return missionData.reduce((acc, mission) => {
@@ -23,22 +24,22 @@ const AchievementLogic = ({ userId, onAchievement }) => {
     const fetchUserDataAndBytes = async () => {
         try {
             // Fetch user data
-            const userResponse = await fetch(`http://localhost:3000/api/user_bytes_cards?user_id=${userId}`);
+            const userResponse = await fetch(`${API_BASE_URL}/api/user_bytes_cards?user_id=${userId}`);
             const userData = await userResponse.json();
             if (userData.length > 0 && userData[0].first_name) {
                 setUserName(userData[0].first_name); // Set user's first name
-                console.log("Fetched user name:", userData[0].first_name);
+               
             }
 
             // Fetch completed bytes
-            const completedBytesResponse = await fetch(`http://localhost:3000/api/user_completed_bytes?user_id=${userId}`);
+            const completedBytesResponse = await fetch(`${API_BASE_URL}/api/user_completed_bytes?user_id=${userId}`);
             const completedBytes = await completedBytesResponse.json();
-            console.log("Fetched completed bytes data:", completedBytes);
+           
 
             // Fetch mission criteria
-            const criteriaResponse = await fetch(`http://localhost:3000/api/criteria/all`);
+            const criteriaResponse = await fetch(`${API_BASE_URL}/api/criteria/all`);
             const criteriaData = await criteriaResponse.json();
-            console.log("Fetched criteria data:", criteriaData);
+            
 
             // Group criteria by mission for easy access
             const groupedCriteria = groupCriteriaByMission(criteriaData);
@@ -51,7 +52,7 @@ const AchievementLogic = ({ userId, onAchievement }) => {
 
             // Only proceed if there are newly completed bytes
             if (newCompletedBytes.length > 0) {
-                console.log("Triggering popup for new completion:", newCompletedBytes[0]);
+              
 
                 // Calculate newly unlocked missions based on criteria and completed bytes
                 const previouslyUnlockedMissions = JSON.parse(localStorage.getItem("previouslyUnlockedMissions")) || [];
@@ -75,7 +76,7 @@ const AchievementLogic = ({ userId, onAchievement }) => {
                 // Store newly unlocked missions in localStorage for future reference
                 localStorage.setItem("previouslyUnlockedMissions", JSON.stringify(newlyUnlockedMissions));
             } else {
-                console.log("No new completions detected, no popup triggered.");
+          
             }
 
             // Update completedBytes in localStorage to track progress
@@ -87,7 +88,7 @@ const AchievementLogic = ({ userId, onAchievement }) => {
 
     useEffect(() => {
         if (!userId) {
-            console.log("User not logged in, skipping mission unlock logic.");
+          
             return;
         }
         fetchUserDataAndBytes();

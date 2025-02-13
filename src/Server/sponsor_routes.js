@@ -3,7 +3,7 @@
 // this is to allow manage sponsors form in admin.
 
 import express from 'express';
-import db from './config_db.js';
+import pool from './config_db.js';
 
 const sponsorRouter = express.Router();
 
@@ -24,7 +24,7 @@ sponsorRouter.post('/sponsors', (req, res) => {
 
      // Check for duplicate name
      const checkDuplicateQuery = 'SELECT COUNT(*) as count FROM sponsors WHERE name = ?';
-     db.query(checkDuplicateQuery, [name], (err, results) => {
+     pool.query(checkDuplicateQuery, [name], (err, results) => {
          if (err) {
              console.error('Database query error:', err);
              return res.status(500).json({ error: 'Database error', details: err });
@@ -37,7 +37,7 @@ sponsorRouter.post('/sponsors', (req, res) => {
        const query = 'INSERT INTO sponsors (name, sponsor_image, website, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())';
        const values = [name, sponsor_image, website];
 
-       db.query(query, values, (err, result) => {
+       pool.query(query, values, (err, result) => {
            if (err) {
                console.error('Database query error:', err);
                return res.status(500).json({ error: 'Database error', details: err });
@@ -53,7 +53,7 @@ sponsorRouter.get('/sponsors/search', (req, res) => {
     const query = 'SELECT * FROM sponsors WHERE name LIKE ?';
     const values = [`%${q}%`];
 
-    db.query(query, values, (err, results) => {
+    pool.query(query, values, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -75,7 +75,7 @@ sponsorRouter.put('/sponsors/:id', (req, res) => {
     const query = 'UPDATE sponsors SET name = ?, sponsor_image = ?,  website = ?, updated_at = NOW() WHERE sponsor_id = ?';
     const values = [name, sponsor_image, website, id];
 
-    db.query(query, values, (err, results) => {
+    pool.query(query, values, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -92,7 +92,7 @@ sponsorRouter.delete('/sponsors/:id', (req, res) => {
     const { id } = req.params;
     const query = 'DELETE FROM sponsors WHERE sponsor_id = ?';
 
-    db.query(query, [id], (err, results) => {
+    pool.query(query, [id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error' });
@@ -109,7 +109,7 @@ sponsorRouter.delete('/sponsors/:id', (req, res) => {
 sponsorRouter.get('/sponsors', (req, res) => {
     const query = 'SELECT * FROM sponsors';
     
-    db.query(query, (err, results) => {
+    pool.query(query, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });

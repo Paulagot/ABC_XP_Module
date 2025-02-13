@@ -5,8 +5,11 @@ const UnpublishedBitesTable = () => {
   const [bites, setBites] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+
   useEffect(() => {
-    axios.get('http://localhost:3000/api/bites/unpublished')
+    axios.get(`${API_BASE_URL}/api/bites/unpublished`)
       .then(response => {
         setBites(response.data);
         setLoading(false);

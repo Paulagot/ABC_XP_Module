@@ -1,0 +1,263 @@
+/* Header.css */
+
+.header-container {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f5f5f5;
+    position: fixed;
+    width: 100%;
+    top: 50px;
+    z-index: 100;
+  }
+  
+  .header-button {
+    margin: 0 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .draft-button {
+    background-color: #e0e0e0;
+    color: #333;
+  }
+  
+  .preview-button {
+    background-color: #5aa5e0;
+    color: #fff;
+  }
+  
+  .publish-button {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+  .publish-button:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+  }
+
+  .header-button:hover {
+    background-color: #d0d0d0;
+    transition: background-color 0.3s ease;
+  }
+
+  /* TypeSelector.css */
+
+.type-selector-container {
+    display: flex;
+    flex-direction: column;
+    margin: 16px 0;
+    margin-top: 90px;
+  }
+  
+  .type-selector-label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .type-selector-dropdown {
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .type-selector-dropdown:focus {
+    border-color: #5aa5e0;
+    outline: none;
+  }
+
+  /* NameSearch.css */
+
+.name-search-container {
+    margin: 16px 0;
+    position: relative;
+  }
+  
+  .name-search-label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .name-search-input {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-bottom: 8px;
+  }
+  
+  .name-search-input:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
+  
+  .options-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    position: absolute;
+    width: 100%;
+    max-width: 500px;
+    z-index: 1;
+    margin-bottom: 30px;
+  }
+  
+  .option-item {
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .option-item:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .loading {
+    color: #777;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  
+  .no-results {
+    color: #777;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .name-search-input:focus {
+    border-color: #5aa5e0;
+    outline: none;
+  }
+  
+  
+  /* ContentForm.css */
+
+  
+
+.content-form {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 60px;
+    display: flex;
+  flex-direction: column;
+  /* justify-content: center;
+  align-items: center; */
+}
+.summaryfields {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+   
+}
+
+/* .content {
+  align-items: center;
+  justify-content: center;
+} */
+
+
+
+.error-message{
+  margin-top: 90px;
+}
+
+.success-message{
+  margin-top: 90px;
+}
+
+/* SEOForm.css */
+
+.seo-form {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 16px;
+  display: flex;
+  
+
+  
+}
+
+.meta{
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}
+
+.social{
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}
+
+.seo-form h2 {
+  
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.seo-field {
+  margin-bottom: 16px;
+}
+
+.seo-field label {
+  display: block;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.seo-field input,
+.seo-field textarea {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.seo-field textarea {
+  resize: vertical;
+}
+
+.seo-field input:focus,
+.seo-field textarea:focus {
+  border-color: #5aa5e0;
+  outline: none;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+}
+
+.closeButton:hover {
+  color: #e74c3c;
+}
+
+

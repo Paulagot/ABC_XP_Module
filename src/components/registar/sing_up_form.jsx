@@ -19,7 +19,7 @@ function SignUpForm({ onSignUp }) {
 
     useEffect(() => {
         // Log when SignUpForm is mounted
-        console.log('SignUpForm mounted');
+      
 
         // Render CAPTCHA if not already rendered
         if (!captchaRenderedRef.current && window.turnstile) {
@@ -27,7 +27,7 @@ function SignUpForm({ onSignUp }) {
                 window.turnstile.render('.cf-turnstile', {
                     sitekey: '0x4AAAAAAAyTlqCXTIWAluQM',
                     callback: (token) => {
-                        console.log('CAPTCHA success:', token);
+                        
                         setCaptchaToken(token);
                     },
                 });
@@ -61,6 +61,8 @@ function SignUpForm({ onSignUp }) {
         return formErrors;
     };
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validate();
@@ -69,7 +71,7 @@ function SignUpForm({ onSignUp }) {
         } else {
             setErrors({});
             try {
-                const response = await fetch('http://localhost:3000/api/signup', {
+                const response = await fetch(`${API_BASE_URL}/api/signup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

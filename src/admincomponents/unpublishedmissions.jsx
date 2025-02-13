@@ -4,9 +4,10 @@ import axios from 'axios';
 const UnpublishedMissionsTable = () => {
   const [missions, setMissions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/missions/unpublished')
+    axios.get(`${API_BASE_URL}/api/missions/unpublished`)
       .then(response => {
         setMissions(response.data);
         setLoading(false);

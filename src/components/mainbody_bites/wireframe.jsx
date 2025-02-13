@@ -5,13 +5,14 @@ import { useAuth } from "../../context/auth_context"
 
 
 const MissionCardWireframe = ({ item = [] }) => {
-    const { user, zenlerToken } = useAuth();
+    const { user } = useAuth();
     const [userBytesData, setUserBytesData] = useState([]);
     const userId = user?.user_id;
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     useEffect(() => {
         if (userId) {
-            fetch(`http://localhost:3000/api/user_bytes?user_id=${userId}`)
+            fetch(`${API_BASE_URL}/api/user_bytes?user_id=${userId}`)
                 .then(response => response.json())
                 .then(data => setUserBytesData(data))
                 .catch(err => console.error("Failed to fetch user bytes data", err));
@@ -41,44 +42,62 @@ const MissionCardWireframe = ({ item = [] }) => {
         }).sort((a, b) => a.order - b.order);
     }, [item, userBytesData]);
 
-    const handleByteClick = (courseUrl) => {
-        const zenlerLoggedIn = sessionStorage.getItem("zenlerLoggedIn");
-        console.log("Zenler Logged In (from sessionStorage):", zenlerLoggedIn); // This should persist as "true" after the first SSO redirect
+    const handleByteClick = async (byte) => {
+        const { url: courseUrl, landing_page_url: landingPageUrl, text: status } = byte;
     
-        // Check if zenlerToken is available
-        if (!zenlerToken) {
-            console.log("Zenler token is not available. Cannot proceed with SSO or course access.");
-            alert("Please log in to access this course."); // Show a message to prompt login
+    
+        // Step 1: Handle "Explore Byte" redirect to landing page
+        if (status === "Explore Byte") {
+          
+            window.location.href=landingPageUrl;
             return;
         }
     
-        if (!zenlerLoggedIn) {
-            console.log("Redirecting to Zenler SSO endpoint for login.");
+        // Step 2: Handle SSO logic for logged-in users
+        const zenlerLoggedIn = sessionStorage.getItem("zenlerLoggedIn");
+      
     
-            const errorUrl = "https://www.ablockofcrypto.com/blog";
-            const ssoUrl = `https://ABlockofCrypto.newzenler.com/api/sso/v1?token=${zenlerToken}&return_to=${encodeURIComponent(courseUrl)}&error_url=${encodeURIComponent(errorUrl)}`;
+        if (zenlerLoggedIn === "true") {
+          
+            window.location.href= courseUrl;
+            return;
+        }
     
-            console.log("Zenler SSO URL:", ssoUrl);
-            window.open(ssoUrl, "_blank"); // Open SSO link in a new tab
-            sessionStorage.setItem("zenlerLoggedIn", "true"); // Set Zenler login state in sessionStorage after first redirect
-        } else {
-            console.log("User already logged into Zenler; redirecting directly to course.");
-            window.open(courseUrl, "_blank"); // Directly open course URL in a new tab if already logged in
+        // Step 3: Handle SSO API request
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/sso`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ courseUrl, type: "byte" }), // Added `type` field
+                credentials: "include",
+            });
+    
+            if (response.ok) {
+                const { ssoUrl } = await response.json();
+               
+                window.location.href=ssoUrl;
+    
+                // Step 4: Set session storage to indicate successful login
+                sessionStorage.setItem("zenlerLoggedIn", "true");
+            } else {
+                console.error("SSO failed:", await response.json());
+            }
+        } catch (error) {
+            console.error("Error during SSO:", error);
         }
     };
-    
     
     
 
     return (
         <div className='container_bites'>
             {sortedData.map((val) => {
-                console.log("Course data:", val); // Logs each val to check byte_link presence
+             
                 return (
                     <div 
                         key={val.course_id || `${val.name}-${val.category}-${val.subcategory}`} 
                         className={`outer-container ${val.className}`}
-                        onClick={() => handleByteClick(val.url)}
+                        onClick={() => handleByteClick(val)}
                     >
                         <div className="inner-container">
 
@@ -108,12 +127,14 @@ const MissionCardWireframe = ({ item = [] }) => {
                             </div>
 
                             {/* Sponsor Section */}
-                            <div className="sponsor-section">
-                                <p className="sponsor-text">Thanks to our Sponsor</p>
-                                <div className="sponsor-logo">
-                                    <img className='slogo' src={val.sponsor_img} alt="sponsor-logo" />
-                                </div>
-                            </div>
+                            {val.sponsor_id && (
+    <div className="sponsor-section">
+        <p className="sponsor-text">Thanks to our Sponsor</p>
+        <div className="sponsor-logo">
+            <img className='slogo' src={val.sponsor_img} alt="sponsor-logo" />
+        </div>
+    </div>
+)}
 
                             {/* Hover Content */}
                             <div className="hover_contents">

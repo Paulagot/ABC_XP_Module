@@ -13,6 +13,7 @@ function SetPasswordForm({ token }) {
     const [confirmPassword, setConfirmPassword] = useState(''); // Holds the confirmed password
     const [errors, setErrors] = useState({}); // Stores any validation errors
     const [message, setMessage] = useState(''); // Holds success/error message for the user
+    
 
     // Handles input changes for password and confirm password fields
     const handleChange = (e) => {
@@ -33,6 +34,8 @@ function SetPasswordForm({ token }) {
         return formErrors;
     };
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     // Handles form submission to set a new password
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -46,7 +49,7 @@ function SetPasswordForm({ token }) {
 
             try {
                 // Send the new password to the backend with the reset token
-                const response = await fetch(`http://localhost:3000/api/password-reset/${token}`, {
+                const response = await fetch(`${API_BASE_URL}/api/password-reset/${token}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password }),

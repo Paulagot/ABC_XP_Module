@@ -1,5 +1,5 @@
 import express from 'express';
-import db from './config_db.js';
+import pool from './config_db.js';
 
 const criteriaRouter = express.Router();
 
@@ -21,7 +21,7 @@ criteriaRouter.get('/criteria', (req, res) => {
             c.mission_id = ?
     `;
     
-    db.query(query, [mission_id], (err, results) => {
+    pool.query(query, [mission_id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -35,7 +35,7 @@ criteriaRouter.get('/criteria', (req, res) => {
 
 // Create a new criterion
 criteriaRouter.post('/criteria', (req, res) => {
-    console.log('Received data:', req.body); // Log the request body
+  
 
     // Extract the mapped keys from the request body
     const { mission_id, condition_type, criteria_type, bite_id, subcategory_id, lp_value } = req.body;
@@ -57,10 +57,8 @@ criteriaRouter.post('/criteria', (req, res) => {
         return res.status(400).json({ error: 'Invalid criteria type' });
     }
 
-    console.log('Executing query:', query);
-    console.log('With values:', values);
 
-    db.query(query, values, (err, result) => {
+    pool.query(query, values, (err, result) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -81,7 +79,7 @@ criteriaRouter.put('/criteria/:id', (req, res) => {
 
     const values = [condition_type, criteria_type, bite_id, subcategory_id,  lp_value, id];
 
-    db.query(query, values, (err, results) => {
+    pool.query(query, values, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -99,7 +97,7 @@ criteriaRouter.delete('/criteria/:id', (req, res) => {
 
     const query = 'DELETE FROM criteria WHERE criteria_id = ?';
 
-    db.query(query, [id], (err, results) => {
+    pool.query(query, [id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error' });
@@ -126,7 +124,7 @@ criteriaRouter.get('/criteria/all', (req, res) => {
             subcategories s ON c.subcategory_id = s.subcategory_id
     `;
     
-    db.query(query, (err, results) => {
+    pool.query(query, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });
@@ -154,7 +152,7 @@ criteriaRouter.get('/criteria/mission/:mission_id', (req, res) => {
             c.mission_id = ?
     `;
     
-    db.query(query, [mission_id], (err, results) => {
+    pool.query(query, [mission_id], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({ error: 'Database error', details: err });

@@ -18,7 +18,7 @@ const ManageSubCategory = ({ closePopup }) => {
     const [searchResults, setSearchResults] = useState([]); // Stores the search results returned from the API
     const [message, setMessage] = useState(''); // Stores feedback messages for the user
     const [showConfirmation, setShowConfirmation] = useState(false); // Controls the visibility of the delete confirmation popup
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     /**
      * searchSubCategory
      * 
@@ -28,8 +28,8 @@ const ManageSubCategory = ({ closePopup }) => {
      */
     const searchSubCategory = async (query) => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/subcategories/search?q=${query}`);
-            console.log(response.data); // Log the response data for debugging purposes
+            const response = await axios.get(`${API_BASE_URL}/api/subcategories/search?q=${query}`);
+           
             setSearchResults(response.data); // Update search results state with the data received
         } catch (error) {
             console.error('There was an error searching subcategories!', error);
@@ -48,7 +48,7 @@ const ManageSubCategory = ({ closePopup }) => {
         event.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:3000/api/subcategories', { name });
+            const response = await axios.post(`${API_BASE_URL}/api/subcategories`, { name });
             setMessage(`Subcategory created successfully with ID: ${response.data.id}`);
             resetForm(); // Reset form fields after successful creation
         } catch (error) {
@@ -68,7 +68,7 @@ const ManageSubCategory = ({ closePopup }) => {
         event.preventDefault();
 
         try {
-            await axios.put(`http://localhost:3000/api/subcategories/${subcategoryId}`, { name });
+            await axios.put(`${API_BASE_URL}/api/subcategories/${subcategoryId}`, { name });
             setMessage(`Subcategory updated successfully to "${name}"`);
             resetForm(); // Reset form fields after successful update
         } catch (error) {
@@ -84,7 +84,7 @@ const ManageSubCategory = ({ closePopup }) => {
      */
     const deleteSubCategory = async () => {
         try {
-            await axios.delete(`http://localhost:3000/api/subcategories/${subcategoryId}`);
+            await axios.delete(`${API_BASE_URL}/api/subcategories/${subcategoryId}`);
             setMessage('Subcategory deleted successfully');
             resetForm(); // Reset form fields after successful deletion
             setShowConfirmation(false); // Close the confirmation popup

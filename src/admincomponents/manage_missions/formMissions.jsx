@@ -7,6 +7,7 @@ import SubcategorySelection from './subcategorySelection.jsx';
 import PublishCriteria from './publishcriteria.jsx';
 import axios from 'axios';
 
+
 /**
  * MissionForm Component
  * 
@@ -23,8 +24,19 @@ import axios from 'axios';
  * - openManageSponsors: Function to open the Manage Sponsors/Partners popup.
  * - openManageSubcategories: Function to open the Manage Subcategories popup.
  */
-const MissionForm = memo(({ missionData, sponsorData, chainData, closeForm, subcategoryData, openManageChains, openManageSponsors, openManageSubcategories }) => {
-  // State for managing form data
+const MissionForm = memo(({ 
+  missionData, 
+  sponsorData, 
+  chainData, 
+  closeForm, 
+  subcategoryData, 
+  openManageChains, 
+  openManageSponsors, 
+  openManageSubcategories, 
+  openAddCriteria, // New prop for Add Criteria button
+  openLandingPageEditor // New prop for Add Landing Page button
+}) => {
+  
   const [formData, setFormData] = useState({
     missionsName: '',
     subtitle: '',
@@ -37,18 +49,11 @@ const MissionForm = memo(({ missionData, sponsorData, chainData, closeForm, subc
     chain_id: '',
   });
 
-  // State to manage whether the mission can be published
   const [canPublish, setCanPublish] = useState(false);
-
-  // State for managing messages displayed to the user
   const [message, setMessage] = useState('');
-  
-  // State to control the visibility of the popup
   const [showPopup, setShowPopup] = useState(false);
 
-  /**
-   * useEffect to populate form data when missionData is updated.
-   */
+  // Populate form data when missionData changes
   useEffect(() => {
     if (missionData) {
       setFormData({
@@ -58,63 +63,49 @@ const MissionForm = memo(({ missionData, sponsorData, chainData, closeForm, subc
         thumbnail: missionData.thumbnail || '',
         mission_url: missionData.mission_url || '',
         sponsor_id: missionData.sponsor_id || '',
-        published: missionData.published === 1, // Correctly populate the checkbox
+        published: missionData.published === 1,
         chain_id: missionData.chain_id || '',
         subcategory_id: missionData.subcategory_id || '',
       });
     }
   }, [missionData]);
 
-  /**
-   * handleInputChange
-   * 
-   * Handles changes to the input fields in the form.
-   * 
-   * @param {Event} e - The input change event.
-   */
-  const handleInputChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  }, []);
+  // Handle form submission
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
 
-  /**
-   * handleSponsorChange
-   * 
-   * Handles changes to the sponsor dropdown selection.
-   * 
-   * @param {Event} e - The dropdown selection change event.
-   */
-  const handleSponsorChange = useCallback((e) => {
-    setFormData((prevData) => ({ ...prevData, sponsor_id: e.target.value === 'null' ? null : e.target.value }));
-  }, []);
+    if (!formData.subcategory_id) {
+      alert('Subcategory must be selected.');
+      return;
+    }
 
-  /**
-   * handleChainChange
-   * 
-   * Handles changes to the chain dropdown selection.
-   * 
-   * @param {Event} e - The dropdown selection change event.
-   */
-  const handleChainChange = useCallback((e) => {
-    setFormData((prevData) => ({ ...prevData, chain_id: e.target.value === 'null' ? null : e.target.value }));
-  }, []);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  /**
-   * handleSubcategoryChange
-   * 
-   * Handles changes to the subcategory dropdown selection.
-   * 
-   * @param {Event} e - The dropdown selection change event.
-   */
-  const handleSubcategoryChange = useCallback((e) => {
-    setFormData((prevData) => ({ ...prevData, subcategory_id: e.target.value === 'null' ? null : e.target.value }));
-  }, []);
+    try {
+      const response = await axios.put(`${API_BASE_URL}/api/missions/${missionData.mission_id}`, {
+        xp: formData.xp,
+        sponsor_id: formData.sponsor_id === 'null' ? null : formData.sponsor_id,
+        chain_id: formData.chain_id === 'null' ? null : formData.chain_id,
+        subcategory_id: formData.subcategory_id,
+        published: formData.published && canPublish ? 1 : 0,
+        
+      });
 
-  /**
-   * resetForm
-   * 
-   * Resets the form fields to their initial state and closes the form.
-   */
+      if (response.status === 200) {
+        let successMessage = 'Mission updated successfully.';
+        if (formData.published && canPublish) {
+          successMessage += ' Mission published successfully.';
+        }
+        setMessage(successMessage);
+        setShowPopup(true);
+      }
+    } catch (error) {
+      console.error('Error updating mission:', error);
+      alert('Failed to update mission. Please try again.');
+    }
+  };
+
+  // Reset form to initial state
   const resetForm = () => {
     setFormData({
       missionsName: '',
@@ -127,14 +118,10 @@ const MissionForm = memo(({ missionData, sponsorData, chainData, closeForm, subc
       subcategory_id: '',
       chain_id: '',
     });
-    closeForm(); // Return to the search view by closing the form
+    closeForm(); // Return to the search view
   };
 
-  /**
-   * clearEditableFields
-   * 
-   * Clears the editable fields in the form, setting them to their default values.
-   */
+  // Clear editable fields
   const clearEditableFields = () => {
     setFormData((prevData) => ({
       ...prevData,
@@ -146,99 +133,77 @@ const MissionForm = memo(({ missionData, sponsorData, chainData, closeForm, subc
     }));
   };
 
-  /**
-   * handleFormSubmit
-   * 
-   * Handles the form submission, sends data to the backend API, and displays the appropriate success or error message.
-   * 
-   * @param {Event} e - The form submission event.
-   */
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
-    // Ensure that a subcategory is selected
-    if (!formData.subcategory_id) {
-      alert('Subcategory must be selected.');
-      return;
-    }
-
-    try {
-      const response = await axios.put(`http://localhost:3000/api/missions/${missionData.mission_id}`, {
-        xp: formData.xp,
-        sponsor_id: formData.sponsor_id === 'null' ? null : formData.sponsor_id,
-        chain_id: formData.chain_id === 'null' ? null : formData.chain_id,
-        subcategory_id: formData.subcategory_id,
-        published: formData.published && canPublish ? 1 : 0, // Only publish if criteria are met
-      });
-
-      if (response.status === 200) {
-        let successMessage = 'Mission updated successfully.';
-        if (formData.published && canPublish) {
-          successMessage += ' Mission published successfully.';
-        }
-        setMessage(successMessage);
-        setShowPopup(true); // Show success popup
-      }
-    } catch (error) {
-      console.error('Error updating mission:', error);
-      alert('Failed to update mission. Please try again.');
-    }
-  };
-
-  /**
-   * handleClosePopup
-   * 
-   * Closes the success message popup and resets the form.
-   */
+  // Close success popup
   const handleClosePopup = () => {
-    setShowPopup(false); // Hide popup
-    resetForm(); // Return to the search view
+    setShowPopup(false);
+    closeForm();
   };
 
   return (
     <div id="missionForm">
-      {/* Render mission details component */}
-      <MissionDetails formData={formData} handleInputChange={handleInputChange} disableFields={true} />
-      
-      {/* Render sponsor selection dropdown */}
+      {/* Mission Details */}
+      <MissionDetails formData={formData} handleInputChange={(e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({ ...prevData, [name]: value }));
+      }} disableFields={true} />
+
+      {/* Sponsor Selection */}
       <SponsorSelection
         sponsorData={sponsorData}
         selectedSponsor={formData.sponsor_id}
-        handleSponsorChange={handleSponsorChange}
+        handleSponsorChange={(e) =>
+          setFormData((prevData) => ({
+            ...prevData,
+            sponsor_id: e.target.value === 'null' ? null : e.target.value,
+          }))
+        }
       />
 
-      {/* Render chain selection dropdown */}
+      {/* Chain Selection */}
       <ChainSelection
         chainData={chainData}
         selectedChain={formData.chain_id}
-        handleChainChange={handleChainChange}
+        handleChainChange={(e) =>
+          setFormData((prevData) => ({
+            ...prevData,
+            chain_id: e.target.value === 'null' ? null : e.target.value,
+          }))
+        }
       />
 
-      {/* Render subcategory selection dropdown */}
+      {/* Subcategory Selection */}
       <SubcategorySelection
         subcategoryData={subcategoryData}
         selectedSubcategory={formData.subcategory_id}
-        handleSubcategoryChange={handleSubcategoryChange}
+        handleSubcategoryChange={(e) =>
+          setFormData((prevData) => ({
+            ...prevData,
+            subcategory_id: e.target.value === 'null' ? null : e.target.value,
+          }))
+        }
       />
 
-      {/* Render publish status component */}
+      {/* Publish Status */}
       <PublishStatus
         isPublished={formData.published}
         handlePublishChange={(e) => {
-          // Only allow the checkbox to be checked if mission meets criteria
           if (canPublish) {
             setFormData({ ...formData, published: e.target.checked });
           } else {
             alert('This mission does not meet the criteria for publishing.');
           }
         }}
-        canPublish={canPublish} // Pass canPublish to control checkbox disabling
+        canPublish={canPublish}
       />
 
-      {/* Render publish criteria component */}
-      <PublishCriteria missionId={missionData.mission_id} setCanPublish={setCanPublish} published={formData.published} />
+      {/* Publish Criteria */}
+      <PublishCriteria
+        missionId={missionData.mission_id}
+        setCanPublish={setCanPublish}
+        published={formData.published}
+      />
 
-      {/* Render form action buttons */}
+      {/* Buttons */}
       <div id="missionFormButtons">
         <button type="button" onClick={handleFormSubmit} disabled={!canPublish && formData.published}>
           Save Mission
@@ -248,9 +213,11 @@ const MissionForm = memo(({ missionData, sponsorData, chainData, closeForm, subc
         <button type="button" onClick={openManageChains}>Manage Chains</button>
         <button type="button" onClick={openManageSponsors}>Manage Sponsors/Partners</button>
         <button type="button" onClick={openManageSubcategories}>Manage Subcategories</button>
+        <button type="button" onClick={openAddCriteria}>Add Criteria</button>
+        {/* <button type="button" onClick={openLandingPageEditor}>Add Landing Page</button> */}
       </div>
 
-      {/* Display success/error popup */}
+      {/* Success Popup */}
       {showPopup && (
         <div className="popup">
           <div className="popup-content">

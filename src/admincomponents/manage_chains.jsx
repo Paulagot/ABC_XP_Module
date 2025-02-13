@@ -4,6 +4,10 @@ import axios from 'axios';
 
 const ManageChain = ({ closePopup }) => {
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    
+    
+
     // State variables to manage form inputs
     const [chain_id, setChainId] = useState(null); // Stores the ID of the selected chain
     const [name, setName] = useState(''); // Stores the name of the chain
@@ -26,8 +30,8 @@ const ManageChain = ({ closePopup }) => {
      */
     const searchChain = async (query) => {
         try {
-            const response = await axios.get(`http://localhost:3000/api/chains/search?q=${query}`);
-            console.log(response.data); // Log response data for debugging purposes
+            const response = await axios.get(`${API_BASE_URL}/api/chains/search?q=${query}`);
+            
             setSearchResults(response.data); // Update search results state with the data received
         } catch (error) {
             handleError(error, 'Error searching chains');
@@ -49,7 +53,7 @@ const ManageChain = ({ closePopup }) => {
         }
 
         try {
-            const response = await axios.post('http://localhost:3000/api/chains', { name, chain_image });
+            const response = await axios.post(`${API_BASE_URL}/api/chains`, { name, chain_image });
             setMessage(`Chain created successfully with ID: ${response.data.id}`);
             clearForm(); // Reset form fields after successful creation
         } catch (error) {
@@ -72,7 +76,7 @@ const ManageChain = ({ closePopup }) => {
         }
 
         try {
-            await axios.put(`http://localhost:3000/api/chains/${chain_id}`, { name, chain_image });
+            await axios.put(`${API_BASE_URL}/api/chains/${chain_id}`, { name, chain_image });
             setMessage(`"${name}" updated successfully`);
             clearForm(); // Reset form fields after successful update
         } catch (error) {
@@ -87,7 +91,7 @@ const ManageChain = ({ closePopup }) => {
      */
     const deleteChain = async () => {
         try {
-            await retryOperation(() => axios.delete(`http://localhost:3000/api/chains/${chain_id}`), 3);
+            await retryOperation(() => axios.delete(`${API_BASE_URL}/api/chains/${chain_id}`), 3);
             setMessage('Chain deleted successfully');
             clearForm(); // Reset form fields after successful deletion
             setShowConfirmation(false); // Close the confirmation popup

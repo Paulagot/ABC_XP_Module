@@ -1,7 +1,7 @@
 
 import { fetchAllMissionZenlerIds } from './All- missions_fetch_all.js';
 import { getAllMissionProgress } from './All_mission_progress.js';
-import db from '../config_db.js'; // Import the database connection
+import pool from '../config_db.js'; // Import the database connection
 
 /**
  * Updates progress for all missions for a single logged-in user, using their session email to filter the data.
@@ -45,7 +45,7 @@ export const updateAllMissionProgress = async () => {
         const { email, enrollment_date, start_date, completed_date, completion_percentage } = userProgress;
 
         // Retrieve user_id using email
-        db.query('SELECT user_id FROM users WHERE email = ?', [email], (err, userResults) => {
+        pool.query('SELECT user_id FROM users WHERE email = ?', [email], (err, userResults) => {
           if (err || userResults.length === 0) {
             errorLog.push(`User not found for email: ${email}`);
             missionErrorCount++;
@@ -55,7 +55,7 @@ export const updateAllMissionProgress = async () => {
           const userId = userResults[0].user_id;
 
           // Update `user_missions` table with user progress
-          db.query(`
+          pool.query(`
             INSERT INTO user_missions (user_id, mission_id, start_date, completion_date, course_progress, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, NOW(), NOW())
             ON DUPLICATE KEY UPDATE
@@ -79,7 +79,7 @@ export const updateAllMissionProgress = async () => {
 
               // Only update `user_missions_stats` if mission completed
               if (completed_date && completed_date !== '-') {
-                db.query(`
+                pool.query(`
                   INSERT INTO user_missions_stats (user_id, mission_id, subcategory_id, chain_id, experience_points, created_at, updated_at)
                   VALUES (?, ?, ?, ?, ?, NOW(), NOW())
                   ON DUPLICATE KEY UPDATE
