@@ -39,64 +39,23 @@ function App() {
         
         <Router>
           <div className="app-container">
-            <Routes>
-              {/* Public routes */}
+          <Routes>
+              {/* Public routes - no protection needed */}
+              <Route path="/" element={<Navigate to="/bytes" />} />
               <Route path="/register" element={<Register />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
+              <Route path="/bytes" element={<Bytes />} />
+              <Route path="/missions" element={<Missions />} />
+              <Route path="/dashboard" element={<Profile />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/loyalty" element={<Loyalty />} />
+              <Route path="/bytes/:slug" element={<Landing />} />
+              <Route path="/missions/:slug" element={<Landing />} />
               
-              {/* Protected routes */}
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Navigate to="/bytes" />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/bytes" element={
-                <ProtectedRoute>
-                  <Bytes />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/missions" element={
-                <ProtectedRoute>
-                  <Missions />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/leaderboard" element={
-                <ProtectedRoute>
-                  <Leaderboard />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/loyalty" element={
-                <ProtectedRoute>
-                  <Loyalty />
-                </ProtectedRoute>
-              } />
-              
+              {/* Only protected route - admin page */}
               <Route path="/admin-app" element={
                 <ProtectedRoute role="admin">
                   <Admin_App />
-                </ProtectedRoute>
-              } />
-              
-              {/* Dynamic routes */}
-              <Route path="/bytes/:slug" element={
-                <ProtectedRoute>
-                  <Landing />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/missions/:slug" element={
-                <ProtectedRoute>
-                  <Landing />
                 </ProtectedRoute>
               } />
               
