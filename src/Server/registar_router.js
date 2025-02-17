@@ -7,8 +7,6 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import axios from 'axios';
 
-
-
 // Load environment variables
 dotenv.config()
 const appUrl = process.env.APP_URL || 'http://localhost:5173';
@@ -487,6 +485,11 @@ Registerrouter.post('/password-reset/:token', (req, res) => {
     });
 });
 
+
+
+
+const ZENLER_API_URL = 'https://api.newzenler.com/api/v1';
+
 Registerrouter.post('/enroll', async (req, res) => {
     const { userZenlerId, courseZenlerId, reference_type } = req.body;
 
@@ -495,38 +498,30 @@ Registerrouter.post('/enroll', async (req, res) => {
         return res.status(400).json({ error: 'Missing required parameters' });
     }
 
-    
-
     try {
         // Confirm session data
-        const { user_id } = req.session.user || {}; // Safely access user_id
+        const { user_id } = req.session.user || {};
         if (!user_id) {
             throw new Error("User ID is missing in session data.");
         }
 
-        // Construct the Zenler API URL for enrollment
-        const enrollmentUrl = `${ZENLER_API_URL}/${userZenlerId}/enroll`;
-       
-
-        // Make the API call to Zenler
+        // Make the API call to Zenler with correct URL structure
         const response = await axios.post(
-            enrollmentUrl,
-            { course_id: courseZenlerId }, // Request body
+            `${ZENLER_API_URL}/courses/${courseZenlerId}/enroll`,
+            { 
+                users: [userZenlerId]
+            },
             {
                 headers: {
-                    'X-API-Key': ZENLER_API_KEY,
-                    'X-Account-Name': ZENLER_ACCOUNT_NAME,
+                    'X-API-Key': process.env.ZENLER_API_KEY,
+                    'X-Account-Name': process.env.ZENLER_ACCOUNT_NAME,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 }
             }
         );
 
-        
-
         if (response.status === 200 && response.data.response_code === 200) {
-           
-
             // Get the actual `bite_id` or `mission_id` from the database
             let dbQuery, idField;
 
@@ -548,7 +543,6 @@ Registerrouter.post('/enroll', async (req, res) => {
             }
 
             const actualId = rows[0][idField];
-          
 
             // Current date-time for database updates
             const enrolDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -568,18 +562,23 @@ Registerrouter.post('/enroll', async (req, res) => {
                     VALUES (?, ?, ?, ?, ?, ?)
                 `;
             }
-            
-            await pool.promise().query(insertQuery, [user_id, actualId, enrolDate, enrolDate, createdAt, updatedAt]);
-         
 
-            return res.status(200).json({ message: 'Enrollment and database update successful' });
+            await pool.promise().query(insertQuery, [user_id, actualId, enrolDate, enrolDate, createdAt, updatedAt]);
+
+            return res.status(200).json({ 
+                message: 'Enrollment and database update successful',
+                data: response.data
+            });
         } else {
             console.error("Enrollment failed:", response.data);
             return res.status(500).json({ error: 'Failed to enroll user on Zenler' });
         }
     } catch (error) {
         console.error("Error during enrollment:", error.response?.data || error.message);
-        return res.status(500).json({ error: 'An error occurred during enrollment' });
+        return res.status(500).json({ 
+            error: 'An error occurred during enrollment',
+            details: error.response?.data || error.message
+        });
     }
 });
 
