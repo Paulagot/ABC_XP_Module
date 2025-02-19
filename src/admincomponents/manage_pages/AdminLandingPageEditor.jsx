@@ -15,7 +15,7 @@ function AdminLandingPageEditor({ closePopup }) {
   const [contentData, setContentData] = useState({
     rich_text_content: '', // New field for TinyMCE editor
     summary: '',           // Keep the summary field as-is
-    tags: '',              // Keep the tags field as-is
+   
   });
   
   const [seoData, setSeoData] = useState({
@@ -37,7 +37,7 @@ function AdminLandingPageEditor({ closePopup }) {
     setContentData({
       rich_text_content: '', // Reset rich text content
       summary: '',           // Reset summary
-      tags: '',              // Reset tags
+   
     });
     setSeoData({
       seo_title: '',
@@ -65,7 +65,7 @@ function AdminLandingPageEditor({ closePopup }) {
       setContentData({
         rich_text_content: data.rich_text_content || '', // Load rich text content
         summary: data.summary || '',
-        tags: data.tags || '',
+       
       });
   
       setSeoData({
@@ -116,7 +116,7 @@ function AdminLandingPageEditor({ closePopup }) {
       setContentData({
         rich_text_content: '', // Clear WYSIWYG content
         summary: '',           // Clear summary
-        tags: '',              // Clear tags
+        
       });
       setSeoData({
         seo_title: '',          // Clear SEO fields
@@ -160,7 +160,7 @@ const updateDraft = async () => {
     setContentData({
       rich_text_content: '', // Clear WYSIWYG content
       summary: '',           // Clear summary
-      tags: '',              // Clear tags
+      
     });
     setSeoData({
       seo_title: '',          // Clear SEO fields
@@ -199,11 +199,11 @@ const publishPage = async () => {
   const missingFields = Object.entries(allFields).filter(([key, value]) => !value || value.trim() === '');
   
   if (missingFields.length > 0) {
+    console.log('Missing fields detected:', missingFields.map(([key]) => key));
     setError('All fields must be filled before publishing.');
     return;
   }
 
-  // Step 3: Confirmation prompt to avoid accidental publishing
   if (!window.confirm('Are you sure you want to publish this page?')) {
     return;
   }
@@ -217,12 +217,18 @@ const publishPage = async () => {
       reference_type: selectedType,
     };
 
+       // Debug log 2: Check publish data
+       console.log('Publishing data:', publishData);
+
     // Step 5: Send the PUT request to publish the page
     const response = await axios.put(
       `${API_BASE_URL}/api/page-content/publish/${selectedName.content_id}`,
       publishData,
       { headers: { 'Content-Type': 'application/json' } }
     );
+
+     // Debug log 3: Check response
+     console.log('Publish response:', response.data);
 
     // Step 6: Show success message with the published URL
     setSuccessMessage(`Page published successfully! URL: ${response.data.landing_page_url}`);
@@ -234,7 +240,8 @@ const publishPage = async () => {
     setContentData({
       rich_text_content: '', // Reset rich text content
       summary: '',           // Reset summary
-      tags: '',              // Reset tags
+    
+      
     });
     setSeoData({
       seo_title: '',          // Reset SEO fields
@@ -246,7 +253,11 @@ const publishPage = async () => {
     });
   } catch (error) {
     // Step 8: Handle any errors during the publish process
-    console.error('Error publishing page:', error.response?.data || error.message);
+    console.error('Publish error details:', {
+      response: error.response?.data,
+      status: error.response?.status,
+      message: error.message
+    })
     setError('Failed to publish the page. Please try again.');
   }
 };

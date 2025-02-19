@@ -46,22 +46,9 @@ function SignInMainBody() {
      */
     const handleSignIn = async (formData) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-                credentials: 'include', // Important for session cookies
-            });
-            
-            if (response.ok) {
-                // First refresh the session to update auth context
-                await refreshSession();
-                // Then redirect using window.location to ensure full page reload
-                window.location.href = `${APP_URL}/bytes`;
-            } else {
-                const data = await response.json();
-                console.error(data.error);
-            }
+            await login(formData); // Use auth context's login
+            await refreshSession();
+            window.location.href = `${APP_URL}/bytes`;
         } catch (error) {
             console.error('Sign-in error:', error);
         }

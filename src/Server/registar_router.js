@@ -486,7 +486,9 @@ Registerrouter.post('/password-reset/:token', (req, res) => {
 });
 
 
-
+// ---------------------------------
+// ENROLL ROUTE - Enroll user in Zenler course and update local database
+// ---------------------------------
 
 const ZENLER_API_URL = 'https://api.newzenler.com/api/v1';
 

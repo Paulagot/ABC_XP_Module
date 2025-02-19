@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async'; // For SEO tags
 import { useNavigate } from "react-router-dom"; // For navigation
 import { useAuth} from '../../context/auth_context';
-
+axios.defaults.withCredentials = true;
 
 const LandingPage = () => {
   const { user, isAuthenticated } = useAuth(); // Check if the user is authenticated
