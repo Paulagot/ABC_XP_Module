@@ -6,10 +6,11 @@ function Menu_items() {
 
   const menuItems = [
     { name: "Dashboard", imgSrc: "https://img.icons8.com/clouds/100/gender-neutral-user.png",path: "/dashboard" },
-    { name: "Leaderboard", imgSrc: "https://img.icons8.com/clouds/100/leaderboard.png", path: "/leaderboard" },
-    { name: "Bytes", imgSrc: "https://img.icons8.com/clouds/100/book-philosophy.png", path: "/bytes " },
+       { name: "Bytes", imgSrc: "https://img.icons8.com/clouds/100/book-philosophy.png", path: "/bytes " },
     { name: "Missions", imgSrc: "https://img.icons8.com/clouds/100/rocket.png", path: "/missions" },
-    { name: "Loyalty (soon)", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
+    { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" , path: "/learnfi"},
+    { name: "Leaderboard", imgSrc: "https://img.icons8.com/clouds/100/leaderboard.png", path: "/leaderboard" },
+    // { name: "Loyalty (soon)", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
   ];
 
   const handleNavigation = (item) => {

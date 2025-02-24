@@ -13,6 +13,14 @@ function Page_header() {
     "/dashboard": { name: "Dashboard", imgSrc: "https://img.icons8.com/clouds/100/gender-neutral-user.png" },
     "/loyalty": { name: "Loyalty (soon)", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
     "/register": { name: "Register", imgSrc: "https://img.icons8.com/clouds/100/enter-2.png" }, // Added register
+    "/learnfi": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
+    "/learnfi/from-token": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
+    "/learnfi/to-token": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
+    "/learnfi/transaction-history": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
+    "/learnfi/settings": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
+    "/learnfi/settings/languages": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
+    "learnfi/settings/bridges": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
+    "learnfi/settings/exchanges": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
   };
 
   // Fallback logic for dynamic routes

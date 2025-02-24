@@ -1,9 +1,10 @@
 import express from 'express';
 import cors from "cors";
 import pool from "./src/Server/config_db.js";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
+import fs from 'node:fs';
 import session from 'express-session';  // Import express-session
 import courseapiRoutes from "./src/Server/courseapi.js";
 import courseDisplayRoutes from "./src/Server/coursedisplayapi.js";
@@ -38,19 +39,50 @@ import missionsReportRouter from  './src/Server/admin_dash_missions_report_route
 import user_dashboard_router from './src/Server/user_dashboard.js'
 
 
-
-
-
 // Load environment variables
 dotenv.config();
-const port = process.env.PORT || 80; // Dynamic port for local or production
-const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:3001';
-console.log(apiBaseUrl); // Available only in backend
-const appUrl = process.env.APP_URL || 'http://localhost:5173';
+
+
+// Then load environment-specific file
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+console.log(`Loading environment from: ${envFile}`);
+dotenv.config({ path: `./${envFile}` });
+
+// Environment configuration
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
+const port = process.env.PORT || (isDevelopment ? 3001 : 80);
+const apiBaseUrl = process.env.API_BASE_URL || (isDevelopment ? 'http://localhost:3001' : 'https://app.ablockofcrypto.com');
+const appUrl = process.env.APP_URL || (isDevelopment ? 'http://localhost:5173' : 'https://app.ablockofcrypto.com');
 
 console.log(`Backend running in ${process.env.NODE_ENV} mode`);
+
+console.log(`Detailed Port Configuration:
+  -------------------------
+  PORT env variable: ${process.env.PORT}
+  NODE_ENV: ${process.env.NODE_ENV}
+  isDevelopment: ${isDevelopment}
+  Selected port: ${port}
+  -------------------------`);
+
+console.log(`Environment Configuration:
+  -------------------------
+  NODE_ENV: ${process.env.NODE_ENV}
+  Port: ${port}
+  API Base URL: ${process.env.API_BASE_URL}
+  App URL: ${process.env.APP_URL}
+  Database Host: ${process.env.DATABASE_HOST}
+  -------------------------`);
+
+// Initial environment logging
+console.log('Environment Configuration:');
+console.log('-------------------------');
+console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`Port: ${port}`);
 console.log(`API Base URL: ${apiBaseUrl}`);
 console.log(`App URL: ${appUrl}`);
+console.log(`Database Host: ${process.env.DATABASE_HOST}`);
+console.log('-------------------------');
 
 // Initialize the express app
 const app = express();
@@ -59,23 +91,45 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Debug env file loading
+console.log('Current directory:', __dirname);
+console.log('Looking for env file:', path.join(__dirname, envFile));
+console.log('Does file exist?', fs.existsSync(path.join(__dirname, envFile)));
+
+// Optional: Check all env files for debugging
+console.log('Environment files status:');
+for (const file of ['.env', '.env.development', '.env.production']) {
+  console.log(`${file}: ${fs.existsSync(path.join(__dirname, file)) ? 'exists' : 'not found'}`);
+}
+
+// Add debug logging throughout your server startup
+console.log('Server starting...');
+console.log('__dirname:', __dirname);
+console.log('Public path:', path.join(__dirname, 'public'));
+
 // Middleware to parse JSON bodies
 app.use(express.json()); // Only use express.json()
 
-// Configure CORS
-const allowedOrigins = [
-  'https://ablockofcrypto.com', 
-  'http://localhost:5173',     
-  'http://localhost:3000',
-  'http://abc-env.eba-kytn56dh.us-east-1.elasticbeanstalk.com', 
+/// CORS Configuration
+const productionOrigins = [
+  'https://ablockofcrypto.com',
+  'https://app.ablockofcrypto.com',
   'xpmodule.c188ccsye2s8.us-east-1.rds.amazonaws.com',
-  'http://localhost:8081',
-  'https://app.ablockofcrypto.com'
+  'http://ablockofcryptot.us-east-1.elasticbeanstalk.com/'
 ];
+
+const developmentOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
+
+const allowedOrigins = isDevelopment 
+  ? [...developmentOrigins, ...productionOrigins]
+  : productionOrigins;
 
 app.use(cors({
   origin: (origin, callback) => {
-    // console.log('Incoming Origin:', origin);
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -85,9 +139,6 @@ app.use(cors({
   },
   credentials: true
 }));
-
-
-
 
 
 // Initialize session store using Knex
@@ -120,28 +171,91 @@ app.use(session({
   }
 }));
 
+
 // middleware to enforce HTTPS
 if (process.env.NODE_ENV === 'production') {
+  console.log('Production mode: Enabling HTTPS enforcement')
   app.use((req, res, next) => {
+    // Skip HTTPS redirect for local production testing or ELB health checks
+    if (process.env.LOCAL_PRODUCTION === 'true' || 
+        req.headers['user-agent']?.includes('ELB-HealthChecker')) {
+      return next();
+    }
+    
     if (req.headers['x-forwarded-proto'] !== 'https') {
       return res.redirect(`https://${req.headers.host}${req.url}`);
     }
     next();
   });
-} else {
-  console.log('HTTPS enforcement disabled in development mode.');
+}
+
+// Before serving static files, check if directory exists
+const publicPath = path.join(__dirname, 'public');
+try {
+  if (fs.existsSync(publicPath)) {
+    console.log(`Public directory exists at ${publicPath}`);
+    console.log('Contents:', fs.readdirSync(publicPath));
+  } else {
+    console.log(`Public directory does not exist at ${publicPath}`);
+  }
+} catch (err) {
+  console.error('Error checking public directory:', err);
 }
 
 // Serve static files in production mode
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'public'), {
-    setHeaders: (res, path) => {
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      }
+// Modify your static file serving code to be more resilient
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
     }
-  }));
+  },
+  fallthrough: true // Continue to next middleware if file not found
+}));
 }
+
+
+// Improve health check to include basic system info
+app.get('/health', (req, res) => {
+  // Basic health information
+  const healthInfo = {
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memoryUsage: process.memoryUsage(),
+    environment: process.env.NODE_ENV
+  };
+  
+  // Try a simple database connection test
+  try {
+    pool.query('SELECT 1', (err, results) => {
+      if (err) {
+        healthInfo.database = {
+          status: 'ERROR',
+          message: err.message
+        };
+        return res.status(500).json(healthInfo);
+      }
+      
+      healthInfo.database = {
+        status: 'OK'
+      };
+      
+      return res.status(200).json(healthInfo);
+    });
+  } catch (error) {
+    healthInfo.database = {
+      status: 'ERROR',
+      message: error.message
+    };
+    return res.status(500).json(healthInfo);
+  }
+});
 
 
 // Use API routes
@@ -177,7 +291,6 @@ app.use('/api', bitesReportRouter);
 app.use('/api', missionsReportRouter);
 
 
-app.get('/health', (req, res) => res.status(200).send('OK'));
 
 // Test database connection endpoint
 app.get('/test-db', (req, res) => {
@@ -193,13 +306,28 @@ app.get('/test-db', (req, res) => {
   });
 });
 
-// Catch-all route to serve the React app for unknown routes (for SPA functionality)
-// This route should come last to avoid interfering with API routes
-// Serve index.html only for requests without a file extension
+// Catch-all route for SPA
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  
+  try {
+    if (fs.existsSync(indexPath)) {
+      return res.sendFile(indexPath);
+    }
+    console.error(`[WARNING] Index file not found at: ${indexPath}`);
+    return res.status(404).send('Application files not found. Check deployment package.');
+  } catch (err) {
+    console.error('[ERROR] Error serving index file:', err);
+    return res.status(500).send('Server error while trying to serve application files.');
+  }
 });
-// Start the server
+
+// Start server
 app.listen(port, () => {
+  console.log('\nServer Startup Complete:');
+  console.log('-------------------------');
   console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Health check endpoint: http://localhost:${port}/health`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log('-------------------------\n');
 });

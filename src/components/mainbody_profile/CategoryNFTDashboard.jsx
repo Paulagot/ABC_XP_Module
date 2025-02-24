@@ -5,10 +5,12 @@ import CategoryDetailModal from './CategoryDetailModal';
 import AchievementDetailModal from './AchievementDetailModal';
 import axios from 'axios';
 import { useAuth } from "../../context/auth_context";
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const CategoryNFTDashboard = () => {
   const { user, loading } = useAuth();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const [userStats, setUserStats] = useState({
     learningStreak: 0,
@@ -225,12 +227,14 @@ const CategoryNFTDashboard = () => {
     setSelectedCategory(null);
   };
 
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/register'); // Redirect to /register if user is not logged in
+    }
+  }, [user, loading, navigate]); // Depend on user and loading state
+
   if (loading || dataLoading) {
     return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return <div>Please log in to view your dashboard</div>;
   }
 
   return (

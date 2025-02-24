@@ -15,6 +15,7 @@ import Loyalty from './module_pages/loyalty_page';
 import Register from "./module_pages/sign_in_page";
 import Landing from "./module_pages/landing";
 import Unauthorized from "./module_pages/unauthoruized";
+import LearnFi from './module_pages/Lifi_page';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
               <Route path="/loyalty" element={<Loyalty />} />
               <Route path="/bytes/:slug" element={<Landing />} />
               <Route path="/missions/:slug" element={<Landing />} />
+              <Route path="/learnfi/*" element={<LearnFi />} />
               
               {/* Only protected route - admin page */}
               <Route path="/admin-app" element={
