@@ -42,14 +42,12 @@ import user_dashboard_router from './src/Server/user_dashboard.js'
 // Load environment variables
 dotenv.config();
 
-
 // Then load environment-specific file
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
 console.log(`Loading environment from: ${envFile}`);
 dotenv.config({ path: `./${envFile}` });
 
 // Environment configuration
-
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || (isDevelopment ? 3001 : 80);
 const apiBaseUrl = process.env.API_BASE_URL || (isDevelopment ? 'http://localhost:3001' : 'https://app.ablockofcrypto.com');
@@ -105,17 +103,18 @@ for (const file of ['.env', '.env.development', '.env.production']) {
 // Add debug logging throughout your server startup
 console.log('Server starting...');
 console.log('__dirname:', __dirname);
-console.log('Public path:', path.join(__dirname, 'public'));
+console.log('Dist path:', path.join(__dirname, 'dist')); // Changed from 'public'
 
 // Middleware to parse JSON bodies
-app.use(express.json()); // Only use express.json()
+app.use(express.json());
 
-/// CORS Configuration
+// CORS Configuration
 const productionOrigins = [
   'https://ablockofcrypto.com',
   'https://app.ablockofcrypto.com',
   'xpmodule.c188ccsye2s8.us-east-1.rds.amazonaws.com',
-  'http://ablockofcryptot.us-east-1.elasticbeanstalk.com/'
+   'http://localhost:80',
+  'http://abc-loadbalancer-1196555837.us-east-1.elb.amazonaws.com/'
 ];
 
 const developmentOrigins = [
@@ -139,7 +138,6 @@ app.use(cors({
   },
   credentials: true
 }));
-
 
 // Initialize session store using Knex
 import { ConnectSessionKnexStore } from "connect-session-knex";
@@ -171,12 +169,10 @@ app.use(session({
   }
 }));
 
-
-// middleware to enforce HTTPS
+// Middleware to enforce HTTPS
 if (process.env.NODE_ENV === 'production') {
-  console.log('Production mode: Enabling HTTPS enforcement')
+  console.log('Production mode: Enabling HTTPS enforcement');
   app.use((req, res, next) => {
-    // Skip HTTPS redirect for local production testing or ELB health checks
     if (process.env.LOCAL_PRODUCTION === 'true' || 
         req.headers['user-agent']?.includes('ELB-HealthChecker')) {
       return next();
@@ -190,39 +186,36 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Before serving static files, check if directory exists
-const publicPath = path.join(__dirname, 'public');
+const distPath = path.join(__dirname, 'dist'); // Changed from 'public'
 try {
-  if (fs.existsSync(publicPath)) {
-    console.log(`Public directory exists at ${publicPath}`);
-    console.log('Contents:', fs.readdirSync(publicPath));
+  if (fs.existsSync(distPath)) {
+    console.log(`Dist directory exists at ${distPath}`);
+    console.log('Contents:', fs.readdirSync(distPath));
   } else {
-    console.log(`Public directory does not exist at ${publicPath}`);
+    console.log(`Dist directory does not exist at ${distPath}`);
   }
 } catch (err) {
-  console.error('Error checking public directory:', err);
+  console.error('Error checking dist directory:', err);
 }
 
 // Serve static files in production mode
 if (process.env.NODE_ENV === 'production') {
-// Modify your static file serving code to be more resilient
-app.use(express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.html')) {
-      res.setHeader('Content-Type', 'text/html');
-    } else if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  },
-  fallthrough: true // Continue to next middleware if file not found
-}));
+  app.use(express.static(path.join(__dirname, 'dist'), { // Changed from 'public'
+    setHeaders: (res, path) => {
+      if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (path.endsWith('.html')) {
+        res.setHeader('Content-Type', 'text/html');
+      } else if (path.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+    },
+    fallthrough: true
+  }));
 }
-
 
 // Improve health check to include basic system info
 app.get('/health', (req, res) => {
-  // Basic health information
   const healthInfo = {
     status: 'OK',
     timestamp: new Date().toISOString(),
@@ -231,7 +224,6 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV
   };
   
-  // Try a simple database connection test
   try {
     pool.query('SELECT 1', (err, results) => {
       if (err) {
@@ -245,7 +237,6 @@ app.get('/health', (req, res) => {
       healthInfo.database = {
         status: 'OK'
       };
-      
       return res.status(200).json(healthInfo);
     });
   } catch (error) {
@@ -256,7 +247,6 @@ app.get('/health', (req, res) => {
     return res.status(500).json(healthInfo);
   }
 });
-
 
 // Use API routes
 app.use('/api', courseapiRoutes); // this route is for getting the bites/missions data from zenler
@@ -292,6 +282,7 @@ app.use('/api', missionsReportRouter);
 
 
 
+
 // Test database connection endpoint
 app.get('/test-db', (req, res) => {
   console.log('Attempting database query...');
@@ -308,7 +299,7 @@ app.get('/test-db', (req, res) => {
 
 // Catch-all route for SPA
 app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, 'public', 'index.html');
+  const indexPath = path.join(__dirname, 'dist', 'index.html'); // Changed from 'public'
   
   try {
     if (fs.existsSync(indexPath)) {
