@@ -44,16 +44,22 @@ dotenv.config();
 
 // Then load environment-specific file
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-console.log(`Loading environment from: ${envFile}`);
-dotenv.config({ path: `./${envFile}` });
+try {
+  dotenv.config({ path: `./${envFile}` });
+  console.log(`Successfully loaded environment from: ${envFile}`);
+} catch (error) {
+  console.warn(`Warning: Could not load ${envFile}. Using default .env file.`);
+}
 
 // Environment configuration
 const isDevelopment = process.env.NODE_ENV !== 'production';
-const port = process.env.PORT || (isDevelopment ? 3001 : 80);
+const port = process.env.PORT || (isDevelopment ? 3001 : 3000);
 const apiBaseUrl = process.env.API_BASE_URL || (isDevelopment ? 'http://localhost:3001' : 'https://app.ablockofcrypto.com');
 const appUrl = process.env.APP_URL || (isDevelopment ? 'http://localhost:5173' : 'https://app.ablockofcrypto.com');
 
-console.log(`Backend running in ${process.env.NODE_ENV} mode`);
+console.log(`Backend running in ${process.env.NODE_ENV} mode on port ${port}`);
+
+
 
 console.log(`Detailed Port Configuration:
   -------------------------
