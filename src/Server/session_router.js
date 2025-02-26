@@ -13,7 +13,7 @@ sessionRouter.get('/check-session', (req, res) => {
     // console.log('Session in check-session route:', req.session);  // Log the session data
     
     // Check if there is a session object and a user logged in within that session.
-    if (req.session && req.session.user) {
+    if (req.session?.user) {
         // If session and user data exist, the user is authenticated
         // Send back the authenticated status and the user data stored in the session
         res.json({ isAuthenticated: true, user: req.session.user, zenlerToken: req.session.zenlerToken || null });

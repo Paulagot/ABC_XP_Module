@@ -13,14 +13,14 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: mode === 'production'
             ? env.API_BASE_URL || 'https://app.ablockofcrypto.com'
-            : 'http://localhost:3001',
+            : 'http://localhost:3000',
           changeOrigin: true,
           secure: false,
         },
         '/session': {
           target: mode === 'production'
             ? env.API_BASE_URL || 'https://app.ablockofcrypto.com'
-            : 'http://localhost:3001',
+            : 'http://localhost:3000',
           changeOrigin: true,
           secure: false,
         }

@@ -1,9 +1,20 @@
+import dotenv from "dotenv";
+
+// ✅ Load the correct environment file BEFORE anything else
+const envFile = process.env.NODE_ENV === "production" ? ".env.production" : ".env.development";
+dotenv.config({ path: envFile });
+
+console.log(`✅ Successfully loaded environment from: ${envFile}`);
+
+
+
+
 import express from 'express';
 import cors from "cors";
 import pool from "./src/Server/config_db.js";
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import dotenv from 'dotenv';
+
 import fs from 'node:fs';
 import session from 'express-session';  // Import express-session
 import courseapiRoutes from "./src/Server/courseapi.js";
@@ -40,24 +51,32 @@ import user_dashboard_router from './src/Server/user_dashboard.js'
 
 
 // Load environment variables
-dotenv.config();
+// dotenv.config();
 
 // Then load environment-specific file
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-try {
-  dotenv.config({ path: `./${envFile}` });
-  console.log(`Successfully loaded environment from: ${envFile}`);
-} catch (error) {
-  console.warn(`Warning: Could not load ${envFile}. Using default .env file.`);
-}
+// const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+// try {
+//   dotenv.config({ path: `./${envFile}` });
+//   console.log(`Successfully loaded environment from: ${envFile}`);
+// } catch (error) {
+//   console.warn(`Warning: Could not load ${envFile}. Using default .env file.`);
+// }
 
 // Environment configuration
 const isDevelopment = process.env.NODE_ENV !== 'production';
-const port = process.env.PORT || (isDevelopment ? 3001 : 3000);
-const apiBaseUrl = process.env.API_BASE_URL || (isDevelopment ? 'http://localhost:3001' : 'https://app.ablockofcrypto.com');
-const appUrl = process.env.APP_URL || (isDevelopment ? 'http://localhost:5173' : 'https://app.ablockofcrypto.com');
+const port = process.env.PORT || (isDevelopment ? 3000 : 3000);
+const apiBaseUrl = process.env.API_BASE_URL || (isDevelopment ? 'http://localhost:3000' : 'http://localhost:3000');
+const appUrl = process.env.APP_URL || (isDevelopment ? 'http://localhost:5173' : 'http://localhost:3000');
 
 console.log(`Backend running in ${process.env.NODE_ENV} mode on port ${port}`);
+console.log('🚀 Database Connection Details:');
+console.log('Loaded ENV File: ', process.env.NODE_ENV);
+console.log('Database Host:', process.env.DATABASE_HOST);
+console.log('Database User:', process.env.DATABASE_USER);
+console.log('Database Name:', process.env.DATABASE_NAME);
+console.log('Database Port:', process.env.DATABASE_PORT);
+console.log("Database Password:", process.env.DATABASE_PASSWORD ? "SET" : "MISSING");
+
 
 
 
@@ -119,8 +138,9 @@ const productionOrigins = [
   'https://ablockofcrypto.com',
   'https://app.ablockofcrypto.com',
   'xpmodule.c188ccsye2s8.us-east-1.rds.amazonaws.com',
-   'http://localhost:80',
+   'http://localhost:3000',
   'http://abc-loadbalancer-1196555837.us-east-1.elb.amazonaws.com/'
+  
 ];
 
 const developmentOrigins = [
@@ -168,7 +188,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // set to false for dev and true for production
+    secure: !isDevelopment, // set to false for dev and true for production
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24,
     sameSite: 'lax'
@@ -206,19 +226,9 @@ try {
 
 // Serve static files in production mode
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'dist'), { // Changed from 'public'
-    setHeaders: (res, path) => {
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (path.endsWith('.html')) {
-        res.setHeader('Content-Type', 'text/html');
-      } else if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-    },
-    fallthrough: true
-  }));
+  app.use(express.static(path.join(__dirname, 'dist')));
 }
+
 
 // Improve health check to include basic system info
 app.get('/health', (req, res) => {
