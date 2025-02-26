@@ -1,0 +1,134 @@
+#!/bin/bash
+exec > >(tee -a /var/log/user-data.log) 2>&1
+echo "===== STARTING USER DATA SCRIPT: $(date) ====="
+
+# 1️⃣ Update system packages
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Updating system packages"
+yum update -y
+
+# 2️⃣ Install required dependencies
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Installing dependencies"
+yum install -y nodejs npm nginx git aws-cli
+
+# 3️⃣ Install global npm packages
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Installing global npm packages"
+npm install -g cross-env concurrently pm2
+
+# 4️⃣ Set up app directory
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Setting up app directory"
+mkdir -p /var/www/app
+cd /var/www/app
+
+# 5️⃣ Clone the repository
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Cloning repository"
+git clone https://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@github.com/Paulagot/ABC_XP_Module.git . || { echo "Failed to clone repository"; exit 1; }
+
+# 6️⃣ Set correct permissions
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Setting permissions"
+chown -R ec2-user:ec2-user /var/www/app
+chmod -R 755 /var/www/app
+
+# 7️⃣ Create the .env file with correct variables
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Creating base .env file"
+cat > .env << 'EOL'
+PORT=3000
+NODE_ENV=production
+API_BASE_URL=https://app.ablockofcrypto.com
+APP_URL=https://app.ablockofcrypto.com
+VITE_API_BASE_URL=https://app.ablockofcrypto.com
+VITE_APP_URL=https://app.ablockofcrypto.com
+DATABASE_HOST=xpmodule.c188ccsye2s8.us-east-1.rds.amazonaws.com
+DATABASE_USER=admin
+DATABASE_PASSWORD=Paulaisth3best$
+DATABASE_NAME=xp_module
+ZENLER_ACCOUNT_NAME=ABlockofCrypto
+ZENLER_API_KEY=ONPDVVIYMEGX6WHFL1QCEJ7KN798IXV2
+SESSION_SECRET=5678145611
+TURNSTILE_SECRET_KEY=0x4AAAAAAAyTltxYNhSI2tBoL6GiMKF78Gc
+LOCAL_PRODUCTION=false
+SMTP_USER=donotreply@ablockofcrypto.com
+SMTP_PASSWORD=donotr3plypa$$word
+EOL
+
+
+# Fetch secrets from AWS SSM Parameter Store (see below for setup)
+echo "Fetching secrets from AWS SSM..."
+echo "NODE_ENV=$(aws ssm get-parameter --name "NODE_ENV" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "PORT=$(aws ssm get-parameter --name "PORT" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "API_BASE_URL=$(aws ssm get-parameter --name "API_BASE_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "APP_URL=$(aws ssm get-parameter --name "APP_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "VITE_API_BASE_URL=$(aws ssm get-parameter --name "VITE_API_BASE_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "VITE_APP_URL=$(aws ssm get-parameter --name "VITE_APP_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "ZENLER_API_KEY=$(aws ssm get-parameter --name "ZENLER_API_KEY" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "SESSION_SECRET=$(aws ssm get-parameter --name "SESSION_SECRET" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "TURNSTILE_SECRET_KEY=$(aws ssm get-parameter --name "TURNSTILE_SECRET_KEY" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "LOCAL_PRODUCTION=$(aws ssm get-parameter --name "LOCAL_PRODUCTION" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "SMTP_USER=$(aws ssm get-parameter --name "SMTP_USER" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "SMTP_PASSWORD=$(aws ssm get-parameter --name "SMTP_PASSWORD" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "DATABASE_HOST=$(aws ssm get-parameter --name "DATABASE_HOST" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "DATABASE_USER=$(aws ssm get-parameter --name "DATABASE_USER" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "DATABASE_PASSWORD=$(aws ssm get-parameter --name "DATABASE_PASSWORD" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "DATABASE_NAME=$(aws ssm get-parameter --name "DATABASE_NAME" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+
+# 8️⃣ Install application dependencies
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Installing application dependencies"
+npm install --legacy-peer-deps
+
+# 9️⃣ Build the application
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Building the application"
+npm run build
+
+# 🔟 Fix permission issues with the dist folder
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Setting permissions for the dist folder"
+chmod -R 755 /var/www/app/dist
+chown -R ec2-user:ec2-user /var/www/app/dist
+
+# 1️⃣1️⃣ Configure Nginx for reverse proxy
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Configuring Nginx"
+cat > /etc/nginx/conf.d/default.conf << 'EOL'
+server {
+    listen 80;
+    server_name _;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    location / {
+        root /var/www/app/dist;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location /health {
+        access_log off;
+        proxy_pass http://localhost:3000/health;
+    }
+}
+EOL
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Setting permissions for Nginx"
+chown -R ec2-user:ec2-user /var/www/app/dist
+
+# 1️⃣2️⃣ Restart Nginx
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Restarting Nginx"
+systemctl restart nginx
+systemctl enable nginx
+
+# 1️⃣3️⃣ Start the application with PM2
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Starting application with PM2"
+pm2 start server.js --name "app" --update-env
+pm2 save
+pm2 startup systemd
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') - USER DATA SCRIPT COMPLETED"
+
+

@@ -35,4 +35,4 @@ cypress.config.js
 .ebignore
 .ebextensions
 .eslintrc.cjs
-aws.txt
+
