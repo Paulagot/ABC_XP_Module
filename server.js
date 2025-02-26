@@ -6,9 +6,6 @@ dotenv.config({ path: envFile });
 
 console.log(`✅ Successfully loaded environment from: ${envFile}`);
 
-
-
-
 import express from 'express';
 import cors from "cors";
 import pool from "./src/Server/config_db.js";
@@ -49,18 +46,6 @@ import bitesReportRouter from './src/Server/admin_dash_bytes_reports_router.js'
 import missionsReportRouter from  './src/Server/admin_dash_missions_report_router.js'
 import user_dashboard_router from './src/Server/user_dashboard.js'
 
-
-// Load environment variables
-// dotenv.config();
-
-// Then load environment-specific file
-// const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-// try {
-//   dotenv.config({ path: `./${envFile}` });
-//   console.log(`Successfully loaded environment from: ${envFile}`);
-// } catch (error) {
-//   console.warn(`Warning: Could not load ${envFile}. Using default .env file.`);
-// }
 
 // Environment configuration
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -139,7 +124,8 @@ const productionOrigins = [
   'https://app.ablockofcrypto.com',
   'xpmodule.c188ccsye2s8.us-east-1.rds.amazonaws.com',
    'http://localhost:3000',
-  'http://abc-loadbalancer-1196555837.us-east-1.elb.amazonaws.com/'
+  'http://abc-loadbalancer-1196555837.us-east-1.elb.amazonaws.com/',
+  'http://ec2-54-91-235-19.compute-1.amazonaws.com'
   
 ];
 
