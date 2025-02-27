@@ -174,7 +174,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: !isDevelopment, // set to false for dev and true for production
+    secure: false, // set to false for dev and true for production
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24,
     sameSite: 'lax'
@@ -182,20 +182,20 @@ app.use(session({
 }));
 
 // Middleware to enforce HTTPS
-if (process.env.NODE_ENV === 'production') {
-  console.log('Production mode: Enabling HTTPS enforcement');
-  app.use((req, res, next) => {
-    if (process.env.LOCAL_PRODUCTION === 'true' || 
-        req.headers['user-agent']?.includes('ELB-HealthChecker')) {
-      return next();
-    }
+// if (process.env.NODE_ENV === 'production') {
+//   console.log('Production mode: Enabling HTTPS enforcement');
+//   app.use((req, res, next) => {
+//     if (process.env.LOCAL_PRODUCTION === 'true' || 
+//         req.headers['user-agent']?.includes('ELB-HealthChecker')) {
+//       return next();
+//     }
     
-    if (req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect(`https://${req.headers.host}${req.url}`);
-    }
-    next();
-  });
-}
+//     if (req.headers['x-forwarded-proto'] !== 'https') {
+//       return res.redirect(`https://${req.headers.host}${req.url}`);
+//     }
+//     next();
+//   });
+// }
 
 // Before serving static files, check if directory exists
 const distPath = path.join(__dirname, 'dist'); // Changed from 'public'
