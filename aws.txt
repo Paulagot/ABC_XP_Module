@@ -47,21 +47,22 @@ EOL
 # Fetch secrets from AWS SSM Parameter Store (see below for setup)
 echo "Fetching secrets from AWS SSM..."
 echo "NODE_ENV=$(aws ssm get-parameter --name "NODE_ENV" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
-echo "PORT=$(aws ssm get-parameter --name "PORT" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
 echo "API_BASE_URL=$(aws ssm get-parameter --name "API_BASE_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
 echo "APP_URL=$(aws ssm get-parameter --name "APP_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
-echo "VITE_API_BASE_URL=$(aws ssm get-parameter --name "VITE_API_BASE_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
-echo "VITE_APP_URL=$(aws ssm get-parameter --name "VITE_APP_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
-echo "ZENLER_API_KEY=$(aws ssm get-parameter --name "ZENLER_API_KEY" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
 echo "SESSION_SECRET=$(aws ssm get-parameter --name "SESSION_SECRET" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
-echo "TURNSTILE_SECRET_KEY=$(aws ssm get-parameter --name "TURNSTILE_SECRET_KEY" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
-echo "LOCAL_PRODUCTION=$(aws ssm get-parameter --name "LOCAL_PRODUCTION" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
-echo "SMTP_USER=$(aws ssm get-parameter --name "SMTP_USER" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
-echo "SMTP_PASSWORD=$(aws ssm get-parameter --name "SMTP_PASSWORD" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "PORT=$(aws ssm get-parameter --name "PORT" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
 echo "DATABASE_HOST=$(aws ssm get-parameter --name "DATABASE_HOST" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
 echo "DATABASE_USER=$(aws ssm get-parameter --name "DATABASE_USER" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
 echo "DATABASE_PASSWORD=$(aws ssm get-parameter --name "DATABASE_PASSWORD" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
 echo "DATABASE_NAME=$(aws ssm get-parameter --name "DATABASE_NAME" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "SMTP_USER=$(aws ssm get-parameter --name "SMTP_USER" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "SMTP_PASSWORD=$(aws ssm get-parameter --name "SMTP_PASSWORD" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "TURNSTILE_SECRET_KEY=$(aws ssm get-parameter --name "TURNSTILE_SECRET_KEY" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "VITE_API_BASE_URL=$(aws ssm get-parameter --name "VITE_API_BASE_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "VITE_APP_URL=$(aws ssm get-parameter --name "VITE_APP_URL" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+echo "ZENLER_API_KEY=$(aws ssm get-parameter --name "ZENLER_API_KEY" --with-decryption --query Parameter.Value --output text)" >> /var/www/app/.env
+
+
 
 # 7️⃣  Install application dependencies
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Installing application dependencies"

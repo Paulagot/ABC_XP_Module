@@ -1,4 +1,4 @@
-//bytes main body
+//lifi main body
 
 import  WidgetPage  from "./Lifi_widget";
 

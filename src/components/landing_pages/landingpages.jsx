@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
+import parse from 'html-react-parser';
 import { useParams } from 'react-router-dom'; // To access URL parameters
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async'; // For SEO tags
@@ -196,16 +197,16 @@ const LandingPage = () => {
           </div>
         </div>
 
-        <div className="enrollbtn" onClick={handleEnrollClick}>
+        <div className="enrollbtn" onClick={handleEnrollClick} onKeyUp={(e) => { if (e.key === 'Enter') handleEnrollClick(); }} tabIndex="0">
           {buttonLabel}
         </div>
       </div>
       
 
       {/* Render Rich Text Content */}
-      <div className="Landing_btm">
-        <div dangerouslySetInnerHTML={{ __html: pageData.rich_text_content }} />
-        <div className="enrollbtn" onClick={handleEnrollClick}>
+        <div>{parse(pageData.rich_text_content)}</div>
+        <div>{parse(pageData.rich_text_content)}
+        <div className="enrollbtn" onClick={handleEnrollClick} onKeyUp={(e) => { if (e.key === 'Enter') handleEnrollClick(); }} tabIndex="0">
           {buttonLabel}
         </div>
         <h3>Summary</h3>
@@ -213,6 +214,7 @@ const LandingPage = () => {
         <h3>Tags</h3>
         <p>{pageData.tags}</p>
       </div>
+
     </main>
   );
 };

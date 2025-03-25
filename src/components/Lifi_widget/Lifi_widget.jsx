@@ -6,6 +6,7 @@ const WidgetPage = () => {
     variant: "wide",
     subvariant: "split",
     appearance: "light",
+    fee: 0.0025,
     theme: {
       palette: {
         primary: { main: "#003f91" },
@@ -100,7 +101,7 @@ const WidgetPage = () => {
   }), []);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="widget-page">
       <LiFiWidget integrator="a-block-of-crypto" config={widgetConfig} />
     </div>
   );

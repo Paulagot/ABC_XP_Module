@@ -23,7 +23,7 @@ function ResetPasswordForm({ onReset }) {
 
     // Validates email input for proper format and non-emptiness
     const validate = () => {
-        let formErrors = {};
+        const formErrors = {};
         if (!email) {
             formErrors.email = 'Email is required';
         } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -81,9 +81,10 @@ function ResetPasswordForm({ onReset }) {
                 // Shows form if not loading and no success message
                 <>
                     <div>
-                        <label>Email</label>
+                        <label htmlFor="email">Email</label>
                         <input
                             type="email"
+                            id="email"
                             name="email"
                             value={email}
                             onChange={handleChange}
@@ -93,7 +94,7 @@ function ResetPasswordForm({ onReset }) {
                     </div>
 
                     {/* CAPTCHA Widget */}
-                    <div className="cf-turnstile" data-sitekey="0x4AAAAAAAyTlqCXTIWAluQM"></div>
+                    <div className="cf-turnstile" data-sitekey="0x4AAAAAAAyTlqCXTIWAluQM"/>
                     {errors.captcha && <span className="error">{errors.captcha}</span>}
 
                     <button type="submit">Reset Password</button>

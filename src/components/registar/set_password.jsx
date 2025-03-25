@@ -24,7 +24,7 @@ function SetPasswordForm({ token }) {
 
     // Validates password inputs and ensures they match
     const validate = () => {
-        let formErrors = {};
+        const formErrors = {};
         if (!password) formErrors.password = 'Password is required';
         else if (password.length < 8) formErrors.password = 'Password must be at least 8 characters';
 
@@ -76,9 +76,10 @@ function SetPasswordForm({ token }) {
 
             {/* Input for new password */}
             <div>
-                <label>New Password</label>
+                <label htmlFor="new-password">New Password</label>
                 <input
                     type="password"
+                    id="new-password"
                     name="password"
                     value={password}
                     onChange={handleChange}
@@ -89,9 +90,10 @@ function SetPasswordForm({ token }) {
 
             {/* Input to confirm new password */}
             <div>
-                <label>Confirm New Password</label>
+                <label htmlFor="confirm-password">Confirm New Password</label>
                 <input
                     type="password"
+                    id="confirm-password"
                     name="confirmPassword"
                     value={confirmPassword}
                     onChange={handleChange}

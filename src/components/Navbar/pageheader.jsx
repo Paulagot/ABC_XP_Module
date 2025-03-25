@@ -26,14 +26,14 @@ function Page_header() {
   // Fallback logic for dynamic routes
   if (location.pathname.startsWith("/bytes/") && slug) {
     pageData[location.pathname] = {
-      name: `Bytes`, // Replace dashes with spaces for better readability
+      name: "Bytes", // Replace dashes with spaces for better readability
       imgSrc: "https://img.icons8.com/clouds/100/book-philosophy.png", // Default image for bytes
     };
   }
 
   if (location.pathname.startsWith("/missions/") && slug) {
     pageData[location.pathname] = {
-      name: `Missions`,
+      name: "Missions",
       imgSrc: "https://img.icons8.com/clouds/100/rocket.png", // Default image for missions
     };
   }

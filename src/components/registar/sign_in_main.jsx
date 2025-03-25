@@ -86,13 +86,13 @@ function SignInMainBody() {
             {/* Toggle links for switching between different forms */}
             <div className="toggle-links">
                 {view !== 'signIn' && (
-                    <button onClick={() => setView('signIn')}>Sign In</button>
+                    <button type="button" onClick={() => setView('signIn')}>Sign In</button>
                 )}
                 {view !== 'signUp' && (
-                    <button onClick={() => setView('signUp')}>Sign Up</button>
+                    <button type="button" onClick={() => setView('signUp')}>Sign Up</button>
                 )}
                 {view !== 'resetPassword' && (
-                    <button onClick={() => setView('resetPassword')}>Forgot Password?</button>
+                    <button type="button" onClick={() => setView('resetPassword')}>Forgot Password?</button>
                 )}
             </div>
         </main>

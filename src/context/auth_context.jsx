@@ -11,6 +11,9 @@ export const AuthProvider = ({ children }) => {
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+
+
+
     const refreshSession = async () => {
         try {
             console.log('Refreshing session...');

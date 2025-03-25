@@ -33,7 +33,7 @@ import UserBytesCardsRouter from "./src/Server/user_bytes_cards.js";
 import WebhookByteStatusRouter from "./src/Server/user_bytes_stats_update.js";
 import WebhookMissionStatusRouter from "./src/Server/user_missions_stats_update.js";
 import leaderboardRouter from './src/Server/leaderboard.js';
-
+import meetupQARouter from './src/Server/meetup_qa_router.js';
 import Registerrouter from "./src/Server/registar_router.js";
 import sessionRouter from "./src/Server/session_router.js";
 import allmissionprogressrouter from './src/Server/database_sync_routes/all_missions_progress_endpoint.js'
@@ -281,6 +281,7 @@ app.use('/api', ProgressRouter);
 app.use('/api', sitemapRouter);
 app.use('/api', bitesReportRouter);
 app.use('/api', missionsReportRouter);
+app.use('/api', meetupQARouter);
 
 
 

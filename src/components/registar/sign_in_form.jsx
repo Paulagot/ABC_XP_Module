@@ -53,9 +53,10 @@ function SignInForm() {
         <form className="registerForm" onSubmit={handleSubmit}>
             <h2>Sign In</h2>
             <div>
-                <label>Email</label>
+                <label htmlFor="email">Email</label>
                 <input
                     type="email"
+                    id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
@@ -64,9 +65,10 @@ function SignInForm() {
                 {errors.email && <span className="error">{errors.email}</span>}
             </div>
             <div>
-                <label>Password</label>
+                <label htmlFor="password">Password</label>
                 <input
                     type="password"
+                    id="password"
                     name="password"
                     value={formData.password}
                     onChange={handleChange}

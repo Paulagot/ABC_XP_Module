@@ -49,7 +49,7 @@ function SignUpForm({ onSignUp }) {
     };
 
     const validate = () => {
-        let formErrors = {};
+        const formErrors = {};
         if (!formData.first_name) formErrors.first_name = 'First name is required';
         if (!formData.last_name) formErrors.last_name = 'Last name is required';
         if (!formData.email) formErrors.email = 'Email is required';
@@ -96,9 +96,10 @@ function SignUpForm({ onSignUp }) {
             <h2>Sign Up</h2>
 
             <div>
-                <label>First Name</label>
+                <label htmlFor="first_name">First Name</label>
                 <input
                     type="text"
+                    id="first_name"
                     name="first_name"
                     value={formData.first_name}
                     onChange={handleChange}
@@ -108,7 +109,7 @@ function SignUpForm({ onSignUp }) {
             </div>
 
             <div>
-                <label>Last Name</label>
+                <label htmlFor="last_name">Last Name</label>
                 <input
                     type="text"
                     name="last_name"
@@ -120,7 +121,7 @@ function SignUpForm({ onSignUp }) {
             </div>
 
             <div>
-                <label>Email</label>
+                <label htmlFor="email">Email</label>
                 <input
                     type="email"
                     name="email"
@@ -132,7 +133,7 @@ function SignUpForm({ onSignUp }) {
             </div>
 
             <div>
-                <label>Password</label>
+                <label htmlFor="password">Password</label>
                 <input
                     type="password"
                     name="password"
@@ -171,7 +172,7 @@ function SignUpForm({ onSignUp }) {
                 {errors.agreedTnC && <span className="error">{errors.agreedTnC}</span>}
             </div>
 
-            <div className="cf-turnstile" data-sitekey="0x4AAAAAAAyTlqCXTIWAluQM"></div>
+            <div className="cf-turnstile" data-sitekey="0x4AAAAAAAyTlqCXTIWAluQM" />
 
             <button type="submit">Sign Up</button>
             {message && <p>{message}</p>}
