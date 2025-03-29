@@ -4,9 +4,10 @@ import { timeAgo } from './../HelperFunctions';
 const QuestionReplies = ({
   questionId,
   sessionId,
-  replies = [], // Array of replies for this question
+  replies = [],
   currentUser,
   isAdmin,
+  isModerator, // NEW: Add this prop
   onAddReply,
   onPinReply,
   onDeleteReply
@@ -15,7 +16,7 @@ const QuestionReplies = ({
 
   const handleSubmit = () => {
     if (replyText.trim() && replyText.length <= 200) {
-      onAddReply( replyText);
+      onAddReply(replyText);
       setReplyText('');
     }
   };
@@ -27,9 +28,11 @@ const QuestionReplies = ({
     }
   };
 
-  // Sort replies: pinned first, then by created_at descending
-  console.log('QuestionReplies received replies:', replies);
-  const sortedReplies = [...replies].sort((a, b) => {
+  // console.log('QuestionReplies received replies:', replies);
+  const uniqueReplies = Array.from(
+    new Map(replies.map(reply => [reply.reply_id, reply])).values()
+  );
+  const sortedReplies = [...uniqueReplies].sort((a, b) => {
     if (a.is_pinned && !b.is_pinned) return -1;
     if (!a.is_pinned && b.is_pinned) return 1;
     return new Date(b.created_at) - new Date(a.created_at);
@@ -44,15 +47,15 @@ const QuestionReplies = ({
         ) : (
           sortedReplies.map(reply => (
             <div key={reply.reply_id} className="reply-item">
-             <span className={reply.is_pinned ? 'pinned-reply' : ''}>
-  {!!reply.is_pinned && '★ '}
-  {reply.author}: {reply.text}
-</span>
+              <span className={reply.is_pinned ? 'pinned-reply' : ''}>
+                {!!reply.is_pinned && '★ '}
+                {reply.author}: {reply.text}
+              </span>
               <span className="reply-time">{timeAgo(reply.created_at)}</span>
-              {isAdmin && (
+              {(isAdmin || isModerator) && ( // Updated: Allow moderators
                 <div className="reply-actions">
                   <button
-                  type="button"
+                    type="button"
                     className="pin-button"
                     onClick={() => onPinReply(reply.reply_id)}
                     title={reply.is_pinned ? "Unpin reply" : "Pin reply"}
@@ -60,7 +63,7 @@ const QuestionReplies = ({
                     {reply.is_pinned ? 'Unpin' : 'Pin'}
                   </button>
                   <button
-                  type="button"
+                    type="button"
                     className="delete-button"
                     onClick={() => onDeleteReply(reply.reply_id)}
                     title="Delete reply"

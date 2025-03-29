@@ -17,7 +17,7 @@ import Landing from "./module_pages/landing";
 import Unauthorized from "./module_pages/unauthoruized";
 import LearnFi from './module_pages/Lifi_page';
 import EarnPage from "./module_pages/earn_page";
-import MeetupQA from './module_pages/meeetupQA_page';
+
 import MeetupQApage from './module_pages/meeetupQA_page';
 
 function App() {

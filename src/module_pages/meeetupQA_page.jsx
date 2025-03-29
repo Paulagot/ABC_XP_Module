@@ -8,7 +8,7 @@ import { useAuth } from '../context/auth_context';  // Add this
 function MeetupQApage() {
   const { user, isAuthenticated, loading } = useAuth();
   
-  console.log("Auth in MeetupQApage:", { user, isAuthenticated, loading });
+
     return (
     <div>
       <Leftside />

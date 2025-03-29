@@ -8,6 +8,7 @@ const ActiveQuestion = ({
   replies = [], 
   currentUser, 
   isAdmin, 
+  isModerator, // NEW: Add this prop
   onAddReply, 
   onPinReply, 
   onDeleteReply,
@@ -20,49 +21,29 @@ const ActiveQuestion = ({
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
-  // Simplified timer display logic
   const getTimerDisplay = () => {
-    // If no active question, don't show anything
-    if (!question) {
-      return "";
-    }
-    
-    // Time vote has priority
-    if (showTimeVote) {
-      return "Time's up!";
-    }
-    
-    // If timer is null, show "Setting Time..."
-    if (timer === null || timer === undefined) {
-      return "Setting Time...";
-    }
-    
-    // If timer is 0, show "Time's up!"
-    if (timer === 0) {
-      return "Time's up!";
-    }
-    
-    // Otherwise, show the countdown
+    // console.log("getTimerDisplay:", { question: !!question, timer, showTimeVote });
+    if (!question) return "";
+    if (showTimeVote) return "Time's up!";
+    if (timer === null || timer === undefined) return "Setting Time...";
+    if (timer === 0) return "Time's up!";
     return formatTime(timer);
   };
 
-  // Debug what we're displaying
-  console.log("ActiveQuestion rendering:", {
-    hasQuestion: !!question,
-    timer: timer,
-    timerDisplay: getTimerDisplay(),
-    showTimeVote: showTimeVote,
-    replyCount: replies.length
-  });
+  // console.log("ActiveQuestion rendering:", {
+  //   hasQuestion: !!question,
+  //   timer: timer,
+  //   timerDisplay: getTimerDisplay(),
+  //   showTimeVote: showTimeVote,
+  //   replyCount: replies.length
+  // });
 
   return (
     <div className="active-question">
-      {/* Always show the header */}
       <div className="active-question-header">
         <h2>Current Discussion</h2>
       </div>
       
-      {/* Conditional content */}
       {question ? (
         <>
           <div className="active-question-timer">
@@ -74,6 +55,7 @@ const ActiveQuestion = ({
             replies={replies}
             currentUser={currentUser}
             isAdmin={isAdmin}
+            isModerator={isModerator} // NEW: Pass this prop
             onAddReply={(text) => onAddReply(question.id, text)}
             onPinReply={onPinReply}
             onDeleteReply={onDeleteReply}
@@ -87,8 +69,6 @@ const ActiveQuestion = ({
               Asked by {question.author}
             </div>
           </div>
-          
-        
         </>
       ) : (
         <div className="no-active-question">

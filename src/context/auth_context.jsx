@@ -16,22 +16,22 @@ export const AuthProvider = ({ children }) => {
 
     const refreshSession = async () => {
         try {
-            console.log('Refreshing session...');
+            // console.log('Refreshing session...');
             const response = await fetch(`${API_BASE_URL}/session/check-session`, {
                 credentials: 'include',
             });
             
-            console.log('Session response status:', response.status);
+            // console.log('Session response status:', response.status);
             
             if (response.ok) {
                 const data = await response.json();
-                console.log('Session data:', data);
+                // console.log('Session data:', data);
                 setIsAuthenticated(data.isAuthenticated);
                 setUser(data.user || null);
                 setZenlerToken(data.zenlerToken || null);
                 return data;
             } else {
-                console.log('Session check failed');
+                // console.log('Session check failed');
                 setIsAuthenticated(false);
                 setUser(null);
                 setZenlerToken(null);

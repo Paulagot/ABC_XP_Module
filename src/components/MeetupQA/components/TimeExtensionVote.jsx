@@ -7,51 +7,44 @@ const TimeExtensionVote = ({ onVote, onResolve, votes, totalParticipants, hasVot
   const totalVotes = safeVotes.yes + safeVotes.no;
   const yesPercentage = totalVotes > 0 ? (safeVotes.yes / totalVotes) * 100 : 0;
 
-  // Effect to handle closing the modal for non-admin users after they've voted
   useEffect(() => {
     let closeTimeout;
-    if (hasVoted && !onResolve) {  // If user has voted and isn't an admin
-      console.log("User voted, scheduling modal close in 2 seconds");
+    if (hasVoted && !onResolve && !isClosing) { // Non-admin, first vote
+      // console.log("User voted, scheduling modal close in 2 seconds");
       setIsClosing(true);
       closeTimeout = setTimeout(() => {
-        console.log("Closing modal after user vote");
+        // console.log("Closing modal after user vote");
         onVote('close');
       }, 2000);
     }
     return () => {
       if (closeTimeout) clearTimeout(closeTimeout);
     };
-  }, [hasVoted, onResolve]);
+  }, [hasVoted, onResolve, onVote, isClosing]);
 
   const handleVote = (vote) => {
     if (vote === 'close') {
-      console.log("Closing time vote modal");
+      // console.log("Closing time vote modal");
       onVote('close');
       return;
     }
-    
     if (!hasVoted && !isClosing) {
-      console.log("User submitting vote:", vote);
+      // console.log("User submitting vote:", vote);
       onVote(vote);
     }
   };
 
   const handleAddMoreTime = () => {
-    console.log("Admin chose to continue with question");
+    // console.log("Admin chose to continue with question");
     onResolve(true);
   };
 
   const handleMoveOn = () => {
-    console.log("Admin chose to move to next question");
+    // console.log("Admin chose to move to next question");
     onResolve(false);
   };
 
-  {hasVoted && !onResolve && (
-    <div className="voted-message">
-      <p>Thank you for your vote!</p>
-      <p>This will close automatically...</p>
-    </div>
-  )}
+  // console.log("TimeExtensionVote render:", { hasVoted, isClosing, onResolve });
 
   return (
     <div className="time-extension-vote">
@@ -61,18 +54,10 @@ const TimeExtensionVote = ({ onVote, onResolve, votes, totalParticipants, hasVot
 
         {!hasVoted && !onResolve && !isClosing && (
           <div className="time-vote-options">
-            <button
-              type="button"
-              className="time-vote-button yes-button"
-              onClick={() => handleVote('yes')}
-            >
+            <button type="button" className="time-vote-button yes-button" onClick={() => handleVote('yes')}>
               Yes, more time
             </button>
-            <button
-              type="button"
-              className="time-vote-button no-button"
-              onClick={() => handleVote('no')}
-            >
+            <button type="button" className="time-vote-button no-button" onClick={() => handleVote('no')}>
               No, move on
             </button>
           </div>
@@ -89,27 +74,16 @@ const TimeExtensionVote = ({ onVote, onResolve, votes, totalParticipants, hasVot
           <p>{safeVotes.yes} votes for more time, {safeVotes.no} votes to move on</p>
           <p>{totalVotes} of {totalParticipants} participants have voted</p>
           <div className="vote-progress-bar">
-            <div
-              className="vote-progress-fill"
-              style={{ width: `${yesPercentage}%` }}
-            />
+            <div className="vote-progress-fill" style={{ width: `${yesPercentage}%` }} />
           </div>
         </div>
 
         {onResolve && (
           <div className="admin-resolve-buttons">
-            <button
-              type="button"
-              className="time-vote-button yes-button"
-              onClick={handleAddMoreTime}
-            >
+            <button type="button" className="time-vote-button yes-button" onClick={handleAddMoreTime}>
               Continue with this Question
             </button>
-            <button
-              type="button"
-              className="time-vote-button no-button"
-              onClick={handleMoveOn}
-            >
+            <button type="button" className="time-vote-button no-button" onClick={handleMoveOn}>
               Move to Next Question
             </button>
           </div>

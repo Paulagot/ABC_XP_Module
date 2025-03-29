@@ -27,6 +27,11 @@ dist-ssr
 .env.development
 .env.production
 
+certs/
+stats.html
+README.md
+aws.txt
+
 Readme.md
 xp.zip
 app.zip

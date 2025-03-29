@@ -6,15 +6,15 @@ const JoinForm = ({ onJoin }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  useEffect(() => {
-    console.log("JoinForm mounted");
-  }, []);
+  // useEffect(() => {
+  //   console.log("JoinForm mounted");
+  // }, []);
   
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
-    console.log("Join form submitted with:", { name, code });
+    // console.log("Join form submitted with:", { name, code });
     
     if (!name.trim()) {
       setError('Please enter your name');
@@ -29,18 +29,22 @@ const JoinForm = ({ onJoin }) => {
     setIsLoading(true);
     
     try {
-      // Call the join handler
-      console.log("Calling onJoin with:", name, code);
+      // console.log("Calling onJoin with:", name, code);
       const success = await onJoin(name, code);
-      console.log("onJoin result:", success);
+      // console.log("onJoin result:", success);
       
-      // If onJoin returns false, show an error
       if (success === false) {
         setError('Invalid session code. Please check and try again.');
       }
     } catch (err) {
       console.error("Join error:", err);
-      setError('Failed to join the session. Please try again.');
+      if (err.message === 'Name already taken in this session') {
+        setError('That name is already taken. Please choose a different name.');
+      } else if (err.message === 'Invalid session code') {
+        setError('Invalid session code. Please check and try again.');
+      } else {
+        setError('Failed to join the session. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

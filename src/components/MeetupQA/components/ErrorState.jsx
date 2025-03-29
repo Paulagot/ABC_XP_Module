@@ -7,7 +7,7 @@ const ErrorState = ({ error, isAdmin, onStartNewSession }) => {
       <h2>Error</h2>
       <p>{error}</p>
       {isAdmin && (
-        <button onClick={onStartNewSession}>Start New Session</button>
+        <button  type="button" onClick={onStartNewSession}>Start New Session</button>
       )}
     </div>
   );

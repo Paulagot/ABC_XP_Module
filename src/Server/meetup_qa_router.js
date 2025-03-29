@@ -2,7 +2,12 @@
 import express from 'express';
 import pool from './config_db.js';
 
+
+
 const meetupQARouter = express.Router();
+
+// Use Promise-based pool
+const promisePool = pool.promise();
 
 // Create a new session
 meetupQARouter.post('/meetupQA', (req, res) => {
@@ -90,12 +95,80 @@ meetupQARouter.post('/meetupQA/:session_id/timer', (req, res) => {
   });
 });
 
+// meetup_qa_router.js
+meetupQARouter.post('/meetupQA/:sessionId/grab-attention', (req, res) => {
+  const { sessionId } = req.params;
+  const { admin_name } = req.body;
+
+  // Check if session exists and is active
+  const checkQuery = `
+    SELECT * FROM meetupQA WHERE session_id = ? AND is_active = TRUE
+  `;
+  pool.query(checkQuery, [sessionId], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Database query error (check session):', checkErr);
+      return res.status(500).json({ error: 'Database error', details: checkErr });
+    }
+    if (checkResults.length === 0) {
+      return res.status(404).json({ error: 'Session not found or inactive' });
+    }
+
+    // Set grab_attention_triggered
+    const triggerValue = `${admin_name}-${Date.now()}`;
+    const updateQuery = `
+      UPDATE meetupQA
+      SET grab_attention_triggered = ?
+      WHERE session_id = ?
+    `;
+    pool.query(updateQuery, [triggerValue, sessionId], (updateErr, updateResult) => {
+      if (updateErr) {
+        console.error('Database query error (set trigger):', updateErr);
+        return res.status(500).json({ error: 'Database error', details: updateErr });
+      }
+
+      // Reset after 5 seconds
+      setTimeout(() => {
+        pool.query(
+          'UPDATE meetupQA SET grab_attention_triggered = NULL WHERE session_id = ?',
+          [sessionId],
+          (resetErr) => {
+            if (resetErr) console.error('Error resetting grab_attention_triggered:', resetErr);
+          }
+        );
+      }, 5000);
+
+      res.json({ success: true });
+    });
+  });
+});
+
+//flag for generate report
+meetupQARouter.post('/meetupQA/:sessionId/generate-report', (req, res) => {
+  const { sessionId } = req.params;
+  const query = `
+    UPDATE meetupQA
+    SET report_generated = TRUE
+    WHERE session_id = ? AND is_active = TRUE
+  `;
+  pool.query(query, [sessionId], (err, result) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).json({ error: 'Database error', details: err });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Session not found or inactive' });
+    }
+    res.json({ success: true });
+  });
+});
+
+
 // Get session details by code (updated to calculate remainingSeconds accurately)
 meetupQARouter.get('/meetupQA/code/:code', (req, res) => {
   const { code } = req.params;
   const participantName = req.query.participant_name;
   
-  console.log(`Fetching session data for code: ${code}, participant: ${participantName}`);
+  // console.log(`Fetching session data for code: ${code}, participant: ${participantName}`);
   
   const query = `
     SELECT * FROM meetupQA
@@ -114,21 +187,18 @@ meetupQARouter.get('/meetupQA/code/:code', (req, res) => {
     
     const session = results[0];
     
-    let remainingSeconds = 0;
+    let remainingSeconds = null;
     let isTimeVoteActive = session.time_vote_active || false;
     
     if (session.timer_end_timestamp && !isTimeVoteActive) {
       const endTime = new Date(session.timer_end_timestamp).getTime();
       const currentTime = Date.now();
       remainingSeconds = Math.max(0, Math.floor((endTime - currentTime) / 1000));
+      // console.log(`Server timer calc: end=${session.timer_end_timestamp}, now=${new Date(currentTime)}, remaining=${remainingSeconds}`);
       if (remainingSeconds === 0 && session.timer_end_timestamp) {
-        // Auto-trigger time vote when timer expires
-        pool.query(
+         pool.query(
           'UPDATE meetupQA SET time_vote_active = TRUE WHERE session_id = ? AND time_vote_active = FALSE',
-          [session.session_id],
-          (updateErr) => {
-            if (updateErr) console.error('Error auto-starting time vote:', updateErr);
-          }
+          [session.session_id]
         );
         isTimeVoteActive = true;
       }
@@ -258,9 +328,11 @@ meetupQARouter.get('/meetupQA/code/:code', (req, res) => {
                   timeVoteInfo: {
                     votes: timeVotes,
                     hasVoted
-                  }
+                  },
+                  grabAttentionTriggered: session.grab_attention_triggered, // Add this
+                  reportGenerated: session.report_generated 
                 };
-                console.log('Sending response:', responseWithTimer);
+                // console.log('Sending response:', responseWithTimer);
                 res.status(200).json(responseWithTimer);
               }
             });
@@ -273,51 +345,174 @@ meetupQARouter.get('/meetupQA/code/:code', (req, res) => {
 
 
 // End a session
-meetupQARouter.put('/meetupQA/:id/end', (req, res) => {
-    const { id } = req.params;
-    
-    const query = `
-        UPDATE meetupQA
-        SET is_active = FALSE
-        WHERE session_id = ?
-    `;
-    
-    pool.query(query, [id], (err, result) => {
-        if (err) {
-            console.error('Database query error:', err);
-            return res.status(500).json({ error: 'Database error', details: err });
-        }
-        
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Session not found' });
-        }
-        
-        return res.status(200).json({ message: 'Session ended successfully' });
-    });
+// meetup_qa_router.js
+meetupQARouter.put('/meetupQA/:id/end', async (req, res) => {
+  const { id } = req.params;
+  // console.log(`Received request to end session ${id}`); // Log entry
+
+  try {
+    // Start transaction
+    await promisePool.query('START TRANSACTION');
+    // console.log('Transaction started');
+
+    // Delete question_replies
+    const [repliesResult] = await promisePool.query(
+      'DELETE FROM question_replies WHERE session_id = ?',
+      [id]
+    );
+    // console.log(`Deleted ${repliesResult.affectedRows} rows from question_replies`);
+
+    // Delete question_votes
+    const [votesResult] = await promisePool.query(
+      'DELETE FROM question_votes WHERE question_id IN (SELECT question_id FROM session_questions WHERE session_id = ?)',
+      [id]
+    );
+    // console.log(`Deleted ${votesResult.affectedRows} rows from question_votes`);
+
+    // Delete session_questions
+    const [questionsResult] = await promisePool.query(
+      'DELETE FROM session_questions WHERE session_id = ?',
+      [id]
+    );
+    // console.log(`Deleted ${questionsResult.affectedRows} rows from session_questions`);
+
+    // Delete time_extension_votes
+    const [timeVotesResult] = await promisePool.query(
+      'DELETE FROM time_extension_votes WHERE session_id = ?',
+      [id]
+    );
+    // console.log(`Deleted ${timeVotesResult.affectedRows} rows from time_extension_votes`);
+
+    // Delete session_participants
+    const [participantsResult] = await promisePool.query(
+      'DELETE FROM session_participants WHERE session_id = ?',
+      [id]
+    );
+    // console.log(`Deleted ${participantsResult.affectedRows} rows from session_participants`);
+
+    // Delete meetupqa
+    const [sessionResult] = await promisePool.query(
+      'DELETE FROM meetupqa WHERE session_id = ?',
+      [id]
+    );
+    // console.log(`Deleted ${sessionResult.affectedRows} rows from meetupqa`);
+
+    if (sessionResult.affectedRows === 0) {
+      await promisePool.query('ROLLBACK');
+      // console.log('No session found, rolled back');
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    // Commit transaction
+    await promisePool.query('COMMIT');
+    // console.log(`Session ${id} and all related data deleted successfully`);
+    return res.status(200).json({ message: 'Session and all data deleted successfully' });
+  } catch (err) {
+    await promisePool.query('ROLLBACK');
+    console.error('Database error during session end:', err);
+    return res.status(500).json({ error: 'Database error', details: err.message });
+  }
 });
 
 // Add a participant to a session
 meetupQARouter.post('/meetupQA/:session_id/participants', (req, res) => {
-    const { session_id } = req.params;
-    const { name } = req.body;
-    
-    const query = `
+  const { session_id } = req.params;
+  const { name } = req.body;
+
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: 'Name is required' });
+  }
+
+  // Check if session exists
+  const sessionCheckQuery = `
+    SELECT 1 FROM meetupQA WHERE session_id = ? AND is_active = TRUE
+  `;
+  pool.query(sessionCheckQuery, [session_id], (sessionErr, sessionResults) => {
+    if (sessionErr) {
+      console.error('Database query error (session check):', sessionErr);
+      return res.status(500).json({ error: 'Database error', details: sessionErr });
+    }
+    if (sessionResults.length === 0) {
+      return res.status(404).json({ error: 'Session not found or inactive' });
+    }
+
+    // Check for duplicate name
+    const nameCheckQuery = `
+      SELECT name FROM session_participants
+      WHERE session_id = ? AND name = ?
+    `;
+    pool.query(nameCheckQuery, [session_id, name.trim()], (checkErr, checkResults) => {
+      if (checkErr) {
+        console.error('Database query error (name check):', checkErr);
+        return res.status(500).json({ error: 'Database error', details: checkErr });
+      }
+      if (checkResults.length > 0) {
+        // console.log(`Name "${name}" already taken in session ${session_id}`);
+        return res.status(409).json({ error: 'Name already taken in this session' });
+      }
+
+      // Insert new participant
+      const insertQuery = `
         INSERT INTO session_participants
         (session_id, name)
         VALUES (?, ?)
-    `;
-    
-    pool.query(query, [session_id, name], (err, result) => {
-        if (err) {
-            console.error('Database query error:', err);
-            return res.status(500).json({ error: 'Database error', details: err });
+      `;
+      pool.query(insertQuery, [session_id, name.trim()], (insertErr, result) => {
+        if (insertErr) {
+          console.error('Database query error (insert):', insertErr);
+          return res.status(500).json({ error: 'Database error', details: insertErr });
         }
-        
+        // console.log(`Participant "${name}" added to session ${session_id}`);
         return res.status(201).json({ 
-            message: 'Participant added successfully', 
-            participant_id: result.insertId 
+          message: 'Participant added successfully', 
+          participant_id: result.insertId 
         });
+      });
     });
+  });
+});
+
+meetupQARouter.put('/meetupQA/:session_id/participants/:participant_id/moderator', (req, res) => {
+  const { session_id, participant_id } = req.params;
+  const { is_moderator } = req.body; // true to appoint, false to revoke
+  const requesterName = req.query.participant_name; // Admin's name
+
+  if (typeof is_moderator !== 'boolean') {
+    return res.status(400).json({ error: 'is_moderator must be a boolean' });
+  }
+
+  // Verify requester is admin
+  const adminCheckQuery = `
+    SELECT is_admin FROM session_participants
+    WHERE session_id = ? AND name = ? AND is_admin = TRUE
+  `;
+  pool.query(adminCheckQuery, [session_id, requesterName], (adminErr, adminResults) => {
+    if (adminErr) {
+      console.error('Database error (admin check):', adminErr);
+      return res.status(500).json({ error: 'Database error', details: adminErr });
+    }
+    if (adminResults.length === 0) {
+      return res.status(403).json({ error: 'Only admin can appoint moderators' });
+    }
+
+    // Update moderator status
+    const updateQuery = `
+      UPDATE session_participants
+      SET is_moderator = ?
+      WHERE session_id = ? AND participant_id = ?
+    `;
+    pool.query(updateQuery, [is_moderator ? 1 : 0, session_id, participant_id], (updateErr, updateResult) => {
+      if (updateErr) {
+        console.error('Database error (update moderator):', updateErr);
+        return res.status(500).json({ error: 'Database error', details: updateErr });
+      }
+      if (updateResult.affectedRows === 0) {
+        return res.status(404).json({ error: 'Participant not found' });
+      }
+      // console.log(`Moderator status updated for participant ${participant_id} in session ${session_id}`);
+      return res.status(200).json({ message: `Moderator status ${is_moderator ? 'granted' : 'revoked'}` });
+    });
+  });
 });
 
 // Add a question to a session
@@ -357,96 +552,93 @@ meetupQARouter.post('/meetupQA/:session_id/questions', (req, res) => {
     });
 });
 
-// Vote for a question
+// vote for a question
 meetupQARouter.post('/questions/:question_id/vote', (req, res) => {
-    const { question_id } = req.params;
-    const { participant_name } = req.body;
-    
-    // Begin transaction
-    pool.getConnection((connErr, connection) => {
-        if (connErr) {
-            console.error('Connection error:', connErr);
-            return res.status(500).json({ error: 'Database connection error' });
+  const { question_id } = req.params;
+  const { participant_name } = req.body;
+
+  pool.getConnection((connErr, connection) => {
+    if (connErr) {
+      console.error('Connection error:', connErr);
+      return res.status(500).json({ error: 'Database connection error' });
+    }
+
+    connection.beginTransaction((transErr) => {
+      if (transErr) {
+        connection.release();
+        console.error('Transaction error:', transErr);
+        return res.status(500).json({ error: 'Transaction error' });
+      }
+
+      // Check remaining votes
+      const updateVotesQuery = `
+        UPDATE session_participants
+        SET remaining_votes = remaining_votes - 1
+        WHERE name = ? AND remaining_votes > 0
+      `;
+
+      connection.query(updateVotesQuery, [participant_name], (updateErr, updateResult) => {
+        if (updateErr || updateResult.affectedRows === 0) {
+          connection.rollback(() => {
+            connection.release();
+            console.error('Vote update error:', updateErr);
+            return res.status(400).json({ error: 'No votes remaining or participant not found' });
+          });
+          return;
         }
-        
-        connection.beginTransaction((transErr) => {
-            if (transErr) {
-                connection.release();
-                console.error('Transaction error:', transErr);
-                return res.status(500).json({ error: 'Transaction error' });
-            }
-            
-            // First update participant's remaining votes
-            const updateVotesQuery = `
-                UPDATE session_participants
-                SET remaining_votes = remaining_votes - 1
-                WHERE name = ? AND remaining_votes > 0
-            `;
-            
-            connection.query(updateVotesQuery, [participant_name], (updateErr, updateResult) => {
-                if (updateErr || updateResult.affectedRows === 0) {
-                    connection.rollback(() => {
-                        connection.release();
-                        console.error('Vote update error:', updateErr);
-                        return res.status(400).json({ error: 'No votes remaining or participant not found' });
-                    });
-                    return;
-                }
-                
-                // Then add the vote
-                const addVoteQuery = `
-                    INSERT INTO question_votes
-                    (question_id, participant_name)
-                    VALUES (?, ?)
-                `;
-                
-                connection.query(addVoteQuery, [question_id, participant_name], (voteErr) => {
-                    if (voteErr) {
-                        connection.rollback(() => {
-                            connection.release();
-                            console.error('Add vote error:', voteErr);
-                            return res.status(500).json({ error: 'Error adding vote' });
-                        });
-                        return;
-                    }
-                    
-                    // Commit the transaction
-                    connection.commit((commitErr) => {
-                        if (commitErr) {
-                            connection.rollback(() => {
-                                connection.release();
-                                console.error('Commit error:', commitErr);
-                                return res.status(500).json({ error: 'Commit error' });
-                            });
-                            return;
-                        }
-                        
-                        connection.release();
-                        
-                        // Get updated vote count
-                        const getVotesQuery = `
-                            SELECT COUNT(*) as votes FROM question_votes
-                            WHERE question_id = ?
-                        `;
-                        
-                        pool.query(getVotesQuery, [question_id], (countErr, countResult) => {
-                            if (countErr) {
-                                console.error('Error counting votes:', countErr);
-                                // Continue anyway, we have successfully voted
-                            }
-                            
-                            const votes = countResult?.[0]?.votes || 0;
-                            
-                            return res.status(200).json({
-                                message: 'Vote added successfully',
-                                votes
-                            });
-                        });
-                    });
-                });
+
+        // Add the vote
+        const addVoteQuery = `
+          INSERT INTO question_votes (question_id, participant_name)
+          VALUES (?, ?)
+        `;
+
+        connection.query(addVoteQuery, [question_id, participant_name], (voteErr) => {
+          if (voteErr) {
+            connection.rollback(() => {
+              connection.release();
+              if (voteErr.code === 'ER_DUP_ENTRY') { // MySQL duplicate entry error
+                return res.status(400).json({ error: 'Already voted on this question' });
+              }
+              console.error('Add vote error:', voteErr);
+              return res.status(500).json({ error: 'Error adding vote' });
             });
+            return;
+          }
+
+          connection.commit((commitErr) => {
+            if (commitErr) {
+              connection.rollback(() => {
+                connection.release();
+                console.error('Commit error:', commitErr);
+                return res.status(500).json({ error: 'Commit error' });
+              });
+              return;
+            }
+
+            connection.release();
+
+            const getVotesQuery = `
+              SELECT COUNT(*) as votes FROM question_votes
+              WHERE question_id = ?
+            `;
+
+            pool.query(getVotesQuery, [question_id], (countErr, countResult) => {
+              if (countErr) {
+                console.error('Error counting votes:', countErr);
+              }
+
+              const votes = countResult?.[0]?.votes || 0;
+              return res.status(200).json({
+                message: 'Vote added successfully',
+                votes,
+              });
+            });
+          });
         });
+      });
     });
+  });
 });
 
 // Set a question as active
@@ -780,8 +972,8 @@ meetupQARouter.post('/meetupQA/:session_id/time-vote', (req, res) => {
     const { session_id } = req.params;
     const { participant_name, vote } = req.body;
 
-    console.log(`Received vote request: Session ${session_id}, Name ${participant_name}, Vote ${vote}`);
-    console.log("Full request body:", req.body);
+    // console.log(`Received vote request: Session ${session_id}, Name ${participant_name}, Vote ${vote}`);
+    // console.log("Full request body:", req.body);
 
     if (!participant_name || !vote) {
         console.error("Invalid request - missing participant_name or vote");
@@ -820,7 +1012,7 @@ meetupQARouter.post('/meetupQA/:session_id/time-vote', (req, res) => {
                 return res.status(500).json({ error: "Database error", details: voteErr });
             }
 
-            console.log(`Vote recorded: ${participant_name} voted ${vote} in session ${session_id}`);
+            // console.log(`Vote recorded: ${participant_name} voted ${vote} in session ${session_id}`);
 
             // Fetch updated vote counts
             const countsQuery = `
@@ -842,64 +1034,112 @@ meetupQARouter.post('/meetupQA/:session_id/time-vote', (req, res) => {
                     if (row.vote_value === 'no') votes.no = row.count;
                 }
 
-                console.log(`Updated vote counts for session ${session_id}: Yes: ${votes.yes}, No: ${votes.no}`);
+                // console.log(`Updated vote counts for session ${session_id}: Yes: ${votes.yes}, No: ${votes.no}`);
                 return res.status(200).json({ message: "Vote registered successfully", votes });
             });
         });
     });
 });
 
-// Delete question endpoint
-meetupQARouter.delete('/meetupQA/:session_id/questions/:question_id', (req, res) => {
-    const { session_id, question_id } = req.params;
-    const participant_name = req.query.participant_name; // Get from query params (passed from frontend)
-  
-    if (!participant_name) {
-      return res.status(400).json({ error: 'Participant name required' });
+meetupQARouter.delete('/meetupQA/:session_id/participants/:participant_id', (req, res) => {
+  const { session_id, participant_id } = req.params;
+  const requesterName = req.query.participant_name;
+
+  // Check if requester is admin or moderator
+  const authQuery = `
+    SELECT is_admin, is_moderator
+    FROM session_participants
+    WHERE session_id = ? AND name = ?
+  `;
+  pool.query(authQuery, [session_id, requesterName], (authErr, authResults) => {
+    if (authErr) {
+      console.error('Database error (auth check):', authErr);
+      return res.status(500).json({ error: 'Database error', details: authErr });
     }
-  
-    // Check if the participant is admin or the question author
-    const authQuery = `
-      SELECT q.author, p.is_admin
-      FROM session_questions q
-      LEFT JOIN session_participants p ON p.session_id = q.session_id AND p.name = ?
-      WHERE q.session_id = ? AND q.question_id = ?
+    if (authResults.length === 0 || (!authResults[0].is_admin && !authResults[0].is_moderator)) {
+      return res.status(403).json({ error: 'Only admin or moderator can remove participants' });
+    }
+
+    // Prevent removing self or admin
+    const targetCheckQuery = `
+      SELECT is_admin, name FROM session_participants
+      WHERE session_id = ? AND participant_id = ?
     `;
-  
-    pool.query(authQuery, [participant_name, session_id, question_id], (authErr, authResults) => {
-      if (authErr) {
-        console.error('Error checking authorization:', authErr);
-        return res.status(500).json({ error: 'Database error', details: authErr });
+    pool.query(targetCheckQuery, [session_id, participant_id], (checkErr, checkResults) => {
+      if (checkErr) {
+        console.error('Database error (target check):', checkErr);
+        return res.status(500).json({ error: 'Database error', details: checkErr });
       }
-  
-      if (authResults.length === 0) {
-        return res.status(404).json({ error: 'Question or session not found' });
+      if (checkResults.length === 0) {
+        return res.status(404).json({ error: 'Participant not found' });
       }
-  
-      const { author, is_admin } = authResults[0];
-      if (!is_admin && author !== participant_name) {
-        return res.status(403).json({ error: 'Only the author or an admin can delete this question' });
+      if (checkResults[0].is_admin) {
+        return res.status(403).json({ error: 'Cannot remove the admin' });
       }
-  
-      // Delete the question
+      if (checkResults[0].name === requesterName) {
+        return res.status(400).json({ error: 'Cannot remove yourself' });
+      }
+
       const deleteQuery = `
-        DELETE FROM session_questions
-        WHERE session_id = ? AND question_id = ?
+        DELETE FROM session_participants
+        WHERE session_id = ? AND participant_id = ?
       `;
-  
-      pool.query(deleteQuery, [session_id, question_id], (deleteErr, deleteResult) => {
+      pool.query(deleteQuery, [session_id, participant_id], (deleteErr, deleteResult) => {
         if (deleteErr) {
-          console.error('Error deleting question:', deleteErr);
+          console.error('Database error (delete):', deleteErr);
           return res.status(500).json({ error: 'Database error', details: deleteErr });
         }
-  
-        if (deleteResult.affectedRows === 0) {
-          return res.status(404).json({ error: 'Question not found' });
-        }
-  
-        res.status(204).send(); // No content on success
+        res.status(200).json({ message: 'Participant removed successfully' });
       });
     });
+  });
+});
+
+// Delete question endpoint
+meetupQARouter.delete('/meetupQA/:session_id/questions/:question_id', (req, res) => {
+  const { session_id, question_id } = req.params;
+  const participant_name = req.query.participant_name;
+
+  if (!participant_name) {
+    return res.status(400).json({ error: 'Participant name required' });
+  }
+
+  // Check if requester is admin, moderator, or question author
+  const authQuery = `
+    SELECT q.author, p.is_admin, p.is_moderator
+    FROM session_questions q
+    LEFT JOIN session_participants p ON p.session_id = q.session_id AND p.name = ?
+    WHERE q.session_id = ? AND q.question_id = ?
+  `;
+  pool.query(authQuery, [participant_name, session_id, question_id], (authErr, authResults) => {
+    if (authErr) {
+      console.error('Error checking authorization:', authErr);
+      return res.status(500).json({ error: 'Database error', details: authErr });
+    }
+    if (authResults.length === 0) {
+      return res.status(404).json({ error: 'Question or session not found' });
+    }
+
+    const { author, is_admin, is_moderator } = authResults[0];
+    if (!is_admin && !is_moderator && author !== participant_name) {
+      return res.status(403).json({ error: 'Only the author, admin, or moderator can delete this question' });
+    }
+
+    const deleteQuery = `
+      DELETE FROM session_questions
+      WHERE session_id = ? AND question_id = ?
+    `;
+    pool.query(deleteQuery, [session_id, question_id], (deleteErr, deleteResult) => {
+      if (deleteErr) {
+        console.error('Error deleting question:', deleteErr);
+        return res.status(500).json({ error: 'Database error', details: deleteErr });
+      }
+      if (deleteResult.affectedRows === 0) {
+        return res.status(404).json({ error: 'Question not found' });
+      }
+      res.status(204).send();
+    });
+  });
 });
 
 // Edit question endpoint
@@ -972,7 +1212,7 @@ meetupQARouter.post('/meetupQA/:session_id/questions/:question_id/replies', (req
     const { session_id, question_id } = req.params;
     const { text, author } = req.body;
   
-    console.log('Adding reply:', { session_id, question_id, text, author });
+    // console.log('Adding reply:', { session_id, question_id, text, author });
   
     if (!text || !author || text.length > 200) {
       return res.status(400).json({ error: 'Text (max 200 chars) and author required' });
@@ -1010,7 +1250,7 @@ meetupQARouter.post('/meetupQA/:session_id/questions/:question_id/replies', (req
             console.error('Error fetching new reply:', fetchErr);
             return res.status(500).json({ error: 'Error retrieving reply' });
           }
-          console.log('Reply added to DB:', fetchResults[0]);
+          // console.log('Reply added to DB:', fetchResults[0]);
           res.status(201).json({
             message: 'Reply added successfully',
             reply: fetchResults[0]
@@ -1074,23 +1314,37 @@ meetupQARouter.put('/meetupQA/:session_id/questions/:question_id/replies/:reply_
 
 // Delete a reply
 meetupQARouter.delete('/meetupQA/:session_id/questions/:question_id/replies/:reply_id', (req, res) => {
-    const { session_id, question_id, reply_id } = req.params;
-  
-    // Check if the question is active and exists
-    const checkQuery = `
-      SELECT status FROM session_questions
-      WHERE session_id = ? AND question_id = ? AND status = 'active'
+  const { session_id, question_id, reply_id } = req.params;
+  const participant_name = req.query.participant_name; // Optional, for auth
+
+  const checkQuery = `
+    SELECT status FROM session_questions
+    WHERE session_id = ? AND question_id = ? AND status = 'active'
+  `;
+  pool.query(checkQuery, [session_id, question_id], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking question status:', checkErr);
+      return res.status(500).json({ error: 'Database error', details: checkErr });
+    }
+    if (checkResults.length === 0) {
+      return res.status(400).json({ error: 'Question is not active or not found' });
+    }
+
+    // Check if requester is admin or moderator
+    const authQuery = `
+      SELECT is_admin, is_moderator
+      FROM session_participants
+      WHERE session_id = ? AND name = ?
     `;
-    pool.query(checkQuery, [session_id, question_id], (checkErr, checkResults) => {
-      if (checkErr) {
-        console.error('Error checking question status:', checkErr);
-        return res.status(500).json({ error: 'Database error', details: checkErr });
+    pool.query(authQuery, [session_id, participant_name], (authErr, authResults) => {
+      if (authErr) {
+        console.error('Error checking authorization:', authErr);
+        return res.status(500).json({ error: 'Database error', details: authErr });
       }
-      if (checkResults.length === 0) {
-        return res.status(400).json({ error: 'Question is not active or not found' });
+      if (authResults.length === 0 || (!authResults[0].is_admin && !authResults[0].is_moderator)) {
+        return res.status(403).json({ error: 'Only admin or moderator can delete replies' });
       }
-  
-      // Delete the reply
+
       const deleteQuery = `
         DELETE FROM question_replies
         WHERE reply_id = ? AND session_id = ? AND question_id = ?
@@ -1106,6 +1360,7 @@ meetupQARouter.delete('/meetupQA/:session_id/questions/:question_id/replies/:rep
         res.status(200).json({ message: 'Reply deleted successfully' });
       });
     });
+  });
 });
 
 export default meetupQARouter;

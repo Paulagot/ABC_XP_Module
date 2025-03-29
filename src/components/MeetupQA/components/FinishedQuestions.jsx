@@ -34,6 +34,7 @@ const FinishedQuestions = ({ questions, replies = {} }) => {
             {replyCount > 0 && (
               <div className="comments-toggle">
                 <button
+                  type="button"
                   onClick={() => toggleComments(question.id)}
                   className="comments-toggle-button"
                   title={expandedComments[question.id] ? "Hide comments" : "Show comments"}

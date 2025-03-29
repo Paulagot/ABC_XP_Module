@@ -1,3 +1,4 @@
+// QuestionsList.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { enableDragDrop } from '../HelperFunctions';
 
@@ -9,15 +10,18 @@ const QuestionsList = ({
   onSetActive, 
   currentUser, 
   remainingVotes,
-  isAdmin
+  isAdmin,
+  isModerator,
 }) => {
   const questionRefs = useRef({});
   const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [votedQuestions, setVotedQuestions] = useState(new Set()); // NEW: Track voted questions
+  const [voteError, setVoteError] = useState(''); // NEW: Error message
 
   useEffect(() => {
     if (onSetActive) {
-      questions.forEach(question => {
+      for (const question of questions) {
         const questionEl = questionRefs.current[question.id];
         if (questionEl) {
           enableDragDrop(
@@ -31,7 +35,7 @@ const QuestionsList = ({
             }
           );
         }
-      });
+      }
       
       const activeQuestionArea = document.querySelector('#active-question-area');
       if (activeQuestionArea) {
@@ -65,7 +69,7 @@ const QuestionsList = ({
       }
     };
   }, [questions, onSetActive]);
-  
+
   if (!questions || questions.length === 0) {
     return <p className="no-questions">No questions yet. Be the first to ask!</p>;
   }
@@ -88,13 +92,36 @@ const QuestionsList = ({
     setEditText('');
   };
 
+  const handleVote = async (questionId) => {
+    if (votedQuestions.has(questionId)) {
+      setVoteError('Already voted on this question');
+      setTimeout(() => setVoteError(''), 3000); // Clear after 3s
+      return;
+    }
+
+    try {
+      const response = await onVote(questionId);
+      setVotedQuestions(prev => new Set(prev).add(questionId));
+      setVoteError('');
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to vote';
+      setVoteError(errorMessage);
+      setTimeout(() => setVoteError(''), 3000);
+    }
+  };
+
   return (
     <div className="questions-list">
+      {voteError && <div className="vote-error">{voteError}</div>} {/* NEW: Warning */}
       {questions.map(question => (
         <div 
           key={question.id} 
           className="question-card"
-          ref={el => questionRefs.current[question.id] = el}
+          ref={(el) => {
+            if (el) {
+              questionRefs.current[question.id] = el;
+            }
+          }}
           data-question-id={question.id}
         >
           {editingQuestionId === question.id ? (
@@ -103,18 +130,17 @@ const QuestionsList = ({
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
                 className="edit-input"
-                autoFocus
-                rows="2" // Adjust as needed for your card height
+                rows="2"
               />
               <div className="edit-actions">
-                <button 
+                <button  type="button"
                   className="save-button"
                   onClick={() => saveEdit(question.id)}
                   disabled={!editText.trim()}
                 >
                   Save
                 </button>
-                <button 
+                <button  type="button"
                   className="cancel-button"
                   onClick={cancelEditing}
                 >
@@ -126,47 +152,53 @@ const QuestionsList = ({
             <div className="question-text">{question.text}</div>
           )}
 
-<div className="question-votes">
+          <div className="question-votes">
+            <button   type="button"
+              className="vote-button"
+              onClick={() => handleVote(question.id)} // NEW: Use handleVote
+              disabled={remainingVotes <= 0 || votedQuestions.has(question.id)} // NEW: Disable if voted
+              title={
+                remainingVotes <= 0 ? "No votes remaining" : 
+                votedQuestions.has(question.id) ? "Already voted" : "Vote for this question"
+              }
+            >
+              <span className="vote-icon">↑</span>
+              <span>Vote ({question.votes})</span>
+            </button>
+            
+            {onSetActive && (
               <button 
-                className="vote-button"
-                onClick={() => onVote(question.id)}
-                disabled={remainingVotes <= 0}
-                title={remainingVotes <= 0 ? "No votes remaining" : "Vote for this question"}
+               type="button"
+                className="activate-button"
+                onClick={() => onSetActive(question.id)}
+                title="Set as active question"
               >
-                <span className="vote-icon">↑</span>
-                <span>Vote ({question.votes})</span>
+                Discuss
               </button>
-              
-              {onSetActive && (
-                <button 
-                  className="activate-button"
-                  onClick={() => onSetActive(question.id)}
-                  title="Set as active question"
-                >
-                  Discuss
-                </button>
-              )}
-              
-              {(onEdit && question.author === currentUser && editingQuestionId !== question.id) && (
-                <button 
-                  className="activate-button"
-                  onClick={() => startEditing(question)}
-                  title="Edit your question"
-                >
-                  Edit
-                </button>
-              )}
-              
-              {((onSetActive && onDelete) || (onDelete && question.author === currentUser)) && (
-                <button 
-                  className="activate-button"
-                  onClick={() => onDelete(question.id)}
-                  title={onSetActive ? "Delete this question (Admin)" : "Delete your question"}
-                >
-                  Delete
-                </button>
-              )}
-            </div>
+            )}
+            
+            {(onEdit && question.author === currentUser && editingQuestionId !== question.id) && (
+              <button 
+               type="button"
+                className="activate-button"
+                onClick={() => startEditing(question)}
+                title="Edit your question"
+              >
+                Edit
+              </button>
+            )}
+            
+            {((isAdmin || isModerator || question.author === currentUser) && onDelete) && (
+              <button 
+               type="button"
+                className="activate-button"
+                onClick={() => onDelete(question.id)}
+                title={isAdmin || isModerator ? "Delete this question (Admin/Mod)" : "Delete your question"}
+              >
+                Delete
+              </button>
+            )}
+          </div>
           
           <div className="question-footer">
             <div>
@@ -178,13 +210,11 @@ const QuestionsList = ({
             </div>
             
             {onSetActive && (
-            <div className="drag-handle" title="Drag to make active">
-              ⋮⋮
-            </div>
-          )}
+              <div className="drag-handle" title="Drag to make active">
+                ⋮⋮
+              </div>
+            )}
           </div>
-          
-        
         </div>
       ))}
     </div>

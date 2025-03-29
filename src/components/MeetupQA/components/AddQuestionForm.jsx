@@ -16,6 +16,7 @@ const AddQuestionForm = ({ onAddQuestion }) => {
         }}
       />
       <button 
+        type="button"
         onClick={(e) => {
           const textarea = e.target.previousElementSibling;
           onAddQuestion(textarea.value);

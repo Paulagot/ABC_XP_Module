@@ -76,38 +76,13 @@ export const makeDropTarget = (element, onDrop) => {
  * @param {string} soundUrl URL to the sound file
  * @param {number} volume Volume between 0 and 1
  */
-export const playSound = (soundUrl, volume = 1) => {
+export const playSound = (soundUrl, volume = 0.5) => {
+  // console.log(`Attempting to play sound: ${soundUrl}`); // Debug log
   const audio = new Audio(soundUrl);
   audio.volume = volume;
-  audio.play();
-};
-
-/**
- * Simple store for event-based communication
- */
-export const eventBus = {
-  events: {},
-  
-  on(event, callback) {
-    if (!this.events[event]) {
-      this.events[event] = [];
-    }
-    this.events[event].push(callback);
-  },
-  
-  off(event, callback) {
-    if (this.events[event]) {
-      this.events[event] = this.events[event].filter(cb => cb !== callback);
-    }
-  },
-  
-  emit(event, data) {
-    if (this.events[event]) {
-      for (const callback of this.events[event]) {
-        callback(data);
-      }
-    }
-  }
+  audio.play()
+    .then(() => console.log('Sound played successfully'))
+    .catch((error) => console.error('Error playing sound:', error));
 };
 
 /**

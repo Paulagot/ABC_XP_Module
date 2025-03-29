@@ -14,7 +14,12 @@ console.log("Database Host:", process.env.DATABASE_HOST || "MISSING");
 console.log("Database User:", process.env.DATABASE_USER || "MISSING");
 console.log("Database Password:", process.env.DATABASE_PASSWORD ? "SET" : "MISSING");
 console.log("Database Name:", process.env.DATABASE_NAME || "MISSING");
-console.log("Using .env.development:", fs.existsSync("./.env.development"));
+console.log('Using .env.development:', process.env.NODE_ENV !== 'production'); // Update this line
+
+
+
+
+
 
 const pool = mysql.createPool({
   

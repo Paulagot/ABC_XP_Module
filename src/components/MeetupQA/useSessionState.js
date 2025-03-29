@@ -34,31 +34,40 @@ export function useSessionState() {
   const [error, setError] = useState('');
   
   // Replies state
-  const [replies, setReplies] = useState({}); // NEW: Object keyed by questionId
+  const [replies, setReplies] = useState({}); // Object keyed by questionId
+  
+  // Report state
+  const [reportGenerated, setReportGenerated] = useState(false); // NEW: Tracks if report is generated
   
   // Check if user is admin
   const isAdmin = user?.role === 'admin';
   
   // Load session from localStorage on mount
   useEffect(() => {
+    // console.log("useSessionState useEffect running:", { isAdmin, isAuthenticated });
     const sessionData = localStorage.getItem('meetup_qa_session');
-    
+    // console.log("Stored session data:", sessionData);
+
     if (sessionData) {
       try {
-        const { code, name, id } = JSON.parse(sessionData);
+        const { code, name, id, isAdmin: storedAdmin } = JSON.parse(sessionData);
+        // console.log("Parsed session data:", { code, name, id, storedAdmin });
         setSessionCode(code);
         setSessionId(id);
         setGuestName(name);
         setIsJoined(true);
         setSessionActive(true);
+        setIsLoading(false);
       } catch (err) {
         console.error("Error parsing stored session data:", err);
         localStorage.removeItem('meetup_qa_session');
         setIsLoading(false);
       }
     } else {
+      // console.log("No session data found in localStorage");
       setIsLoading(false);
       if (isAdmin && isAuthenticated) {
+        // console.log("Admin detected, showing start modal");
         setShowStartModal(true);
       }
     }
@@ -103,8 +112,8 @@ export function useSessionState() {
     isLoading,
     error,
     isAdmin,
-    replies, 
-    
+    replies,
+    reportGenerated, // NEW
     setSessionActive,
     setSessionId,
     setSessionCode,
@@ -122,7 +131,8 @@ export function useSessionState() {
     setShowStartModal,
     setIsLoading,
     setError,
-    setReplies, // NEW
+    setReplies,
+    setReportGenerated, // NEW
     generateNewCode,
     saveSessionToStorage,
     clearSessionFromStorage

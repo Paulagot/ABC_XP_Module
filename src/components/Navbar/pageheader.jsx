@@ -21,6 +21,7 @@ function Page_header() {
     "/learnfi/settings/languages": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
     "learnfi/settings/bridges": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
     "learnfi/settings/exchanges": { name: "Swap/Bridge", imgSrc: "https://img.icons8.com/clouds/100/trust.png" },
+    "/meetupQA": { name: "Let's Discuss", imgSrc: "https://img.icons8.com/external-kosonicon-lineal-color-kosonicon/64/external-chatting-video-conference-kosonicon-lineal-color-kosonicon-2.png" },
   };
 
   // Fallback logic for dynamic routes

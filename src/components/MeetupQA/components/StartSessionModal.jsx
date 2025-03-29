@@ -25,6 +25,7 @@ const StartSessionModal = ({ onStart }) => {
         </p>
         
         <button 
+          type="button"
           className="start-session-button"
           onClick={handleStart}
           disabled={isStarting}

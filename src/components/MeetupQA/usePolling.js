@@ -1,4 +1,5 @@
-// usePolling.js - Fixed version
+// usePolling.js
+// usePolling.js
 import { useRef, useEffect, useCallback } from 'react';
 import { fetchSessionData } from './api';
 
@@ -13,7 +14,8 @@ export function usePolling({
   showTimeVote,
   activeQuestion,
   finishedQuestions,
-  timer, // Make sure timer is included in the props
+  timer,
+  reportGenerated,
   setParticipants,
   setRemainingVotes,
   setTimer,
@@ -32,30 +34,37 @@ export function usePolling({
   timeVotes,
   hasVoted,
   replies,
-  setReplies
+  setReplies,
+  setReportGenerated,
+  playAudio
 }) {
   const pollIntervalRef = useRef(null);
   const isPollingRef = useRef(false);
-  
-  // Use useCallback to memoize this function
+  const lastGrabAttentionRef = useRef(null);
+  const prevTimerRef = useRef(timer);
+  const hasPlayedTimerSound = useRef(false);
+
   const fetchSessionDataQuietly = useCallback(async (forceUpdate = false) => {
     if (!sessionCode || !isJoined || isPollingRef.current) return;
-    
+
     isPollingRef.current = true;
-    console.log("Polling: Starting data fetch...");
-    
+
     try {
-      console.log(`Polling: fetching session data for ${guestName}`);
       const data = await fetchSessionData(sessionCode, guestName);
-      
-      // Handle participants updates
+
+      if (data.grabAttentionTriggered && data.grabAttentionTriggered !== lastGrabAttentionRef.current) {
+        playAudio('grab-attention-polling');
+        lastGrabAttentionRef.current = data.grabAttentionTriggered;
+      }
+
       if (data.participants) {
         const newParticipants = data.participants.map(p => ({
+          participant_id: p.participant_id,
           name: p.name,
           votes: p.remaining_votes,
-          isAdmin: p.is_admin
+          isAdmin: p.is_admin,
+          isModerator: p.is_moderator,
         }));
-        
         if (forceUpdate || JSON.stringify(newParticipants) !== JSON.stringify(participants)) {
           setParticipants(newParticipants);
           const currentUser = data.participants.find(p => p.name === guestName);
@@ -63,33 +72,44 @@ export function usePolling({
         }
       }
 
-      // Handle timer and time vote updates
       if (data.timerInfo) {
-        const serverTimer = data.timerInfo.remainingSeconds;
-        console.log(`Polling: server timer=${serverTimer}, current timer=${timer}`);
+        const serverTimer = data.timerInfo.remainingSeconds === undefined ? null : data.timerInfo.remainingSeconds;
+        if (
+          serverTimer === null &&
+          prevTimerRef.current > 0 &&
+          data.activeQuestion &&
+          !hasPlayedTimerSound.current
+        ) {
+          playAudio('timer-polling');
+          hasPlayedTimerSound.current = true;
+        }
         setTimer(serverTimer);
-        
+
+        const voteActive = data.timerInfo.isTimeVoteActive;
+        if ((serverTimer === 0 || voteActive) && !showTimeVote) {
+          setShowTimeVote(true);
+        }
         const isVoteActive = data.timerInfo.isTimeVoteActive;
         if (isVoteActive !== showTimeVote) {
-          console.log(`Polling: changing time vote visibility to ${isVoteActive} for ${guestName}`);
           setShowTimeVote(isVoteActive);
         }
+        if (serverTimer > 0) {
+          prevTimerRef.current = serverTimer;
+          hasPlayedTimerSound.current = false;
+        }
       }
-      
-      // Handle time vote information
+
       if (data.timeVoteInfo) {
         const serverVotes = data.timeVoteInfo.votes || { yes: 0, no: 0 };
         const serverHasVoted = data.timeVoteInfo.hasVoted || false;
-        
-        if (forceUpdate || 
-            JSON.stringify(serverVotes) !== JSON.stringify(timeVotes) ||
-            serverHasVoted !== hasVoted) {
+        if (forceUpdate || JSON.stringify(serverVotes) !== JSON.stringify(timeVotes)) {
           setTimeVotes(serverVotes);
+        }
+        if (serverHasVoted !== hasVoted || forceUpdate) {
           setHasVoted(serverHasVoted);
         }
       }
-      
-      // Handle questions updates
+
       if (data.questions) {
         const newQuestions = data.questions.map(q => ({
           id: q.question_id,
@@ -97,15 +117,13 @@ export function usePolling({
           author: q.author,
           votes: q.votes || 0,
           voters: [],
-          timestamp: new Date(q.created_at)
+          timestamp: new Date(q.created_at),
         }));
-        
         if (forceUpdate || JSON.stringify(newQuestions) !== JSON.stringify(questions)) {
           setQuestions(newQuestions);
         }
       }
-      
-      // Handle active question updates
+
       const newActiveQuestion = data.activeQuestion ? {
         id: data.activeQuestion.question_id,
         text: data.activeQuestion.text,
@@ -113,18 +131,14 @@ export function usePolling({
         votes: data.activeQuestion.votes || 0,
         voters: [],
         timestamp: new Date(data.activeQuestion.created_at),
-        sessionId: data.session.session_id
+        sessionId: data.session.session_id,
       } : null;
-      
-      // Always update active question if it's different
       if (forceUpdate || 
           (newActiveQuestion?.id !== activeQuestion?.id) || 
           (newActiveQuestion === null && activeQuestion !== null)) {
-        console.log(`Polling: setting active question for ${guestName}:`, newActiveQuestion?.id || 'none');
         setActiveQuestion(newActiveQuestion);
       }
-      
-      // Handle finished questions updates
+
       if (data.finishedQuestions) {
         const newFinishedQuestions = data.finishedQuestions.map(q => ({
           id: q.question_id,
@@ -132,15 +146,13 @@ export function usePolling({
           author: q.author,
           votes: q.votes || 0,
           voters: [],
-          timestamp: new Date(q.created_at)
+          timestamp: new Date(q.created_at),
         }));
-        
         if (forceUpdate || JSON.stringify(newFinishedQuestions) !== JSON.stringify(finishedQuestions)) {
           setFinishedQuestions(newFinishedQuestions);
         }
       }
-      
-      // Handle replies updates
+
       if (data.replies) {
         const repliesByQuestion = {};
         for (const reply of data.replies) {
@@ -150,15 +162,21 @@ export function usePolling({
             author: reply.author,
             text: reply.text,
             created_at: new Date(reply.created_at),
-            is_pinned: reply.is_pinned
+            is_pinned: reply.is_pinned,
           });
         }
-        
         if (forceUpdate || JSON.stringify(repliesByQuestion) !== JSON.stringify(replies)) {
           setReplies(repliesByQuestion);
         }
       }
-      
+
+      // New: Sync reportGenerated from server for all clients
+      if (data.reportGenerated !== undefined && data.reportGenerated !== reportGenerated) {
+        const normalizedReportGenerated = !!data.reportGenerated; // Converts 0 to false, 1 to true
+        // console.log('Polling updating reportGenerated:', data.reportGenerated, 'normalized to:', normalizedReportGenerated);
+        setReportGenerated(normalizedReportGenerated);
+      }
+
       setError('');
     } catch (err) {
       console.error("Polling: Error fetching session data:", err);
@@ -169,7 +187,6 @@ export function usePolling({
         setIsJoined(false);
         if (isAdmin) setShowStartModal(true);
       } else {
-        // Only set error for non-network timeout errors to avoid flickering
         if (!err.message?.includes('timeout')) {
           setError('Unable to connect to session. Trying to reconnect...');
         }
@@ -178,27 +195,22 @@ export function usePolling({
       isPollingRef.current = false;
     }
   }, [
-    sessionCode, isJoined, guestName, participants, questions, 
+    sessionCode, isJoined, guestName, participants, questions,
     activeQuestion, finishedQuestions, replies, timeVotes, hasVoted,
-    showTimeVote, isAdmin, timer, // Make sure timer is included in dependencies
+    showTimeVote, isAdmin, timer, reportGenerated,
     setParticipants, setRemainingVotes, setTimer, setShowTimeVote,
     setTimeVotes, setHasVoted, setQuestions, setActiveQuestion,
     setFinishedQuestions, setError, setSessionActive,
     clearSessionFromStorage, setIsJoined, setSessionCode, setShowStartModal,
-    setReplies
+    setReplies, setReportGenerated, playAudio
   ]);
 
-  // Set up polling interval
   useEffect(() => {
     if (sessionActive && sessionCode && isJoined) {
-      // Initial data fetch
       fetchSessionDataQuietly(true);
-      
-      // Set up polling interval
       pollIntervalRef.current = setInterval(() => {
         fetchSessionDataQuietly(false);
-      }, 5000); // Increase to 2 seconds to reduce server load
-      
+      }, 5000);
       return () => {
         if (pollIntervalRef.current) {
           clearInterval(pollIntervalRef.current);
